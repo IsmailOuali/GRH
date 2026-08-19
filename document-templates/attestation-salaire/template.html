@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Attestation de salaire</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 13px;
+    color: #1a1a1a;
+    margin: 0;
+    padding: 60px 70px;
+    line-height: 1.7;
+  }
+  .logo-wrap {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .logo-wrap img {
+    width: 220px;
+  }
+  .title {
+    text-align: center;
+    font-weight: bold;
+    font-style: italic;
+    text-decoration: underline;
+    font-size: 16px;
+    margin-bottom: 35px;
+    letter-spacing: 1px;
+  }
+  .field {
+    font-weight: bold;
+  }
+  p.body-text {
+    margin: 0 0 20px 0;
+  }
+  .fait-block {
+    text-align: right;
+    margin-top: 30px;
+  }
+  .fait-block p {
+    margin: 0 0 30px 0;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+  <div class="logo-wrap">
+    <img src="logo-bg.pngeg" alt="Fair Advisory" />
+  </div>
+
+  <p class="title">ATTESTATION DE SALAIRE</p>
+
+  <p class="body-text">
+    Nous soussignés société FAIR'UP sise Place de la Liberté, Angle Avenue
+    Moulay Hassan et Avenue Mohamed V, Résidence Berdai, 40000, Marrakech -
+    Maroc.
+  </p>
+
+  <p class="body-text">
+    Attestons par la présente que <span class="field">{{civilite}}</span>
+    <span class="field">{{nom_prenom}}</span>, titulaire de la C.I.N N°
+    <span class="field">{{numero_cin}}</span> et Immatriculée à la CNSS sous
+    le numéro <span class="field">{{numero_cnss}}</span>, travaille en
+    qualité de <span class="field">{{intitule_poste}}</span>, en CDI depuis
+    le <span class="field">{{date_integration}}</span>, et perçoit un
+    salaire mensuel net de&nbsp;: <span class="field">{{montant_salaire}}</span> DH.
+  </p>
+
+  <p class="body-text">
+    La présente attestation lui est délivrée à sa demande pour servir et
+    valoir ce que de droit.
+  </p>
+
+  <div class="fait-block">
+    <p>Fait à <strong>Rabat</strong>, le&nbsp;: <span class="field">{{date_signature}}</span></p>
+    <p>Signature salariée&nbsp;:</p>
+    <p>Signature Fair'Up&nbsp;:</p>
+  </div>
+
+</body>
+</html>

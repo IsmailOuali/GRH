@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Demande de congés payés</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    color: #1a1a1a;
+    margin: 0;
+    padding: 60px 70px;
+    line-height: 1.6;
+  }
+  .logo-wrap {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  .logo-wrap img {
+    width: 220px;
+  }
+  .field {
+    font-weight: bold;
+  }
+  p {
+    margin: 0 0 18px 0;
+  }
+  .header-line {
+    margin-bottom: 4px;
+  }
+  .signature {
+    margin-top: 30px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="logo-wrap">
+    <img src="logo-bg.png" alt="Fair Advisory" />
+  </div>
+
+  <p class="header-line"><span class="field">{{nom_salarie}}</span></p>
+  <p class="header-line">À MARRAKECH, le <span class="field">{{date_demande}}</span></p>
+
+  <p>Objet: <strong>Demande de congés payés</strong></p>
+
+  <p>Monsieur,</p>
+
+  <p>
+    Je souhaite prendre un congé de <span class="field">{{nombre_jours}}</span> jours,
+    aux dates suivantes&nbsp;: du <span class="field">{{date_debut}}</span>
+    au <span class="field">{{date_fin}}</span>.
+  </p>
+
+  <p>
+    À l'issue de cette période d'absence, je réintégrerai le poste que j'occupe
+    actuellement le <span class="field">{{date_reprise}}</span>.
+  </p>
+
+  <p>
+    En espérant une réponse favorable à cette demande, je vous prie de bien
+    vouloir m'informer par écrit de votre décision.
+  </p>
+
+  <p>
+    Je vous prie d'agréer, Monsieur, l'expression de mes salutations
+    distinguées.
+  </p>
+
+  <p class="signature">cordialement,</p>
+
+</body>
+</html>

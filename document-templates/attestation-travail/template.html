@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Attestation de travail</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    color: #1a1a1a;
+    margin: 0;
+    padding: 60px 70px;
+    line-height: 1.6;
+  }
+  .logo-wrap {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  .logo-wrap img {
+    width: 220px;
+  }
+  .company-block {
+    margin-bottom: 40px;
+  }
+  .company-block p {
+    margin: 0;
+  }
+  .bold {
+    font-weight: bold;
+  }
+  .field {
+    font-weight: bold;
+  }
+  .header-right {
+    text-align: right;
+    margin-bottom: 30px;
+  }
+  .header-right p {
+    margin: 0 0 6px 0;
+  }
+  .title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 15px;
+    margin: 30px 0 30px 0;
+  }
+  p.body-text {
+    margin: 0 0 18px 0;
+  }
+  .signature-block p {
+    margin: 0 0 30px 0;
+  }
+</style>
+</head>
+<body>
+
+  <div class="logo-wrap">
+    <img src="logo-bg.pngeg" alt="Fair Advisory" />
+  </div>
+
+  <div class="company-block">
+    <p class="bold">FAIR'UP</p>
+    <p>Place de la Liberté, Angle Avenue Moulay Hassan et Avenue Mohamed V,</p>
+    <p>Résidence Berdai, 40000</p>
+    <p class="bold">Marrakech</p>
+    <p class="bold">MAROC</p>
+  </div>
+
+  <div class="header-right">
+    <p class="bold">Le {{date_attestation}}</p>
+    <p><span class="field">{{nom_prenom}}</span></p>
+  </div>
+
+  <p class="title">Attestation de travail</p>
+
+  <p class="body-text">
+    Je soussigné, Monsieur KORAICH Hakim, agissant en qualité de CEO de la société
+    FAIR'UP, certifie par la présente que <span class="field">{{civilite}}</span>
+    <span class="field">{{nom_prenom}}</span> est employé(e) au sein de notre société
+    dans le cadre d'un contrat à durée indéterminée
+    <span class="field">{{type_contrat}}</span> en qualité de
+    <span class="field">{{intitule_poste}}</span>, depuis le
+    <span class="field">{{date_integration}}</span>.
+  </p>
+
+  <p class="body-text">
+    Cette attestation est délivrée à l'intéressé(e) pour servir et valoir ce que de droit.
+  </p>
+
+  <p class="body-text">Fait le&nbsp;: <span class="field">{{date_signature}}</span></p>
+
+  <div class="signature-block">
+    <p>Signature de l'entreprise&nbsp;:</p>
+    <p>Signature du salarié&nbsp;:</p>
+    <p>Cachet de l'entreprise</p>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,967 @@
+
+> fairup-os@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.7 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.100.113:3000
+- Environments: .env.local, .env
+✓ Ready in 1338ms
+
+ GET /login 200 in 2.5s (next.js: 506ms, proxy.ts: 1283ms, application-code: 675ms)
+ GET /login 200 in 232ms (next.js: 17ms, proxy.ts: 23ms, application-code: 192ms)
+ GET /api/logo/fairup 200 in 459ms (next.js: 402ms, application-code: 57ms)
+ GET /api/auth/providers 200 in 2.1s (next.js: 2.0s, application-code: 104ms)
+ GET /api/auth/csrf 200 in 59ms (next.js: 38ms, application-code: 21ms)
+[31m[auth][error][0m CredentialsSignin: Read more at https://errors.authjs.dev#credentialssignin
+    at Module.callback (C:\Users\ismai\Desktop\grh-fairup\.next\dev\server\chunks\node_modules_@auth_core_0gltlle._.js:4314:30)
+    at async AuthInternal (C:\Users\ismai\Desktop\grh-fairup\.next\dev\server\chunks\node_modules_@auth_core_0gltlle._.js:5162:24)
+    at async Auth (C:\Users\ismai\Desktop\grh-fairup\.next\dev\server\chunks\node_modules_@auth_core_0gltlle._.js:5384:34)
+    at async AppRouteRouteModule.do (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40131)
+    at async AppRouteRouteModule.handle (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:47411)
+    at async responseGenerator (C:\Users\ismai\Desktop\grh-fairup\.next\dev\server\chunks\node_modules_next_1f7vpma._.js:18380:38)
+    at async AppRouteRouteModule.handleResponse (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:1:228552)
+    at async handleResponse (C:\Users\ismai\Desktop\grh-fairup\.next\dev\server\chunks\node_modules_next_1f7vpma._.js:18443:32)
+    at async Module.handler (C:\Users\ismai\Desktop\grh-fairup\.next\dev\server\chunks\node_modules_next_1f7vpma._.js:18497:13)
+    at async DevServer.renderToResponseWithComponentsImpl (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\base-server.js:1462:9)
+    at async DevServer.renderPageComponent (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\base-server.js:1514:24)
+    at async DevServer.renderToResponseImpl (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\base-server.js:1564:32)
+    at async DevServer.pipeImpl (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\base-server.js:1044:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\next-server.js:338:17)
+    at async DevServer.handleRequestImpl (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\base-server.js:935:17)
+    at async C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\dev\next-dev-server.js:394:20
+    at async Span.traceAsyncFn (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\trace\trace.js:164:20)
+    at async DevServer.handleRequest (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\dev\next-dev-server.js:390:24)
+    at async invokeRender (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\lib\router-server.js:266:21)
+    at async handleRequest (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\lib\router-server.js:465:24)
+    at async requestHandlerImpl (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\lib\router-server.js:514:13)
+    at async Server.requestListener (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\lib\start-server.js:225:13)
+ POST /api/auth/callback/credentials? 200 in 384ms (next.js: 10ms, application-code: 374ms)
+ GET /login 200 in 221ms (next.js: 16ms, proxy.ts: 18ms, application-code: 188ms)
+ GET /api/logo/fairup 200 in 43ms (next.js: 15ms, application-code: 28ms)
+ GET /login 200 in 409ms (next.js: 40ms, proxy.ts: 35ms, application-code: 334ms)
+ GET /api/auth/providers 200 in 69ms (next.js: 41ms, application-code: 28ms)
+ GET /api/auth/csrf 200 in 37ms (next.js: 10ms, application-code: 27ms)
+[31m[auth][error][0m CredentialsSignin: Read more at https://errors.authjs.dev#credentialssignin
+    at Module.callback (C:\Users\ismai\Desktop\grh-fairup\.next\dev\server\chunks\node_modules_@auth_core_0gltlle._.js:4314:30)
+    at async AuthInternal (C:\Users\ismai\Desktop\grh-fairup\.next\dev\server\chunks\node_modules_@auth_core_0gltlle._.js:5162:24)
+    at async Auth (C:\Users\ismai\Desktop\grh-fairup\.next\dev\server\chunks\node_modules_@auth_core_0gltlle._.js:5384:34)
+    at async AppRouteRouteModule.do (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40131)
+    at async AppRouteRouteModule.handle (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:47411)
+    at async responseGenerator (C:\Users\ismai\Desktop\grh-fairup\.next\dev\server\chunks\node_modules_next_1f7vpma._.js:18380:38)
+    at async AppRouteRouteModule.handleResponse (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:1:228552)
+    at async handleResponse (C:\Users\ismai\Desktop\grh-fairup\.next\dev\server\chunks\node_modules_next_1f7vpma._.js:18443:32)
+    at async Module.handler (C:\Users\ismai\Desktop\grh-fairup\.next\dev\server\chunks\node_modules_next_1f7vpma._.js:18497:13)
+    at async DevServer.renderToResponseWithComponentsImpl (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\base-server.js:1462:9)
+    at async DevServer.renderPageComponent (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\base-server.js:1514:24)
+    at async DevServer.renderToResponseImpl (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\base-server.js:1564:32)
+    at async DevServer.pipeImpl (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\base-server.js:1044:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\next-server.js:338:17)
+    at async DevServer.handleRequestImpl (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\base-server.js:935:17)
+    at async C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\dev\next-dev-server.js:394:20
+    at async Span.traceAsyncFn (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\trace\trace.js:164:20)
+    at async DevServer.handleRequest (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\dev\next-dev-server.js:390:24)
+    at async invokeRender (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\lib\router-server.js:266:21)
+    at async handleRequest (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\lib\router-server.js:465:24)
+    at async requestHandlerImpl (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\lib\router-server.js:514:13)
+    at async Server.requestListener (C:\Users\ismai\Desktop\grh-fairup\node_modules\next\dist\server\lib\start-server.js:225:13)
+ POST /api/auth/callback/credentials? 200 in 253ms (next.js: 14ms, application-code: 238ms)
+ GET /login 200 in 370ms (next.js: 25ms, proxy.ts: 35ms, application-code: 310ms)
+ GET /conges 200 in 1122ms (next.js: 318ms, proxy.ts: 64ms, application-code: 740ms)
+ GET /login 200 in 147ms (next.js: 17ms, proxy.ts: 20ms, application-code: 110ms)
+ GET /api/logo/fairup 200 in 30ms (next.js: 9ms, application-code: 21ms)
+ GET /api/auth/providers 200 in 70ms (next.js: 37ms, application-code: 33ms)
+ GET /api/auth/csrf 200 in 32ms (next.js: 11ms, application-code: 22ms)
+ POST /api/auth/callback/credentials? 200 in 223ms (next.js: 9ms, application-code: 214ms)
+ GET /dashboard 200 in 1047ms (next.js: 529ms, proxy.ts: 34ms, application-code: 483ms)
+ GET /conges 200 in 505ms (next.js: 19ms, proxy.ts: 40ms, application-code: 446ms)
+ POST /conges 200 in 2.6s (next.js: 23ms, proxy.ts: 51ms, application-code: 2.5s)
+  └─ ƒ submitLeaveRequest({}) in 343ms src/app/(dashboard)/conges/actions.ts
+ GET /conges 200 in 1004ms (next.js: 19ms, proxy.ts: 39ms, application-code: 947ms)
+ POST /conges 200 in 614ms (next.js: 15ms, proxy.ts: 50ms, application-code: 549ms)
+  └─ ƒ submitLeaveRequest({}) in 100ms src/app/(dashboard)/conges/actions.ts
+ GET /api/logo/fairup 200 in 48ms (next.js: 23ms, application-code: 26ms)
+ GET /login 200 in 291ms (next.js: 16ms, proxy.ts: 23ms, application-code: 251ms)
+ GET /api/auth/providers 200 in 81ms (next.js: 46ms, application-code: 35ms)
+ GET /api/auth/csrf 200 in 59ms (next.js: 27ms, application-code: 32ms)
+ POST /api/auth/callback/credentials? 200 in 267ms (next.js: 16ms, application-code: 251ms)
+ GET /dashboard 200 in 421ms (next.js: 35ms, proxy.ts: 48ms, application-code: 338ms)
+ GET /select-company 200 in 570ms (next.js: 300ms, proxy.ts: 84ms, application-code: 186ms)
+ GET /select-company 200 in 373ms (next.js: 30ms, proxy.ts: 93ms, application-code: 250ms)
+ GET /api/companies/FAIRUP/logo 200 in 1555ms (next.js: 1510ms, application-code: 45ms)
+ GET /dashboard 307 in 578ms (next.js: 17ms, proxy.ts: 24ms, application-code: 537ms)
+ GET /select-company 200 in 344ms (next.js: 18ms, proxy.ts: 32ms, application-code: 294ms)
+ GET /dashboard 200 in 289ms (next.js: 11ms, proxy.ts: 20ms, application-code: 257ms)
+ POST /select-company 303 in 446ms (next.js: 20ms, proxy.ts: 25ms, application-code: 401ms)
+  └─ ƒ selectCompanyAction({}) in 36ms src/app/select-company/actions.ts
+ GET /conges 200 in 981ms (next.js: 19ms, proxy.ts: 28ms, application-code: 935ms)
+ POST /conges 200 in 540ms (next.js: 21ms, proxy.ts: 49ms, application-code: 470ms)
+  └─ ƒ reviewLeave({}) in 65ms src/app/(dashboard)/conges/actions.ts
+ POST /conges 200 in 4.4s (next.js: 12ms, proxy.ts: 22ms, application-code: 4.4s)
+  └─ ƒ reviewLeave({}) in 2959ms src/app/(dashboard)/conges/actions.ts
+ POST /conges 200 in 3.6s (next.js: 62ms, proxy.ts: 178ms, application-code: 3.3s)
+  └─ ƒ reviewLeave({}) in 2397ms src/app/(dashboard)/conges/actions.ts
+ POST /conges 200 in 3.4s (next.js: 38ms, proxy.ts: 79ms, application-code: 3.3s)
+  └─ ƒ reviewLeave({}) in 2267ms src/app/(dashboard)/conges/actions.ts
+ POST /conges 200 in 2.3s (next.js: 22ms, proxy.ts: 58ms, application-code: 2.2s)
+ GET /conges 200 in 1677ms (next.js: 32ms, proxy.ts: 45ms, application-code: 1600ms)
+ GET /login 200 in 65ms (next.js: 8ms, proxy.ts: 10ms, application-code: 47ms)
+ GET /api/logo/fairup 200 in 15ms (next.js: 5ms, application-code: 10ms)
+ GET /api/auth/providers 200 in 52ms (next.js: 31ms, application-code: 21ms)
+ GET /api/auth/csrf 200 in 22ms (next.js: 7ms, application-code: 15ms)
+ POST /api/auth/callback/credentials? 200 in 138ms (next.js: 8ms, application-code: 130ms)
+ GET /dashboard 200 in 145ms (next.js: 10ms, proxy.ts: 17ms, application-code: 118ms)
+ GET /conges 200 in 281ms (next.js: 15ms, proxy.ts: 29ms, application-code: 237ms)
+ POST /conges 200 in 184ms (next.js: 10ms, proxy.ts: 19ms, application-code: 154ms)
+  └─ ƒ submitLeaveRequest({}) in 40ms src/app/(dashboard)/conges/actions.ts
+ GET /conges 200 in 253ms (next.js: 14ms, proxy.ts: 17ms, application-code: 222ms)
+ POST /conges 200 in 178ms (next.js: 9ms, proxy.ts: 15ms, application-code: 154ms)
+  └─ ƒ submitLeaveRequest({}) in 37ms src/app/(dashboard)/conges/actions.ts
+ GET /login 200 in 68ms (next.js: 10ms, proxy.ts: 9ms, application-code: 49ms)
+ GET /api/logo/fairup 200 in 17ms (next.js: 6ms, application-code: 10ms)
+ GET /api/auth/providers 200 in 30ms (next.js: 19ms, application-code: 12ms)
+ GET /api/auth/csrf 200 in 16ms (next.js: 6ms, application-code: 10ms)
+ POST /api/auth/callback/credentials? 200 in 126ms (next.js: 6ms, application-code: 121ms)
+ GET /dashboard 200 in 122ms (next.js: 9ms, proxy.ts: 13ms, application-code: 100ms)
+ GET /select-company 200 in 146ms (next.js: 12ms, proxy.ts: 14ms, application-code: 120ms)
+ GET /select-company 200 in 118ms (next.js: 8ms, proxy.ts: 31ms, application-code: 79ms)
+ GET /api/companies/FAIRUP/logo 200 in 59ms (next.js: 22ms, application-code: 37ms)
+ GET /dashboard 307 in 175ms (next.js: 9ms, proxy.ts: 13ms, application-code: 153ms)
+ GET /select-company 200 in 117ms (next.js: 10ms, proxy.ts: 16ms, application-code: 90ms)
+ GET /dashboard 200 in 172ms (next.js: 7ms, proxy.ts: 10ms, application-code: 155ms)
+ POST /select-company 303 in 216ms (next.js: 6ms, proxy.ts: 10ms, application-code: 200ms)
+  └─ ƒ selectCompanyAction({}) in 12ms src/app/select-company/actions.ts
+ GET /conges 200 in 233ms (next.js: 7ms, proxy.ts: 12ms, application-code: 215ms)
+ POST /conges 200 in 280ms (next.js: 11ms, proxy.ts: 14ms, application-code: 254ms)
+  └─ ƒ reviewLeave({}) in 104ms src/app/(dashboard)/conges/actions.ts
+ POST /conges 200 in 2.2s (next.js: 12ms, proxy.ts: 21ms, application-code: 2.2s)
+  └─ ƒ reviewLeave({}) in 2024ms src/app/(dashboard)/conges/actions.ts
+ POST /conges 200 in 287ms (next.js: 10ms, proxy.ts: 20ms, application-code: 257ms)
+  └─ ƒ reviewLeave({}) in 80ms src/app/(dashboard)/conges/actions.ts
+ POST /conges 200 in 1525ms (next.js: 11ms, proxy.ts: 20ms, application-code: 1494ms)
+  └─ ƒ reviewLeave({}) in 1359ms src/app/(dashboard)/conges/actions.ts
+ POST /conges 200 in 226ms (next.js: 13ms, proxy.ts: 21ms, application-code: 192ms)
+  └─ ƒ reviewLeave({}) in 54ms src/app/(dashboard)/conges/actions.ts
+ GET /conges 200 in 268ms (next.js: 13ms, proxy.ts: 16ms, application-code: 238ms)
+ GET /login 200 in 70ms (next.js: 11ms, proxy.ts: 9ms, application-code: 50ms)
+ GET /api/logo/fairup 200 in 18ms (next.js: 7ms, application-code: 11ms)
+ GET /api/auth/providers 200 in 39ms (next.js: 25ms, application-code: 14ms)
+ GET /api/auth/csrf 200 in 18ms (next.js: 6ms, application-code: 12ms)
+ POST /api/auth/callback/credentials? 200 in 136ms (next.js: 6ms, application-code: 130ms)
+ GET /dashboard 200 in 138ms (next.js: 12ms, proxy.ts: 17ms, application-code: 109ms)
+ GET /conges 200 in 260ms (next.js: 14ms, proxy.ts: 26ms, application-code: 220ms)
+ GET /documents 200 in 317ms (next.js: 97ms, proxy.ts: 12ms, application-code: 208ms)
+ POST /documents 200 in 81ms (next.js: 11ms, proxy.ts: 17ms, application-code: 52ms)
+  └─ ƒ getDossierPrefill("u-emp-1") in 28ms src/app/(dashboard)/documents/actions.ts
+ GET /login 200 in 81ms (next.js: 10ms, proxy.ts: 8ms, application-code: 63ms)
+ GET /api/logo/fairup 200 in 17ms (next.js: 6ms, application-code: 11ms)
+ GET /api/auth/providers 200 in 33ms (next.js: 19ms, application-code: 15ms)
+ GET /api/auth/csrf 200 in 19ms (next.js: 6ms, application-code: 13ms)
+ POST /api/auth/callback/credentials? 200 in 130ms (next.js: 5ms, application-code: 125ms)
+ GET /dashboard 200 in 121ms (next.js: 9ms, proxy.ts: 17ms, application-code: 94ms)
+ GET /select-company 200 in 101ms (next.js: 7ms, proxy.ts: 11ms, application-code: 83ms)
+ GET /select-company 200 in 127ms (next.js: 21ms, proxy.ts: 34ms, application-code: 72ms)
+ GET /api/companies/FAIRUP/logo 200 in 57ms (next.js: 24ms, application-code: 33ms)
+ GET /dashboard 307 in 185ms (next.js: 7ms, proxy.ts: 12ms, application-code: 166ms)
+ GET /select-company 200 in 90ms (next.js: 8ms, proxy.ts: 13ms, application-code: 69ms)
+ GET /dashboard 200 in 144ms (next.js: 15ms, proxy.ts: 15ms, application-code: 114ms)
+ POST /select-company 303 in 234ms (next.js: 13ms, proxy.ts: 19ms, application-code: 202ms)
+  └─ ƒ selectCompanyAction({}) in 19ms src/app/select-company/actions.ts
+ GET /documents 200 in 186ms (next.js: 7ms, proxy.ts: 13ms, application-code: 165ms)
+ GET /documents 200 in 144ms (next.js: 14ms, proxy.ts: 25ms, application-code: 105ms)
+ POST /documents 200 in 88ms (next.js: 16ms, proxy.ts: 25ms, application-code: 47ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 25ms src/app/(dashboard)/documents/actions.ts
+ POST /documents 200 in 92ms (next.js: 15ms, proxy.ts: 20ms, application-code: 57ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 30ms src/app/(dashboard)/documents/actions.ts
+ GET /conges 200 in 513ms (next.js: 16ms, proxy.ts: 24ms, application-code: 472ms)
+ GET /conges 200 in 516ms (next.js: 20ms, proxy.ts: 27ms, application-code: 469ms)
+ GET /admin/dossiers 200 in 402ms (next.js: 232ms, proxy.ts: 24ms, application-code: 146ms)
+ GET /login 200 in 60ms (next.js: 6ms, proxy.ts: 6ms, application-code: 47ms)
+ GET /api/logo/fairup 200 in 15ms (next.js: 4ms, application-code: 11ms)
+ GET /api/auth/providers 200 in 77ms (next.js: 45ms, application-code: 32ms)
+ GET /api/auth/csrf 200 in 18ms (next.js: 8ms, application-code: 10ms)
+ POST /api/auth/callback/credentials? 200 in 122ms (next.js: 3ms, application-code: 119ms)
+ GET /dashboard 200 in 130ms (next.js: 9ms, proxy.ts: 16ms, application-code: 105ms)
+ GET /conges 200 in 218ms (next.js: 10ms, proxy.ts: 17ms, application-code: 191ms)
+ GET /api/leaves/cms7k71y2000l5lnqyig6r8z2/download 200 in 2.7s (next.js: 2.7s, application-code: 26ms)
+ GET /admin/dossiers 200 in 365ms (next.js: 14ms, proxy.ts: 21ms, application-code: 330ms)
+ GET /documents 200 in 388ms (next.js: 17ms, proxy.ts: 39ms, application-code: 332ms)
+ POST /documents 200 in 108ms (next.js: 13ms, proxy.ts: 36ms, application-code: 59ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 35ms src/app/(dashboard)/documents/actions.ts
+ GET /conges 200 in 194ms (next.js: 16ms, proxy.ts: 25ms, application-code: 152ms)
+ POST /conges 200 in 251ms (next.js: 14ms, proxy.ts: 21ms, application-code: 217ms)
+  └─ ƒ submitLeaveRequest({}) in 58ms src/app/(dashboard)/conges/actions.ts
+ GET /admin/dossiers 200 in 295ms (next.js: 15ms, proxy.ts: 25ms, application-code: 255ms)
+ POST /admin/dossiers 200 in 293ms (next.js: 16ms, proxy.ts: 29ms, application-code: 248ms)
+  └─ ƒ markNotificationRead("cms7k9umg00175lnqq8ay0sgy") in 131ms src/app/(dashboard)/notifications/actions.ts
+ GET /conges 200 in 299ms (next.js: 44ms, proxy.ts: 28ms, application-code: 226ms)
+ POST /conges 200 in 2.5s (next.js: 12ms, proxy.ts: 20ms, application-code: 2.4s)
+  └─ ƒ reviewLeave({}) in 2047ms src/app/(dashboard)/conges/actions.ts
+ POST /conges 200 in 113ms (next.js: 14ms, proxy.ts: 23ms, application-code: 75ms)
+  └─ ƒ markAllNotificationsRead() in 49ms src/app/(dashboard)/notifications/actions.ts
+ GET /conges 200 in 53ms (next.js: 13ms, proxy.ts: 21ms, application-code: 18ms)
+ GET /conges 200 in 263ms (next.js: 12ms, proxy.ts: 20ms, application-code: 231ms)
+ GET /paie 200 in 474ms (next.js: 159ms, proxy.ts: 23ms, application-code: 292ms)
+ GET /conges 200 in 258ms (next.js: 14ms, proxy.ts: 26ms, application-code: 218ms)
+ GET /conges 200 in 378ms (next.js: 19ms, proxy.ts: 44ms, application-code: 315ms)
+ GET /conges 200 in 105ms (next.js: 43ms, proxy.ts: 34ms, application-code: 27ms)
+ POST /conges 200 in 230ms (next.js: 17ms, proxy.ts: 35ms, application-code: 178ms)
+  └─ ƒ markNotificationRead("cms7ka4uo001a5lnqsv0hqedo") in 147ms src/app/(dashboard)/notifications/actions.ts
+ GET /conges 200 in 160ms (next.js: 15ms, proxy.ts: 27ms, application-code: 118ms)
+ GET /admin/dossiers 200 in 176ms (next.js: 13ms, proxy.ts: 19ms, application-code: 144ms)
+ GET /admin/dossiers/cms7jsdan000q137oxdzagolv 200 in 1408ms (next.js: 1244ms, proxy.ts: 22ms, application-code: 142ms)
+ GET /paie 200 in 233ms (next.js: 20ms, proxy.ts: 28ms, application-code: 186ms)
+ GET /dashboard 200 in 181ms (next.js: 18ms, proxy.ts: 23ms, application-code: 140ms)
+ GET /assets/fonts/Inter-Regular.woff2 404 in 470ms (next.js: 261ms, proxy.ts: 30ms, application-code: 179ms)
+ GET /conges 200 in 480ms (next.js: 23ms, proxy.ts: 31ms, application-code: 426ms)
+ GET /admin 200 in 302ms (next.js: 147ms, proxy.ts: 22ms, application-code: 133ms)
+ POST /admin 200 in 360ms (next.js: 15ms, proxy.ts: 21ms, application-code: 323ms)
+  └─ ƒ deleteEmployee({}) in 70ms src/app/(dashboard)/admin/actions.ts
+ POST /admin 200 in 312ms (next.js: 15ms, proxy.ts: 21ms, application-code: 276ms)
+  └─ ƒ deleteEmployee({}) in 69ms src/app/(dashboard)/admin/actions.ts
+ POST /admin 200 in 333ms (next.js: 13ms, proxy.ts: 19ms, application-code: 301ms)
+  └─ ƒ deleteEmployee({}) in 90ms src/app/(dashboard)/admin/actions.ts
+ GET /admin/dossiers 200 in 166ms (next.js: 18ms, proxy.ts: 22ms, application-code: 127ms)
+ GET /admin 200 in 206ms (next.js: 14ms, proxy.ts: 23ms, application-code: 170ms)
+ GET /select-company 200 in 689ms (next.js: 16ms, proxy.ts: 24ms, application-code: 649ms)
+ GET /dashboard 200 in 276ms (next.js: 17ms, proxy.ts: 32ms, application-code: 227ms)
+ POST /select-company 303 in 547ms (next.js: 17ms, proxy.ts: 122ms, application-code: 407ms)
+  └─ ƒ selectCompanyAction({}) in 50ms src/app/select-company/actions.ts
+ GET /admin 200 in 131ms (next.js: 16ms, proxy.ts: 24ms, application-code: 91ms)
+ GET /documents 200 in 162ms (next.js: 13ms, proxy.ts: 21ms, application-code: 128ms)
+ GET /select-company 200 in 154ms (next.js: 18ms, proxy.ts: 18ms, application-code: 118ms)
+ GET /dashboard 200 in 257ms (next.js: 18ms, proxy.ts: 25ms, application-code: 214ms)
+ POST /select-company 303 in 354ms (next.js: 12ms, proxy.ts: 22ms, application-code: 319ms)
+  └─ ƒ selectCompanyAction({}) in 28ms src/app/select-company/actions.ts
+ GET /documents 200 in 155ms (next.js: 12ms, proxy.ts: 22ms, application-code: 121ms)
+ POST /documents 200 in 79ms (next.js: 14ms, proxy.ts: 23ms, application-code: 42ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 18ms src/app/(dashboard)/documents/actions.ts
+ POST /documents 200 in 104ms (next.js: 15ms, proxy.ts: 20ms, application-code: 69ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 45ms src/app/(dashboard)/documents/actions.ts
+ POST /documents 200 in 112ms (next.js: 12ms, proxy.ts: 22ms, application-code: 78ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 55ms src/app/(dashboard)/documents/actions.ts
+ GET /dashboard 200 in 369ms (next.js: 23ms, proxy.ts: 37ms, application-code: 309ms)
+ GET /conges 200 in 1193ms (next.js: 261ms, proxy.ts: 229ms, application-code: 703ms)
+ GET /dashboard 200 in 1422ms (next.js: 460ms, proxy.ts: 227ms, application-code: 734ms)
+ GET /conges 200 in 691ms (next.js: 18ms, proxy.ts: 248ms, application-code: 425ms)
+ GET /dashboard 200 in 665ms (next.js: 149ms, proxy.ts: 224ms, application-code: 292ms)
+ GET /dashboard 200 in 860ms (next.js: 15ms, proxy.ts: 34ms, application-code: 811ms)
+ GET /assets/fonts/Inter-Regular.woff2 404 in 206ms (next.js: 76ms, proxy.ts: 23ms, application-code: 107ms)
+ GET /dashboard 200 in 427ms (next.js: 18ms, proxy.ts: 31ms, application-code: 378ms)
+ GET /assets/fonts/Inter-Regular.woff2 404 in 256ms (next.js: 29ms, proxy.ts: 41ms, application-code: 186ms)
+ GET /select-company 200 in 329ms (next.js: 179ms, proxy.ts: 27ms, application-code: 123ms)
+ GET /dashboard 200 in 274ms (next.js: 12ms, proxy.ts: 23ms, application-code: 239ms)
+ POST /select-company 303 in 513ms (next.js: 24ms, proxy.ts: 53ms, application-code: 436ms)
+  └─ ƒ selectCompanyAction({}) in 63ms src/app/select-company/actions.ts
+✓ Compiled in 267ms
+ GET /conges 200 in 2.1s (next.js: 371ms, proxy.ts: 417ms, application-code: 1273ms)
+ GET /dashboard 200 in 2.4s (next.js: 1030ms, proxy.ts: 416ms, application-code: 927ms)
+ GET /conges 200 in 1634ms (next.js: 76ms, proxy.ts: 292ms, application-code: 1267ms)
+ GET /dashboard 200 in 1786ms (next.js: 141ms, proxy.ts: 318ms, application-code: 1327ms)
+ GET /conges 200 in 2.1s (next.js: 53ms, proxy.ts: 443ms, application-code: 1638ms)
+ GET /dashboard 200 in 2.2s (next.js: 162ms, proxy.ts: 413ms, application-code: 1597ms)
+ GET /dashboard 200 in 2.2s (next.js: 256ms, proxy.ts: 412ms, application-code: 1504ms)
+ GET /dashboard 200 in 2.2s (next.js: 438ms, proxy.ts: 410ms, application-code: 1323ms)
+ GET /dashboard 200 in 2.2s (next.js: 343ms, proxy.ts: 411ms, application-code: 1429ms)
+ GET /dashboard 200 in 2.0s (next.js: 85ms, proxy.ts: 917ms, application-code: 1020ms)
+ GET /conges 200 in 1415ms (next.js: 39ms, proxy.ts: 887ms, application-code: 490ms)
+ GET /conges 200 in 698ms (next.js: 16ms, proxy.ts: 203ms, application-code: 479ms)
+ GET /conges 200 in 628ms (next.js: 21ms, proxy.ts: 257ms, application-code: 350ms)
+ GET /conges 200 in 361ms (next.js: 21ms, proxy.ts: 129ms, application-code: 211ms)
+ GET /conges 200 in 1303ms (next.js: 298ms, proxy.ts: 270ms, application-code: 735ms)
+ GET /dashboard 200 in 1299ms (next.js: 660ms, proxy.ts: 265ms, application-code: 374ms)
+ GET /conges 200 in 1827ms (next.js: 482ms, proxy.ts: 372ms, application-code: 973ms)
+ GET /dashboard 200 in 1514ms (next.js: 164ms, proxy.ts: 778ms, application-code: 572ms)
+ GET /conges 200 in 1858ms (next.js: 436ms, proxy.ts: 396ms, application-code: 1026ms)
+ GET /dashboard 200 in 1514ms (next.js: 283ms, proxy.ts: 874ms, application-code: 358ms)
+ GET /conges 200 in 1648ms (next.js: 378ms, proxy.ts: 361ms, application-code: 909ms)
+ GET /dashboard 200 in 1372ms (next.js: 166ms, proxy.ts: 640ms, application-code: 566ms)
+ GET /conges 200 in 1640ms (next.js: 443ms, proxy.ts: 353ms, application-code: 843ms)
+ GET /dashboard 200 in 1627ms (next.js: 852ms, proxy.ts: 348ms, application-code: 428ms)
+ GET /login 200 in 463ms (next.js: 78ms, proxy.ts: 22ms, application-code: 363ms)
+ GET /login 200 in 71ms (next.js: 10ms, proxy.ts: 10ms, application-code: 51ms)
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 341ms (next.js: 88ms, application-code: 253ms)
+ GET /api/auth/providers 200 in 191ms (next.js: 164ms, application-code: 27ms)
+ GET /api/auth/csrf 200 in 20ms (next.js: 7ms, application-code: 13ms)
+ POST /api/auth/callback/credentials? 200 in 156ms (next.js: 8ms, application-code: 148ms)
+ GET /dashboard 200 in 167ms (next.js: 12ms, proxy.ts: 13ms, application-code: 142ms)
+ GET /select-company 200 in 183ms (next.js: 77ms, proxy.ts: 26ms, application-code: 80ms)
+ GET /select-company 200 in 154ms (next.js: 18ms, proxy.ts: 36ms, application-code: 100ms)
+ GET /api/companies/FAIRUP/logo 404 in 184ms (next.js: 133ms, application-code: 51ms)
+ GET /dashboard 200 in 220ms (next.js: 14ms, proxy.ts: 16ms, application-code: 189ms)
+ POST /select-company 303 in 321ms (next.js: 8ms, proxy.ts: 19ms, application-code: 293ms)
+  └─ ƒ selectCompanyAction({}) in 33ms src/app/select-company/actions.ts
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 124ms (next.js: 9ms, application-code: 115ms)
+ POST /api/dossiers/upload 200 in 1082ms (next.js: 807ms, application-code: 275ms)
+ GET /conges 200 in 317ms (next.js: 22ms, proxy.ts: 23ms, application-code: 272ms)
+✓ Compiled in 187ms
+ GET /conges 200 in 1779ms (next.js: 691ms, proxy.ts: 317ms, application-code: 771ms)
+ GET /conges 200 in 2.4s (next.js: 450ms, proxy.ts: 319ms, application-code: 1658ms)
+ GET /conges 200 in 1566ms (next.js: 110ms, proxy.ts: 325ms, application-code: 1132ms)
+ GET /conges 200 in 2.6s (next.js: 22ms, proxy.ts: 362ms, application-code: 2.2s)
+ GET /conges 200 in 1928ms (next.js: 369ms, proxy.ts: 375ms, application-code: 1184ms)
+ GET /conges 200 in 2.3s (next.js: 29ms, proxy.ts: 427ms, application-code: 1812ms)
+ GET /conges 200 in 2.2s (next.js: 187ms, proxy.ts: 401ms, application-code: 1648ms)
+ GET /conges 200 in 2.3s (next.js: 114ms, proxy.ts: 402ms, application-code: 1808ms)
+ GET /conges 200 in 1384ms (next.js: 97ms, proxy.ts: 818ms, application-code: 469ms)
+ GET /conges 200 in 2.3s (next.js: 301ms, proxy.ts: 375ms, application-code: 1635ms)
+ GET /conges 200 in 1511ms (next.js: 20ms, proxy.ts: 820ms, application-code: 671ms)
+ GET /conges 200 in 647ms (next.js: 26ms, proxy.ts: 249ms, application-code: 372ms)
+ GET /conges 200 in 492ms (next.js: 19ms, proxy.ts: 108ms, application-code: 365ms)
+ GET /conges 200 in 321ms (next.js: 16ms, proxy.ts: 123ms, application-code: 182ms)
+ GET /conges 200 in 1203ms (next.js: 533ms, proxy.ts: 244ms, application-code: 426ms)
+ GET /conges 200 in 1216ms (next.js: 313ms, proxy.ts: 245ms, application-code: 658ms)
+ GET /conges 200 in 986ms (next.js: 303ms, proxy.ts: 251ms, application-code: 432ms)
+ GET /conges 200 in 1078ms (next.js: 486ms, proxy.ts: 250ms, application-code: 342ms)
+ GET /admin 200 in 252ms (next.js: 125ms, proxy.ts: 24ms, application-code: 103ms)
+ GET /dashboard 200 in 293ms (next.js: 134ms, proxy.ts: 22ms, application-code: 136ms)
+ GET /login 200 in 373ms (next.js: 56ms, proxy.ts: 16ms, application-code: 301ms)
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 281ms (next.js: 92ms, application-code: 189ms)
+ GET /api/auth/providers 200 in 173ms (next.js: 142ms, application-code: 31ms)
+ GET /api/auth/csrf 200 in 39ms (next.js: 10ms, application-code: 29ms)
+ POST /api/auth/callback/credentials? 200 in 241ms (next.js: 12ms, application-code: 228ms)
+ GET /dashboard 200 in 177ms (next.js: 8ms, proxy.ts: 12ms, application-code: 158ms)
+ GET /select-company 200 in 136ms (next.js: 45ms, proxy.ts: 19ms, application-code: 72ms)
+ GET /select-company 200 in 114ms (next.js: 12ms, proxy.ts: 31ms, application-code: 70ms)
+ GET /api/companies/FAIRUP/logo 404 in 94ms (next.js: 52ms, application-code: 43ms)
+ GET /dashboard 200 in 148ms (next.js: 7ms, proxy.ts: 10ms, application-code: 131ms)
+ POST /select-company 303 in 200ms (next.js: 7ms, proxy.ts: 12ms, application-code: 182ms)
+  └─ ƒ selectCompanyAction({}) in 14ms src/app/select-company/actions.ts
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 133ms (next.js: 4ms, application-code: 129ms)
+ POST /api/dossiers/upload 200 in 173ms (next.js: 74ms, application-code: 99ms)
+ GET /login 200 in 76ms (next.js: 8ms, proxy.ts: 11ms, application-code: 57ms)
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 143ms (next.js: 7ms, application-code: 136ms)
+ GET /api/auth/providers 200 in 38ms (next.js: 22ms, application-code: 16ms)
+ GET /api/auth/csrf 200 in 21ms (next.js: 6ms, application-code: 15ms)
+ POST /api/auth/callback/credentials? 200 in 127ms (next.js: 5ms, application-code: 122ms)
+ GET /dashboard 200 in 99ms (next.js: 6ms, proxy.ts: 11ms, application-code: 82ms)
+ GET /select-company 200 in 116ms (next.js: 6ms, proxy.ts: 12ms, application-code: 99ms)
+ GET /select-company 200 in 112ms (next.js: 17ms, proxy.ts: 21ms, application-code: 74ms)
+ GET /api/companies/FAIRUP/logo 404 in 44ms (next.js: 17ms, application-code: 28ms)
+ GET /dashboard 200 in 161ms (next.js: 14ms, proxy.ts: 19ms, application-code: 128ms)
+ POST /select-company 303 in 237ms (next.js: 10ms, proxy.ts: 14ms, application-code: 213ms)
+  └─ ƒ selectCompanyAction({}) in 24ms src/app/select-company/actions.ts
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 100ms (next.js: 5ms, application-code: 94ms)
+ GET /admin/dossiers/cms7kv98x001e5lnqkftz1orc 200 in 708ms (next.js: 201ms, proxy.ts: 13ms, application-code: 495ms)
+ POST /api/dossiers/cms7kv98x001e5lnqkftz1orc/generate 200 in 4.0s (next.js: 1837ms, application-code: 2.2s)
+ POST /api/dossiers/upload 200 in 93ms (next.js: 3ms, application-code: 89ms)
+ GET /login 200 in 65ms (next.js: 8ms, proxy.ts: 8ms, application-code: 50ms)
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 116ms (next.js: 7ms, application-code: 109ms)
+ GET /api/auth/providers 200 in 31ms (next.js: 17ms, application-code: 13ms)
+ GET /api/auth/csrf 200 in 17ms (next.js: 7ms, application-code: 11ms)
+ POST /api/auth/callback/credentials? 200 in 127ms (next.js: 6ms, application-code: 121ms)
+ GET /dashboard 200 in 137ms (next.js: 9ms, proxy.ts: 13ms, application-code: 114ms)
+ GET /select-company 200 in 102ms (next.js: 8ms, proxy.ts: 13ms, application-code: 81ms)
+ GET /select-company 200 in 136ms (next.js: 20ms, proxy.ts: 36ms, application-code: 81ms)
+ GET /api/companies/FAIRUP/logo 404 in 49ms (next.js: 21ms, application-code: 27ms)
+ GET /dashboard 200 in 117ms (next.js: 9ms, proxy.ts: 15ms, application-code: 93ms)
+ POST /select-company 303 in 176ms (next.js: 7ms, proxy.ts: 11ms, application-code: 158ms)
+  └─ ƒ selectCompanyAction({}) in 20ms src/app/select-company/actions.ts
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 88ms (next.js: 4ms, application-code: 85ms)
+ GET /admin/dossiers/cms7kxtuh001g5lnqb08mzcvp 200 in 178ms (next.js: 18ms, proxy.ts: 12ms, application-code: 147ms)
+ POST /api/dossiers/cms7kxtuh001g5lnqb08mzcvp/generate 200 in 1909ms (next.js: 16ms, application-code: 1893ms)
+ POST /api/dossiers/upload 200 in 81ms (next.js: 5ms, application-code: 76ms)
+ GET /conges 200 in 364ms (next.js: 20ms, proxy.ts: 31ms, application-code: 313ms)
+ POST /conges 200 in 266ms (next.js: 19ms, proxy.ts: 23ms, application-code: 224ms)
+  └─ ƒ submitLeaveRequest({}) in 58ms src/app/(dashboard)/conges/actions.ts
+ GET /dashboard 200 in 413ms (next.js: 18ms, proxy.ts: 23ms, application-code: 373ms)
+ GET /assets/fonts/Inter-Regular.woff2 404 in 412ms (next.js: 85ms, proxy.ts: 37ms, application-code: 291ms)
+ POST /dashboard 200 in 175ms (next.js: 20ms, proxy.ts: 23ms, application-code: 131ms)
+  └─ ƒ markNotificationRead("cms7l1upk001m5lnqpju1fkgm") in 85ms src/app/(dashboard)/notifications/actions.ts
+ GET /conges 200 in 300ms (next.js: 13ms, proxy.ts: 71ms, application-code: 217ms)
+ POST /conges 200 in 2.1s (next.js: 18ms, proxy.ts: 22ms, application-code: 2.1s)
+  └─ ƒ reviewLeave({}) in 1829ms src/app/(dashboard)/conges/actions.ts
+ GET /conges 200 in 343ms (next.js: 15ms, proxy.ts: 24ms, application-code: 304ms)
+ GET /conges 200 in 109ms (next.js: 48ms, proxy.ts: 37ms, application-code: 24ms)
+ POST /conges 200 in 169ms (next.js: 19ms, proxy.ts: 45ms, application-code: 105ms)
+  └─ ƒ markNotificationRead("cms7l237g001p5lnqlqs8kt12") in 75ms src/app/(dashboard)/notifications/actions.ts
+ GET /conges 200 in 221ms (next.js: 25ms, proxy.ts: 29ms, application-code: 167ms)
+ GET /api/leaves/cms7l1up1001k5lnqj1k7mik0/download 200 in 175ms (next.js: 130ms, application-code: 45ms)
+ GET /documents 200 in 306ms (next.js: 149ms, proxy.ts: 23ms, application-code: 135ms)
+ POST /documents 200 in 147ms (next.js: 19ms, proxy.ts: 36ms, application-code: 91ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 22ms src/app/(dashboard)/documents/actions.ts
+ POST /documents 200 in 98ms (next.js: 12ms, proxy.ts: 24ms, application-code: 62ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 34ms src/app/(dashboard)/documents/actions.ts
+ GET /conges 200 in 437ms (next.js: 12ms, proxy.ts: 23ms, application-code: 402ms)
+ GET /documents 200 in 280ms (next.js: 32ms, proxy.ts: 56ms, application-code: 192ms)
+ GET /admin/dossiers 200 in 683ms (next.js: 422ms, proxy.ts: 19ms, application-code: 242ms)
+ POST /admin/dossiers 200 in 432ms (next.js: 16ms, proxy.ts: 25ms, application-code: 391ms)
+  └─ ƒ deleteDossier("cms7jsdan000q137oxdzagolv") in 67ms src/app/(dashboard)/admin/dossiers/actions.ts
+ POST /api/dossiers/upload 200 in 534ms (next.js: 68ms, application-code: 466ms)
+ GET /admin/dossiers/cms7l3g73001r5lnq7olpb8p8 200 in 1405ms (next.js: 332ms, proxy.ts: 250ms, application-code: 823ms)
+ POST /admin/dossiers/cms7l3g73001r5lnq7olpb8p8 200 in 466ms (next.js: 73ms, proxy.ts: 20ms, application-code: 374ms)
+  └─ ƒ saveDossier("cms7l3g73001r5lnq7olpb8p8", {"fields":{"adresseResidentielle":"Quartier EL MERS ACHENNAD 5 NR LOT 5256 - TANGER","contactUrgenceLien":"","contactUrgenceNom":"","...":"20 items not stringified"},"outilsAttribues":["Logiciel innovaweb"],"pieces":["[Object]","[Object]","[Object]","... 2 items not stringified"]}, null) in 57ms src/app/(dashboard)/admin/dossiers/actions.ts
+ POST /admin/dossiers/cms7l3g73001r5lnq7olpb8p8 200 in 337ms (next.js: 41ms, proxy.ts: 25ms, application-code: 271ms)
+  └─ ƒ saveDossier("cms7l3g73001r5lnq7olpb8p8", {"fields":{"adresseResidentielle":"Quartier EL MERS ACHENNAD 5 NR LOT 5256 - TANGER","contactUrgenceLien":"","contactUrgenceNom":"","...":"20 items not stringified"},"outilsAttribues":["Logiciel innovaweb"],"pieces":["[Object]","[Object]","[Object]","... 2 items not stringified"]}, "cms7jomew000l137ogavlk1r8") in 86ms src/app/(dashboard)/admin/dossiers/actions.ts
+ GET /dashboard 200 in 208ms (next.js: 21ms, proxy.ts: 31ms, application-code: 156ms)
+ GET /assets/fonts/Inter-Regular.woff2 404 in 146ms (next.js: 25ms, proxy.ts: 21ms, application-code: 100ms)
+ GET /dashboard 200 in 311ms (next.js: 16ms, proxy.ts: 25ms, application-code: 270ms)
+ GET /assets/fonts/Inter-Regular.woff2 404 in 133ms (next.js: 26ms, proxy.ts: 27ms, application-code: 81ms)
+ GET /documents 200 in 157ms (next.js: 14ms, proxy.ts: 23ms, application-code: 120ms)
+ POST /documents 200 in 97ms (next.js: 16ms, proxy.ts: 19ms, application-code: 62ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 39ms src/app/(dashboard)/documents/actions.ts
+ POST /documents 200 in 142ms (next.js: 15ms, proxy.ts: 65ms, application-code: 62ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 43ms src/app/(dashboard)/documents/actions.ts
+ GET /paie 200 in 321ms (next.js: 131ms, proxy.ts: 23ms, application-code: 167ms)
+ POST /paie 200 in 389ms (next.js: 18ms, proxy.ts: 30ms, application-code: 341ms)
+  └─ ƒ reviewAdvance("cms648ix4000bgm6an4hdu7go", "APPROVED", undefined) in 95ms src/app/(dashboard)/paie/advance-actions.ts
+ GET /paie 200 in 171ms (next.js: 20ms, proxy.ts: 25ms, application-code: 126ms)
+ POST /paie 200 in 275ms (next.js: 15ms, proxy.ts: 24ms, application-code: 236ms)
+  └─ ƒ submitAdvance({}) in 54ms src/app/(dashboard)/paie/advance-actions.ts
+ GET /paie 200 in 991ms (next.js: 16ms, proxy.ts: 23ms, application-code: 951ms)
+ GET /paie 200 in 110ms (next.js: 47ms, proxy.ts: 40ms, application-code: 22ms)
+ POST /paie 200 in 163ms (next.js: 17ms, proxy.ts: 45ms, application-code: 101ms)
+  └─ ƒ markNotificationRead("cms7l5pzh001x5lnq1x7tdq0y") in 69ms src/app/(dashboard)/notifications/actions.ts
+ GET /paie 200 in 257ms (next.js: 42ms, proxy.ts: 44ms, application-code: 171ms)
+ GET /paie 200 in 55ms (next.js: 13ms, proxy.ts: 22ms, application-code: 20ms)
+ GET /paie 200 in 167ms (next.js: 11ms, proxy.ts: 18ms, application-code: 138ms)
+ POST /paie 200 in 353ms (next.js: 17ms, proxy.ts: 24ms, application-code: 313ms)
+  └─ ƒ reviewAdvance("cms7l5pz2001v5lnqo5bjdqtg", "APPROVED", undefined) in 107ms src/app/(dashboard)/paie/advance-actions.ts
+ GET /paie 200 in 434ms (next.js: 17ms, proxy.ts: 27ms, application-code: 390ms)
+ GET /paie 200 in 28ms (next.js: 12ms, proxy.ts: 8ms, application-code: 7ms)
+ POST /paie 200 in 85ms (next.js: 5ms, proxy.ts: 9ms, application-code: 72ms)
+  └─ ƒ markNotificationRead("cms7l609r00205lnqy7paf1eg") in 58ms src/app/(dashboard)/notifications/actions.ts
+ GET /paie 200 in 55ms (next.js: 4ms, proxy.ts: 7ms, application-code: 44ms)
+ GET /paie 200 in 60ms (next.js: 15ms, proxy.ts: 23ms, application-code: 23ms)
+ GET /paie 200 in 170ms (next.js: 15ms, proxy.ts: 21ms, application-code: 134ms)
+ GET /documents 200 in 141ms (next.js: 15ms, proxy.ts: 20ms, application-code: 106ms)
+ GET /paie 200 in 175ms (next.js: 17ms, proxy.ts: 23ms, application-code: 135ms)
+ GET /documents 200 in 155ms (next.js: 12ms, proxy.ts: 24ms, application-code: 118ms)
+ POST /documents 200 in 90ms (next.js: 13ms, proxy.ts: 21ms, application-code: 57ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 33ms src/app/(dashboard)/documents/actions.ts
+✓ Compiled in 176ms
+ GET /paie 200 in 1279ms (next.js: 226ms, proxy.ts: 211ms, application-code: 841ms)
+ GET /documents 200 in 1305ms (next.js: 592ms, proxy.ts: 210ms, application-code: 504ms)
+ GET /paie 200 in 615ms (next.js: 86ms, proxy.ts: 186ms, application-code: 343ms)
+ GET /documents 200 in 752ms (next.js: 127ms, proxy.ts: 187ms, application-code: 438ms)
+ GET /paie 200 in 748ms (next.js: 21ms, proxy.ts: 187ms, application-code: 540ms)
+ GET /documents 200 in 710ms (next.js: 99ms, proxy.ts: 155ms, application-code: 456ms)
+ GET /documents 200 in 719ms (next.js: 66ms, proxy.ts: 156ms, application-code: 497ms)
+ GET /documents 200 in 717ms (next.js: 172ms, proxy.ts: 154ms, application-code: 391ms)
+ GET /documents 200 in 696ms (next.js: 183ms, proxy.ts: 181ms, application-code: 333ms)
+ GET /paie 200 in 504ms (next.js: 40ms, proxy.ts: 314ms, application-code: 150ms)
+ GET /paie 200 in 268ms (next.js: 8ms, proxy.ts: 56ms, application-code: 204ms)
+ GET /paie 200 in 217ms (next.js: 12ms, proxy.ts: 92ms, application-code: 112ms)
+ GET /paie 200 in 1126ms (next.js: 177ms, proxy.ts: 132ms, application-code: 817ms)
+ GET /documents 200 in 1158ms (next.js: 516ms, proxy.ts: 132ms, application-code: 510ms)
+ GET /paie 200 in 750ms (next.js: 18ms, proxy.ts: 191ms, application-code: 541ms)
+ GET /documents 200 in 822ms (next.js: 83ms, proxy.ts: 186ms, application-code: 554ms)
+ GET /documents 200 in 806ms (next.js: 67ms, proxy.ts: 153ms, application-code: 587ms)
+ GET /documents 200 in 805ms (next.js: 117ms, proxy.ts: 152ms, application-code: 535ms)
+ GET /paie 200 in 836ms (next.js: 24ms, proxy.ts: 171ms, application-code: 640ms)
+ GET /documents 200 in 808ms (next.js: 184ms, proxy.ts: 149ms, application-code: 475ms)
+ GET /documents 200 in 787ms (next.js: 238ms, proxy.ts: 128ms, application-code: 420ms)
+ GET /paie 200 in 602ms (next.js: 51ms, proxy.ts: 359ms, application-code: 192ms)
+ GET /paie 200 in 327ms (next.js: 6ms, proxy.ts: 65ms, application-code: 256ms)
+ GET /paie 200 in 243ms (next.js: 19ms, proxy.ts: 100ms, application-code: 124ms)
+✓ Compiled in 133ms
+ GET /documents 200 in 971ms (next.js: 516ms, proxy.ts: 144ms, application-code: 311ms)
+ GET /paie 200 in 978ms (next.js: 197ms, proxy.ts: 147ms, application-code: 633ms)
+✓ Compiled in 304ms
+ GET /paie 200 in 960ms (next.js: 193ms, proxy.ts: 133ms, application-code: 633ms)
+ GET /documents 200 in 991ms (next.js: 573ms, proxy.ts: 132ms, application-code: 287ms)
+✓ Compiled in 198ms
+ GET /paie 200 in 3.3s (next.js: 1290ms, proxy.ts: 365ms, application-code: 1644ms)
+ GET /documents 200 in 3.3s (next.js: 2.3s, proxy.ts: 358ms, application-code: 612ms)
+✓ Compiled in 829ms
+ GET /paie 200 in 2.5s (next.js: 420ms, proxy.ts: 318ms, application-code: 1785ms)
+ GET /documents 200 in 2.4s (next.js: 929ms, proxy.ts: 725ms, application-code: 782ms)
+ GET /paie 200 in 2.0s (next.js: 65ms, proxy.ts: 1393ms, application-code: 564ms)
+ GET /documents 200 in 801ms (next.js: 41ms, proxy.ts: 384ms, application-code: 376ms)
+ GET /paie 200 in 3.9s (next.js: 35ms, proxy.ts: 93ms, application-code: 3.8s)
+ GET /documents 200 in 3.9s (next.js: 874ms, proxy.ts: 71ms, application-code: 3.0s)
+ GET /paie 200 in 2.6s (next.js: 536ms, proxy.ts: 832ms, application-code: 1191ms)
+ GET /documents 200 in 2.6s (next.js: 887ms, proxy.ts: 829ms, application-code: 861ms)
+ GET /paie 200 in 1022ms (next.js: 45ms, proxy.ts: 455ms, application-code: 523ms)
+ GET /documents 200 in 981ms (next.js: 150ms, proxy.ts: 423ms, application-code: 409ms)
+✓ Compiled in 346ms
+ GET /paie 200 in 2.7s (next.js: 543ms, proxy.ts: 445ms, application-code: 1730ms)
+ GET /documents 200 in 2.8s (next.js: 1294ms, proxy.ts: 446ms, application-code: 1015ms)
+ GET /paie 200 in 991ms (next.js: 38ms, proxy.ts: 402ms, application-code: 551ms)
+ GET /documents 200 in 973ms (next.js: 162ms, proxy.ts: 385ms, application-code: 426ms)
+✓ Compiled in 346ms
+ GET /paie 200 in 3.0s (next.js: 613ms, proxy.ts: 475ms, application-code: 1896ms)
+ GET /documents 200 in 2.7s (next.js: 697ms, proxy.ts: 1198ms, application-code: 826ms)
+ GET /paie 200 in 1792ms (next.js: 81ms, proxy.ts: 1166ms, application-code: 544ms)
+ GET /documents 200 in 843ms (next.js: 47ms, proxy.ts: 403ms, application-code: 392ms)
+ GET /login 200 in 228ms (next.js: 41ms, proxy.ts: 11ms, application-code: 176ms)
+ GET /documents 200 in 153ms (next.js: 20ms, proxy.ts: 26ms, application-code: 106ms)
+ POST /documents 200 in 120ms (next.js: 15ms, proxy.ts: 34ms, application-code: 71ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 22ms src/app/(dashboard)/documents/actions.ts
+ POST /documents 200 in 90ms (next.js: 14ms, proxy.ts: 28ms, application-code: 47ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 24ms src/app/(dashboard)/documents/actions.ts
+ POST /documents 200 in 85ms (next.js: 15ms, proxy.ts: 24ms, application-code: 47ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 21ms src/app/(dashboard)/documents/actions.ts
+ GET /documents 200 in 46ms (next.js: 10ms, proxy.ts: 22ms, application-code: 14ms)
+ GET /documents 200 in 119ms (next.js: 12ms, proxy.ts: 18ms, application-code: 88ms)
+ GET /paie 200 in 350ms (next.js: 22ms, proxy.ts: 29ms, application-code: 298ms)
+ GET /admin/dossiers 200 in 320ms (next.js: 133ms, proxy.ts: 32ms, application-code: 154ms)
+ GET /admin/dossiers/cms7l3g73001r5lnq7olpb8p8 200 in 270ms (next.js: 111ms, proxy.ts: 20ms, application-code: 140ms)
+ POST /documents 200 in 117ms (next.js: 17ms, proxy.ts: 35ms, application-code: 65ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 25ms src/app/(dashboard)/documents/actions.ts
+ GET /conges 200 in 931ms (next.js: 533ms, proxy.ts: 24ms, application-code: 373ms)
+ GET /login 200 in 115ms (next.js: 12ms, proxy.ts: 11ms, application-code: 92ms)
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 426ms (next.js: 94ms, application-code: 332ms)
+ GET /api/auth/providers 200 in 299ms (next.js: 230ms, application-code: 70ms)
+ GET /api/auth/csrf 200 in 29ms (next.js: 11ms, application-code: 18ms)
+ POST /api/auth/callback/credentials? 200 in 254ms (next.js: 9ms, application-code: 245ms)
+ GET /dashboard 200 in 1240ms (next.js: 716ms, proxy.ts: 27ms, application-code: 497ms)
+ GET /select-company 200 in 1056ms (next.js: 206ms, proxy.ts: 438ms, application-code: 412ms)
+ GET /conges 200 in 1443ms (next.js: 18ms, proxy.ts: 106ms, application-code: 1320ms)
+ GET /select-company 200 in 629ms (next.js: 58ms, proxy.ts: 280ms, application-code: 292ms)
+ GET /api/companies/FAIRUP/logo 404 in 413ms (next.js: 135ms, application-code: 277ms)
+ GET /dashboard 200 in 370ms (next.js: 15ms, proxy.ts: 24ms, application-code: 331ms)
+ POST /select-company 303 in 882ms (next.js: 52ms, proxy.ts: 304ms, application-code: 526ms)
+  └─ ƒ selectCompanyAction({}) in 48ms src/app/select-company/actions.ts
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 277ms (next.js: 17ms, application-code: 260ms)
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 211ms (next.js: 21ms, application-code: 189ms)
+ GET /documents 200 in 943ms (next.js: 17ms, proxy.ts: 31ms, application-code: 894ms)
+ GET /login 200 in 137ms (next.js: 12ms, proxy.ts: 11ms, application-code: 113ms)
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 210ms (next.js: 11ms, application-code: 199ms)
+ GET /api/auth/providers 200 in 56ms (next.js: 32ms, application-code: 24ms)
+ GET /api/auth/csrf 200 in 29ms (next.js: 11ms, application-code: 18ms)
+ POST /api/auth/callback/credentials? 200 in 216ms (next.js: 9ms, application-code: 206ms)
+ GET /dashboard 200 in 200ms (next.js: 11ms, proxy.ts: 20ms, application-code: 169ms)
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 181ms (next.js: 6ms, application-code: 175ms)
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 240ms (next.js: 46ms, application-code: 194ms)
+ GET /documents 200 in 805ms (next.js: 14ms, proxy.ts: 21ms, application-code: 770ms)
+ POST /documents 200 in 90ms (next.js: 13ms, proxy.ts: 22ms, application-code: 55ms)
+  └─ ƒ getDossierPrefill("u-emp-1") in 30ms src/app/(dashboard)/documents/actions.ts
+ GET /paie 200 in 156ms (next.js: 13ms, proxy.ts: 22ms, application-code: 121ms)
+ GET /dashboard 200 in 220ms (next.js: 19ms, proxy.ts: 30ms, application-code: 171ms)
+ GET /assets/fonts/Inter-Regular.woff2 404 in 293ms (next.js: 101ms, proxy.ts: 29ms, application-code: 163ms)
+ GET /conges 200 in 249ms (next.js: 9ms, proxy.ts: 19ms, application-code: 221ms)
+ GET /login 200 in 57ms (next.js: 8ms, proxy.ts: 7ms, application-code: 41ms)
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 93ms (next.js: 6ms, application-code: 87ms)
+ GET /api/auth/providers 200 in 30ms (next.js: 18ms, application-code: 12ms)
+ GET /api/auth/csrf 200 in 19ms (next.js: 6ms, application-code: 13ms)
+ POST /api/auth/callback/credentials? 200 in 126ms (next.js: 6ms, application-code: 120ms)
+ GET /dashboard 200 in 108ms (next.js: 8ms, proxy.ts: 16ms, application-code: 85ms)
+ GET /select-company 200 in 77ms (next.js: 6ms, proxy.ts: 13ms, application-code: 58ms)
+ GET /select-company 200 in 100ms (next.js: 9ms, proxy.ts: 29ms, application-code: 62ms)
+ GET /api/companies/FAIRUP/logo 404 in 45ms (next.js: 15ms, application-code: 30ms)
+ GET /dashboard 200 in 123ms (next.js: 7ms, proxy.ts: 10ms, application-code: 105ms)
+ POST /select-company 303 in 176ms (next.js: 6ms, proxy.ts: 11ms, application-code: 159ms)
+  └─ ƒ selectCompanyAction({}) in 17ms src/app/select-company/actions.ts
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 91ms (next.js: 4ms, application-code: 87ms)
+ GET /documents 200 in 165ms (next.js: 8ms, proxy.ts: 21ms, application-code: 136ms)
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\ismai\Desktop\grh-fairup\document-templates\conge-payes\logo-bg.pngeg'
+    at GET (src\app\api\logo\fairup\route.ts:10:21)
+   8 |     "document-templates/conge-payes/logo-bg.pngeg",
+   9 |   );
+> 10 |   const buffer = fs.readFileSync(logoPath);
+     |                     ^
+  11 |   return new NextResponse(buffer, {
+  12 |     headers: {
+  13 |       "Content-Type": "image/jpeg", {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ismai\\Desktop\\grh-fairup\\document-templates\\conge-payes\\logo-bg.pngeg'
+}
+ GET /api/logo/fairup 500 in 98ms (next.js: 6ms, application-code: 92ms)
+ GET /conges 200 in 733ms (next.js: 223ms, proxy.ts: 149ms, application-code: 361ms)
+ GET /conges 200 in 608ms (next.js: 30ms, proxy.ts: 362ms, application-code: 215ms)
+ GET /conges 200 in 639ms (next.js: 206ms, proxy.ts: 135ms, application-code: 298ms)
+ GET /conges 200 in 636ms (next.js: 336ms, proxy.ts: 132ms, application-code: 168ms)
+ GET /login 200 in 164ms (next.js: 23ms, proxy.ts: 7ms, application-code: 134ms)
+ GET /api/logo/fairup 200 in 75ms (next.js: 59ms, application-code: 16ms)
+ GET /api/auth/providers 200 in 137ms (next.js: 115ms, application-code: 22ms)
+ GET /api/auth/csrf 200 in 17ms (next.js: 7ms, application-code: 10ms)
+ POST /api/auth/callback/credentials? 200 in 143ms (next.js: 5ms, application-code: 138ms)
+ GET /dashboard 200 in 206ms (next.js: 77ms, proxy.ts: 16ms, application-code: 113ms)
+ GET /select-company 200 in 253ms (next.js: 75ms, proxy.ts: 17ms, application-code: 161ms)
+ GET /select-company 200 in 133ms (next.js: 9ms, proxy.ts: 42ms, application-code: 82ms)
+ GET /api/companies/FAIRUP/logo 200 in 176ms (next.js: 124ms, application-code: 52ms)
+ GET /dashboard 200 in 130ms (next.js: 6ms, proxy.ts: 12ms, application-code: 112ms)
+ POST /select-company 303 in 181ms (next.js: 6ms, proxy.ts: 11ms, application-code: 164ms)
+  └─ ƒ selectCompanyAction({}) in 15ms src/app/select-company/actions.ts
+ GET /documents 200 in 339ms (next.js: 89ms, proxy.ts: 16ms, application-code: 233ms)
+ GET /login 200 in 65ms (next.js: 8ms, proxy.ts: 10ms, application-code: 48ms)
+ GET /api/logo/fairup 200 in 14ms (next.js: 5ms, application-code: 9ms)
+ GET /api/auth/providers 200 in 39ms (next.js: 23ms, application-code: 16ms)
+ GET /api/auth/csrf 200 in 16ms (next.js: 5ms, application-code: 11ms)
+ POST /api/auth/callback/credentials? 200 in 131ms (next.js: 9ms, application-code: 123ms)
+ GET /dashboard 200 in 143ms (next.js: 9ms, proxy.ts: 20ms, application-code: 113ms)
+ GET /select-company 200 in 163ms (next.js: 9ms, proxy.ts: 17ms, application-code: 137ms)
+ GET /select-company 200 in 132ms (next.js: 10ms, proxy.ts: 32ms, application-code: 89ms)
+ GET /api/companies/FAIRUP/logo 200 in 52ms (next.js: 20ms, application-code: 32ms)
+ GET /dashboard 200 in 174ms (next.js: 9ms, proxy.ts: 43ms, application-code: 121ms)
+ POST /select-company 303 in 230ms (next.js: 8ms, proxy.ts: 15ms, application-code: 208ms)
+  └─ ƒ selectCompanyAction({}) in 16ms src/app/select-company/actions.ts
+ GET /documents 200 in 183ms (next.js: 8ms, proxy.ts: 14ms, application-code: 161ms)
+ GET /login 200 in 109ms (next.js: 7ms, proxy.ts: 7ms, application-code: 94ms)
+ GET /api/logo/fairup 200 in 18ms (next.js: 8ms, application-code: 11ms)
+ GET /api/auth/providers 200 in 37ms (next.js: 22ms, application-code: 15ms)
+ GET /api/auth/csrf 200 in 16ms (next.js: 6ms, application-code: 11ms)
+ POST /api/auth/callback/credentials? 200 in 133ms (next.js: 4ms, application-code: 129ms)
+ GET /dashboard 200 in 151ms (next.js: 8ms, proxy.ts: 16ms, application-code: 127ms)
+ GET /documents 200 in 176ms (next.js: 10ms, proxy.ts: 14ms, application-code: 152ms)
+ POST /documents 200 in 81ms (next.js: 12ms, proxy.ts: 15ms, application-code: 54ms)
+  └─ ƒ getDossierPrefill("u-emp-1") in 31ms src/app/(dashboard)/documents/actions.ts
+ GET /login 200 in 82ms (next.js: 15ms, proxy.ts: 8ms, application-code: 58ms)
+ GET /api/logo/fairup 200 in 15ms (next.js: 6ms, application-code: 9ms)
+ GET /api/auth/providers 200 in 38ms (next.js: 24ms, application-code: 14ms)
+ GET /api/auth/csrf 200 in 20ms (next.js: 7ms, application-code: 13ms)
+ POST /api/auth/callback/credentials? 200 in 131ms (next.js: 4ms, application-code: 126ms)
+ GET /dashboard 200 in 136ms (next.js: 9ms, proxy.ts: 13ms, application-code: 115ms)
+ GET /select-company 200 in 116ms (next.js: 9ms, proxy.ts: 17ms, application-code: 90ms)
+ GET /select-company 200 in 163ms (next.js: 19ms, proxy.ts: 38ms, application-code: 106ms)
+ GET /api/companies/FAIRUP/logo 200 in 54ms (next.js: 22ms, application-code: 32ms)
+ GET /dashboard 200 in 129ms (next.js: 9ms, proxy.ts: 14ms, application-code: 107ms)
+ POST /select-company 303 in 189ms (next.js: 7ms, proxy.ts: 12ms, application-code: 170ms)
+  └─ ƒ selectCompanyAction({}) in 20ms src/app/select-company/actions.ts
+ POST /api/documents/generate 200 in 2.4s (next.js: 80ms, application-code: 2.3s)
+ GET /documents 200 in 166ms (next.js: 19ms, proxy.ts: 27ms, application-code: 119ms)
+ GET /dashboard 200 in 150ms (next.js: 14ms, proxy.ts: 17ms, application-code: 119ms)
+ GET /admin/dossiers 200 in 270ms (next.js: 99ms, proxy.ts: 29ms, application-code: 142ms)
+ POST /admin/dossiers 200 in 318ms (next.js: 13ms, proxy.ts: 18ms, application-code: 286ms)
+  └─ ƒ createBlankDossier() in 78ms src/app/(dashboard)/admin/dossiers/actions.ts
+ GET /admin/dossiers/cms7lrg3l00225lnqt6rz5cnt 200 in 209ms (next.js: 74ms, proxy.ts: 34ms, application-code: 101ms)
+✓ Compiled in 267ms
+ GET /conges 200 in 1177ms (next.js: 334ms, proxy.ts: 160ms, application-code: 683ms)
+ GET /admin/dossiers/cms7lrg3l00225lnqt6rz5cnt 200 in 1174ms (next.js: 722ms, proxy.ts: 156ms, application-code: 295ms)
+✓ Compiled in 476ms
+ GET /conges 200 in 1069ms (next.js: 214ms, proxy.ts: 153ms, application-code: 702ms)
+ GET /admin/dossiers/cms7lrg3l00225lnqt6rz5cnt 200 in 1136ms (next.js: 587ms, proxy.ts: 153ms, application-code: 397ms)
+ GET /conges 200 in 748ms (next.js: 24ms, proxy.ts: 482ms, application-code: 242ms)
+ GET /admin/dossiers/cms7lrg3l00225lnqt6rz5cnt 200 in 404ms (next.js: 30ms, proxy.ts: 190ms, application-code: 184ms)
+✓ Compiled in 139ms
+ GET /conges 200 in 1061ms (next.js: 249ms, proxy.ts: 152ms, application-code: 660ms)
+ GET /admin/dossiers/cms7lrg3l00225lnqt6rz5cnt 200 in 1081ms (next.js: 652ms, proxy.ts: 149ms, application-code: 281ms)
+✓ Compiled in 164ms
+ GET /conges 200 in 1540ms (next.js: 335ms, proxy.ts: 214ms, application-code: 992ms)
+ GET /admin/dossiers/cms7lrg3l00225lnqt6rz5cnt 200 in 1542ms (next.js: 972ms, proxy.ts: 214ms, application-code: 356ms)
+✓ Compiled in 157ms
+ GET /conges 200 in 1834ms (next.js: 412ms, proxy.ts: 314ms, application-code: 1108ms)
+ GET /admin/dossiers/cms7lrg3l00225lnqt6rz5cnt 200 in 1830ms (next.js: 1132ms, proxy.ts: 312ms, application-code: 386ms)
+✓ Compiled in 141ms
+ GET /conges 200 in 1716ms (next.js: 319ms, proxy.ts: 218ms, application-code: 1179ms)
+ GET /admin/dossiers/cms7lrg3l00225lnqt6rz5cnt 200 in 1715ms (next.js: 1012ms, proxy.ts: 217ms, application-code: 487ms)
+✓ Compiled in 899ms
+ GET /conges 200 in 3.1s (next.js: 438ms, proxy.ts: 320ms, application-code: 2.3s)
+ GET /admin/dossiers/cms7lrg3l00225lnqt6rz5cnt 200 in 2.8s (next.js: 460ms, proxy.ts: 718ms, application-code: 1645ms)
+ GET /login 200 in 266ms (next.js: 57ms, proxy.ts: 12ms, application-code: 197ms)
+ GET /login 200 in 67ms (next.js: 8ms, proxy.ts: 7ms, application-code: 52ms)
+ GET /api/logo/fairup 200 in 71ms (next.js: 58ms, application-code: 13ms)
+ GET /api/auth/providers 200 in 206ms (next.js: 181ms, application-code: 25ms)
+ GET /api/auth/csrf 200 in 21ms (next.js: 6ms, application-code: 15ms)
+ POST /api/auth/callback/credentials? 200 in 237ms (next.js: 8ms, application-code: 230ms)
+ GET /dashboard 200 in 521ms (next.js: 193ms, proxy.ts: 35ms, application-code: 293ms)
+ GET /select-company 200 in 380ms (next.js: 136ms, proxy.ts: 28ms, application-code: 216ms)
+ GET /select-company 200 in 323ms (next.js: 32ms, proxy.ts: 125ms, application-code: 166ms)
+ GET /api/companies/FAIRUP/logo 200 in 182ms (next.js: 111ms, application-code: 71ms)
+ GET /dashboard 200 in 262ms (next.js: 16ms, proxy.ts: 22ms, application-code: 224ms)
+ POST /select-company 303 in 410ms (next.js: 25ms, proxy.ts: 34ms, application-code: 351ms)
+  └─ ƒ selectCompanyAction({}) in 40ms src/app/select-company/actions.ts
+ GET /admin/dossiers 200 in 622ms (next.js: 80ms, proxy.ts: 29ms, application-code: 513ms)
+ POST /admin/dossiers 200 in 296ms (next.js: 15ms, proxy.ts: 22ms, application-code: 259ms)
+  └─ ƒ createBlankDossier() in 39ms src/app/(dashboard)/admin/dossiers/actions.ts
+ GET /admin/dossiers/cms7lzu8v00245lnqwn0t23ja 200 in 214ms (next.js: 34ms, proxy.ts: 65ms, application-code: 114ms)
+ GET /login 200 in 109ms (next.js: 13ms, proxy.ts: 13ms, application-code: 83ms)
+ GET /api/logo/fairup 200 in 22ms (next.js: 8ms, application-code: 14ms)
+ GET /api/auth/providers 200 in 48ms (next.js: 25ms, application-code: 23ms)
+ GET /api/auth/csrf 200 in 26ms (next.js: 10ms, application-code: 17ms)
+ POST /api/auth/callback/credentials? 200 in 218ms (next.js: 7ms, application-code: 210ms)
+ GET /dashboard 200 in 221ms (next.js: 13ms, proxy.ts: 20ms, application-code: 189ms)
+ GET /select-company 200 in 258ms (next.js: 19ms, proxy.ts: 26ms, application-code: 212ms)
+ GET /select-company 200 in 206ms (next.js: 26ms, proxy.ts: 60ms, application-code: 121ms)
+ GET /api/companies/FAIRUP/logo 200 in 63ms (next.js: 25ms, application-code: 38ms)
+ GET /dashboard 200 in 229ms (next.js: 16ms, proxy.ts: 20ms, application-code: 193ms)
+ POST /select-company 303 in 308ms (next.js: 11ms, proxy.ts: 20ms, application-code: 277ms)
+  └─ ƒ selectCompanyAction({}) in 21ms src/app/select-company/actions.ts
+ GET /admin/dossiers 200 in 481ms (next.js: 12ms, proxy.ts: 44ms, application-code: 425ms)
+ POST /admin/dossiers 200 in 288ms (next.js: 16ms, proxy.ts: 19ms, application-code: 253ms)
+  └─ ƒ createBlankDossier() in 29ms src/app/(dashboard)/admin/dossiers/actions.ts
+ GET /admin/dossiers/cms7m0grz00265lnqtkxvqc9q 200 in 204ms (next.js: 28ms, proxy.ts: 60ms, application-code: 115ms)
+ POST /admin/dossiers/cms7m0grz00265lnqtkxvqc9q 200 in 445ms (next.js: 46ms, proxy.ts: 60ms, application-code: 339ms)
+  └─ ƒ saveDossier("cms7m0grz00265lnqtkxvqc9q", {"fields":{"adresseResidentielle":"","contactUrgenceLien":"","contactUrgenceNom":"","...":"20 items not stringified"},"outilsAttribues":["Brouillon"],"pieces":["[Object]","[Object]","[Object]","... 2 items not stringified"]}, null) in 48ms src/app/(dashboard)/admin/dossiers/actions.ts
+ POST /api/dossiers/cms7m0grz00265lnqtkxvqc9q/generate 200 in 4.3s (next.js: 232ms, application-code: 4.1s)
+ POST /admin/dossiers/cms7m0grz00265lnqtkxvqc9q 200 in 677ms (next.js: 48ms, proxy.ts: 29ms, application-code: 600ms)
+  └─ ƒ saveDossier("cms7m0grz00265lnqtkxvqc9q", {"fields":{"adresseResidentielle":"","contactUrgenceLien":"","contactUrgenceNom":"","...":"20 items not stringified"},"outilsAttribues":["Brouillon"],"pieces":["[Object]","[Object]","[Object]","... 2 items not stringified"]}, "u-mgr-2") in 40ms src/app/(dashboard)/admin/dossiers/actions.ts
+ GET /admin/dossiers/cms7m0grz00265lnqtkxvqc9q 200 in 848ms (next.js: 49ms, proxy.ts: 29ms, application-code: 770ms)
+ GET /admin/dossiers 200 in 558ms (next.js: 17ms, proxy.ts: 26ms, application-code: 516ms)
+ GET /admin/dossiers/cms7m0grz00265lnqtkxvqc9q 200 in 256ms (next.js: 51ms, proxy.ts: 45ms, application-code: 159ms)
+ GET /admin/dossiers 200 in 132ms (next.js: 14ms, proxy.ts: 22ms, application-code: 96ms)
+ POST /admin/dossiers 200 in 268ms (next.js: 11ms, proxy.ts: 26ms, application-code: 231ms)
+  └─ ƒ deleteDossier("cms7lrg3l00225lnqt6rz5cnt") in 39ms src/app/(dashboard)/admin/dossiers/actions.ts
+ POST /api/dossiers/upload 200 in 327ms (next.js: 142ms, application-code: 185ms)
+ GET /admin/dossiers/cms7m3qag00285lnq8u7cma7c 200 in 228ms (next.js: 106ms, proxy.ts: 23ms, application-code: 99ms)
+ POST /admin/dossiers/cms7m3qag00285lnq8u7cma7c 200 in 297ms (next.js: 35ms, proxy.ts: 25ms, application-code: 236ms)
+  └─ ƒ saveDossier("cms7m3qag00285lnq8u7cma7c", {"fields":{"adresseResidentielle":"Quartier EL MERS ACHENNAD 5 NR LOT 5256 - TANGER","contactUrgenceLien":"","contactUrgenceNom":"","...":"20 items not stringified"},"outilsAttribues":["Logiciel innovaweb"],"pieces":["[Object]","[Object]","[Object]","... 2 items not stringified"]}, "cms7jomew000l137ogavlk1r8") in 44ms src/app/(dashboard)/admin/dossiers/actions.ts
+ GET /admin/dossiers 200 in 233ms (next.js: 22ms, proxy.ts: 54ms, application-code: 157ms)
+ POST /admin/dossiers 200 in 355ms (next.js: 20ms, proxy.ts: 26ms, application-code: 310ms)
+  └─ ƒ deleteDossier("cms7m3qag00285lnq8u7cma7c") in 72ms src/app/(dashboard)/admin/dossiers/actions.ts
+ GET /dashboard 200 in 165ms (next.js: 18ms, proxy.ts: 20ms, application-code: 127ms)
+ GET /assets/fonts/Inter-Regular.woff2 404 in 202ms (next.js: 72ms, proxy.ts: 23ms, application-code: 107ms)
+ GET /dashboard 200 in 346ms (next.js: 14ms, proxy.ts: 19ms, application-code: 314ms)
+ GET /assets/fonts/Inter-Regular.woff2 404 in 163ms (next.js: 28ms, proxy.ts: 24ms, application-code: 112ms)
+ GET /paie 200 in 290ms (next.js: 156ms, proxy.ts: 23ms, application-code: 111ms)
+ GET /conges 200 in 199ms (next.js: 50ms, proxy.ts: 21ms, application-code: 129ms)
+ GET /documents 200 in 290ms (next.js: 147ms, proxy.ts: 19ms, application-code: 124ms)
+ POST /documents 200 in 116ms (next.js: 17ms, proxy.ts: 32ms, application-code: 67ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 29ms src/app/(dashboard)/documents/actions.ts
+ POST /documents 200 in 87ms (next.js: 13ms, proxy.ts: 21ms, application-code: 53ms)
+  └─ ƒ getDossierPrefill("cms7jomew000l137ogavlk1r8") in 32ms src/app/(dashboard)/documents/actions.ts
+ GET /admin/dossiers 200 in 530ms (next.js: 21ms, proxy.ts: 47ms, application-code: 461ms)
+ GET /admin 200 in 236ms (next.js: 78ms, proxy.ts: 21ms, application-code: 137ms)
+ GET /dashboard 200 in 160ms (next.js: 14ms, proxy.ts: 20ms, application-code: 126ms)
+ GET /assets/fonts/Inter-Regular.woff2 404 in 129ms (next.js: 23ms, proxy.ts: 22ms, application-code: 83ms)
+ GET /admin/dossiers 200 in 474ms (next.js: 58ms, proxy.ts: 56ms, application-code: 360ms)
+ POST /admin/dossiers 200 in 508ms (next.js: 22ms, proxy.ts: 57ms, application-code: 429ms)
+  └─ ƒ deleteDossier("cms7l3g73001r5lnq7olpb8p8") in 71ms src/app/(dashboard)/admin/dossiers/actions.ts
+ GET /dashboard 200 in 272ms (next.js: 20ms, proxy.ts: 26ms, application-code: 226ms)
+ GET /select-company 200 in 210ms (next.js: 24ms, proxy.ts: 39ms, application-code: 147ms)
+ GET /dashboard 200 in 281ms (next.js: 29ms, proxy.ts: 27ms, application-code: 225ms)
+ POST /select-company 303 in 411ms (next.js: 14ms, proxy.ts: 30ms, application-code: 367ms)
+  └─ ƒ selectCompanyAction({}) in 43ms src/app/select-company/actions.ts
+ GET /admin 200 in 184ms (next.js: 18ms, proxy.ts: 27ms, application-code: 139ms)
+ GET /dashboard 200 in 265ms (next.js: 16ms, proxy.ts: 46ms, application-code: 203ms)
+ GET /admin/dossiers 200 in 183ms (next.js: 15ms, proxy.ts: 25ms, application-code: 143ms)
+ POST /api/dossiers/upload 200 in 184ms (next.js: 7ms, application-code: 178ms)
+ GET /admin/dossiers/cms7mmtff002a5lnqxzgz8tpa 200 in 430ms (next.js: 156ms, proxy.ts: 113ms, application-code: 161ms)
+ POST /admin/dossiers/cms7mmtff002a5lnqxzgz8tpa 200 in 404ms (next.js: 48ms, proxy.ts: 27ms, application-code: 329ms)
+  └─ ƒ saveDossier("cms7mmtff002a5lnqxzgz8tpa", {"fields":{"adresseResidentielle":"Quartier EL MERS ACHENNAD 5 NR LOT 5256 - TANGER","contactUrgenceLien":"","contactUrgenceNom":"","...":"20 items not stringified"},"outilsAttribues":["Logiciel innovaweb"],"pieces":["[Object]","[Object]","[Object]","... 2 items not stringified"]}, "cms7jomew000l137ogavlk1r8") in 90ms src/app/(dashboard)/admin/dossiers/actions.ts
+ GET /dashboard 200 in 568ms (next.js: 18ms, proxy.ts: 45ms, application-code: 506ms)
+ GET /assets/fonts/Inter-Regular.woff2 404 in 266ms (next.js: 37ms, proxy.ts: 40ms, application-code: 190ms)
+ GET /conges 200 in 219ms (next.js: 15ms, proxy.ts: 23ms, application-code: 180ms)
+ POST /conges 200 in 341ms (next.js: 17ms, proxy.ts: 33ms, application-code: 292ms)
+  └─ ƒ submitLeaveRequest({}) in 59ms src/app/(dashboard)/conges/actions.ts
+ GET /admin/dossiers/cms7mmtff002a5lnqxzgz8tpa 200 in 533ms (next.js: 48ms, proxy.ts: 38ms, application-code: 447ms)
+ POST /admin/dossiers/cms7mmtff002a5lnqxzgz8tpa 200 in 488ms (next.js: 161ms, proxy.ts: 50ms, application-code: 277ms)
+  └─ ƒ markNotificationRead("cms7mon47002e5lnq6nvhtibc") in 243ms src/app/(dashboard)/notifications/actions.ts
+ GET /conges 200 in 495ms (next.js: 19ms, proxy.ts: 49ms, application-code: 427ms)
+ POST /conges 200 in 6.2s (next.js: 20ms, proxy.ts: 26ms, application-code: 6.2s)
+  └─ ƒ reviewLeave({}) in 5719ms src/app/(dashboard)/conges/actions.ts
+ GET /conges 200 in 506ms (next.js: 15ms, proxy.ts: 25ms, application-code: 466ms)
+ GET /api/leaves/cms7mon3m002c5lnqjeus6dvf/download 200 in 177ms (next.js: 129ms, application-code: 48ms)
+ GET /paie 200 in 212ms (next.js: 18ms, proxy.ts: 26ms, application-code: 169ms)
+ GET /dashboard 200 in 202ms (next.js: 16ms, proxy.ts: 31ms, application-code: 155ms)
+ GET /assets/fonts/Inter-Regular.woff2 404 in 143ms (next.js: 24ms, proxy.ts: 21ms, application-code: 99ms)
+ GET /sw.js 404 in 2.5s (next.js: 317ms, proxy.ts: 458ms, application-code: 1753ms)
+ GET /sw.js 404 in 569ms (next.js: 100ms, proxy.ts: 99ms, application-code: 370ms)
+ GET /sw.js 404 in 8.7s (next.js: 5.3s, proxy.ts: 1058ms, application-code: 2.4s)

@@ -1,26 +1,206 @@
 @import "tailwindcss";
 
+/* ───────────────────────────────────────────────────────────────────────────
+   Design tokens
+   The brand ramp is declared as plain custom properties so it can be swapped
+   at runtime per company (see [data-company] below) — `@theme inline` then
+   exposes it to Tailwind as `bg-brand-600`, `text-brand-700`, `ring-brand-500`…
+   Every accent in the product resolves through this ramp; no page should
+   hardcode `indigo-*` or `violet-*` again.
+   ─────────────────────────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+
+  /* Fair'Up — navy, anchored on #0a1b3e at the 600 (primary fill) step.
+     White on #0a1b3e is 16.9:1, so every `bg-brand-600 text-white` surface
+     clears AAA with room to spare.
+
+     700 is deliberately LIGHTER than 600, which inverts the usual ramp: it is
+     only ever used as `hover:`/`active:` over the 600 fill and as text on the
+     50/100 tints. At this darkness a "darker on hover" step is invisible, so
+     the button lifts instead of sinking — while #16305f still reads 13.0:1 on
+     white and 9.9:1 on brand-100. Do not "fix" the ordering. */
+  --brand-50:  #eef2f9;
+  --brand-100: #dae2f0;
+  --brand-200: #b6c5e0;
+  --brand-300: #8aa0c9;
+  --brand-400: #5b76a8;
+  --brand-500: #2f4d84;
+  --brand-600: #0a1b3e;
+  --brand-700: #16305f;
+  --brand-900: #050e21;
+
+  /* ── Navigation chrome ────────────────────────────────────────────────────
+     The dark surface shared by the desktop sidebar, the mobile drawer, the
+     mobile top bar and the bottom tab bar.
+
+     Declared OUTSIDE the brand ramp on purpose: the chrome must not follow
+     the per-company accent. FAIR2UP keeps its violet accent on buttons and
+     tabs while its chrome stays this navy — a violet-tinted sidebar next to
+     a navy one would read as two different products.
+
+     Every value below is measured against --chrome (#0a1b3e):
+       fg    15.5:1   muted 6.8:1   dim 11.4:1
+     so even the 11px uppercase section labels clear AA. */
+  --chrome: #0a1b3e;
+  --chrome-fg: #f1f5f9;
+  --chrome-dim: #cbd5e1;
+  --chrome-muted: #93a5c4;
+  --chrome-border: rgb(255 255 255 / 0.10);
+  --chrome-hover: rgb(255 255 255 / 0.07);
+  --chrome-active: rgb(255 255 255 / 0.14);
+}
+
+/* FAIR2UP — violet. Set on <html> by the dashboard layout. */
+[data-company="FAIR2UP"] {
+  --brand-50:  #f5f3ff;
+  --brand-100: #ede9fe;
+  --brand-200: #ddd6fe;
+  --brand-300: #c4b5fd;
+  --brand-400: #a78bfa;
+  --brand-500: #8b5cf6;
+  --brand-600: #7c3aed;
+  --brand-700: #6d28d9;
+  --brand-900: #4c1d95;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --color-brand-50:  var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-900: var(--brand-900);
+
+  --color-chrome: var(--chrome);
+  --color-chrome-fg: var(--chrome-fg);
+  --color-chrome-dim: var(--chrome-dim);
+  --color-chrome-muted: var(--chrome-muted);
+  --color-chrome-border: var(--chrome-border);
+  --color-chrome-hover: var(--chrome-hover);
+  --color-chrome-active: var(--chrome-active);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+
+  /* Elevation. Each step pairs a tight contact shadow with a wider, softer
+     ambient one — a single blurred shadow reads as fog, two read as a sheet
+     of paper actually lifted off the canvas. */
+  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 4px 12px -4px rgb(15 23 42 / 0.06);
+  --shadow-card-hover: 0 1px 2px 0 rgb(15 23 42 / 0.05), 0 8px 20px -6px rgb(15 23 42 / 0.10);
+  --shadow-raised: 0 4px 6px -2px rgb(15 23 42 / 0.05), 0 12px 24px -8px rgb(15 23 42 / 0.10);
+  --shadow-overlay: 0 24px 48px -12px rgb(15 23 42 / 0.25);
+
+  --animate-sheet-up: sheet-up 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-rise: rise 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Typography: slightly tighter headings and balanced wrapping read as
+   "designed" without adding a single extra class at the call site. */
+h1, h2, h3 {
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* Dates, amounts and counters must not jitter between values. */
+table,
+time {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Keyboard-only focus ring for buttons/links (inputs define their own ring
+   and override this with focus:outline-none). */
+:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* iOS Safari zooms into any focused field whose font-size is below 16px.
+   Forcing 16px on mobile keeps the viewport stable while typing. */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Hide scrollbars on horizontally swipeable strips (tab bars). */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Column header treatment shared by every data table. */
+@utility th-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-slate-500);
+}
+
+/* Section label above a group of nav items. Typography only — the colour is
+   set at the call site, because this label appears both on the dark nav
+   chrome (text-chrome-muted) and on the white notification panel
+   (text-slate-500, since slate-400 fails AA at 11px uppercase). */
+@utility nav-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Text selection picks up the active brand instead of the browser default. */
+::selection {
+  background: var(--brand-100);
+  color: var(--brand-900);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

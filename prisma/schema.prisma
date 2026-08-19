@@ -1,0 +1,274 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("EMPLOYEE")
+  position  String?
+  hireDate  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  // Forces a one-time password change on next login. Set true for admin-created
+  // accounts; cleared once the user picks their own password.
+  mustChangePassword Boolean @default(false)
+
+  company   String  @default("FAIRUP")
+
+  managerId String?
+  manager   User?   @relation("ManagerEmployees", fields: [managerId], references: [id])
+  employees User[]  @relation("ManagerEmployees")
+
+  leaveBalance   LeaveBalance?
+  leaveRequests  LeaveRequest[]      @relation("EmployeeLeaves")
+  reviewedLeaves LeaveRequest[]      @relation("ReviewerLeaves")
+  payslips       Payslip[]
+  tickets        Ticket[]
+  publishedNews  News[]
+  generatedDocs  GeneratedDocument[] @relation("GeneratedByDocs")
+  subjectDocs    GeneratedDocument[] @relation("SubjectDocs")
+  docRequests    DocumentRequest[]   @relation("DocRequests")
+  docReviews     DocumentRequest[]   @relation("DocReviews")
+
+  subjectDossiers EmployeeDossier[]  @relation("DossierSubject")
+  createdDossiers EmployeeDossier[]  @relation("DossierCreatedBy")
+  updatedDossiers EmployeeDossier[]  @relation("DossierUpdatedBy")
+
+  advances         SalaryAdvance[] @relation("EmployeeAdvances")
+  reviewedAdvances SalaryAdvance[] @relation("ReviewerAdvances")
+
+  remoteDays        RemoteWorkDay[] @relation("EmployeeRemoteDays")
+  createdRemoteDays RemoteWorkDay[] @relation("RemoteDaysCreatedBy")
+
+  resetTokens PasswordResetToken[]
+
+  notifications Notification[]
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  // SHA-256 hash of the token; the raw token only ever lives in the emailed URL.
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model LeaveBalance {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cpDays     Float    @default(25)
+  rttDays    Float    @default(10)
+  expiryDate DateTime
+  updatedAt  DateTime @updatedAt
+
+  // Start of the last month whose +1,5 CP accrual has already been credited.
+  // Existing rows default to "now", so nothing is credited retroactively.
+  // See src/lib/accrual.ts.
+  lastAccrualAt DateTime @default(now())
+}
+
+model LeaveRequest {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation("EmployeeLeaves", fields: [userId], references: [id], onDelete: Cascade)
+  type         String
+  startDate    DateTime
+  endDate      DateTime
+  days         Float
+  comment      String?
+  status       String    @default("PENDING")
+  reviewedById String?
+  reviewedBy   User?     @relation("ReviewerLeaves", fields: [reviewedById], references: [id])
+  reviewNote   String?
+  reviewedAt   DateTime?
+  pdfPath      String?
+  createdAt    DateTime  @default(now())
+}
+
+model Payslip {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  month     String
+  pdfPath   String?
+  createdAt DateTime @default(now())
+}
+
+model Ticket {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    String
+  description String
+  status      String   @default("OPEN")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model News {
+  id            String   @id @default(cuid())
+  content       String
+  publishedById String
+  publishedBy   User     @relation(fields: [publishedById], references: [id])
+  company       String   @default("FAIRUP")
+  createdAt     DateTime @default(now())
+}
+
+model DocumentRequest {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation("DocRequests", fields: [userId], references: [id], onDelete: Cascade)
+  templateId   String
+  fieldsJson   String
+  status       String    @default("PENDING")
+  reviewedById String?
+  reviewedBy   User?     @relation("DocReviews", fields: [reviewedById], references: [id])
+  reviewNote   String?
+  reviewedAt   DateTime?
+  pdfPath      String?
+  createdAt    DateTime  @default(now())
+}
+
+model SalaryAdvance {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation("EmployeeAdvances", fields: [userId], references: [id], onDelete: Cascade)
+  amount         Float
+  reason         String?
+  repaymentMonth String? // "mois de remboursement souhaité" (free text, e.g. "Août 2026")
+  status         String    @default("PENDING") // PENDING / APPROVED / REJECTED
+  reviewedById   String?
+  reviewedBy     User?     @relation("ReviewerAdvances", fields: [reviewedById], references: [id])
+  reviewNote     String?
+  reviewedAt     DateTime?
+  createdAt      DateTime  @default(now())
+}
+
+/// One row per employee per télétravail day. A "période" or a weekly pattern
+/// is expanded into individual rows at assignment time, so the calendar reads
+/// a flat list and cancelling a single day never has to split a range.
+model RemoteWorkDay {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("EmployeeRemoteDays", fields: [userId], references: [id], onDelete: Cascade)
+
+  // yyyy-mm-dd. Text rather than DateTime: a télétravail day is a calendar
+  // date, so storing it as a string keeps it immune to timezone drift and
+  // makes the month query a plain lexicographic range.
+  date String
+
+  note String?
+
+  createdById String?
+  createdBy   User?    @relation("RemoteDaysCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([date])
+}
+
+model Company {
+  id        String   @id @default(cuid())
+  code      String   @unique // stable identifier stored on users/data (e.g. FAIRUP)
+  name      String
+  tagline   String?
+  logoPath  String? // uploaded logo filename under uploads/companies/
+  createdAt DateTime @default(now())
+}
+
+model EmployeeDossier {
+  id     String  @id @default(cuid())
+  // Optional — a dossier may predate the employee's account creation.
+  userId String?
+  user   User?   @relation("DossierSubject", fields: [userId], references: [id], onDelete: SetNull)
+
+  // Company is denormalized so dossiers without a linked user can still be scoped.
+  company String @default("FAIRUP")
+
+  // ── Section 2 · Situation Professionnelle ────────────────────────────────
+  matricule          String?
+  poste              String?
+  departement        String?
+  manager            String?
+  dateIntegration    String? // yyyy-mm-dd (string: extracted dates may be partial)
+  typeContrat        String? // CDI | CDD | STAGE | AUTRE
+  statutPeriodeEssai String? // EN_COURS | VALIDEE | RENOUVELEE
+
+  // ── Section 1 · Informations Personnelles ────────────────────────────────
+  nom                  String?
+  prenom               String?
+  dateNaissance        String? // yyyy-mm-dd
+  nationalite          String?
+  numeroCin            String?
+  adresseResidentielle String?
+  telephonePersonnel   String?
+  emailPersonnel       String?
+  numeroCnss           String?
+
+  // ── Section 3 · Coordonnées / Accès / Matériel ───────────────────────────
+  emailPro            String?
+  identifiantRingover String?
+  extensionLigne      String?
+  outilsAttribues     String @default("[]") // JSON array of strings
+  materielInformatique String?
+
+  // ── Section 4 · Contact d'Urgence ────────────────────────────────────────
+  contactUrgenceNom       String?
+  contactUrgenceLien      String?
+  contactUrgenceTelephone String?
+
+  // ── Section 5 · Pièces Justificatives ────────────────────────────────────
+  // JSON array of { document, statut, dateReception }
+  pieces String @default("[]")
+
+  // ── Audit / files ────────────────────────────────────────────────────────
+  sourcePdfPath    String? // original uploaded PDF, kept for audit
+  generatedPdfPath String? // latest regenerated clean PDF
+
+  createdById String?
+  createdBy   User?   @relation("DossierCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedById String?
+  updatedBy   User?   @relation("DossierUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String // LEAVE_SUBMITTED | LEAVE_REVIEWED | ADVANCE_SUBMITTED | ADVANCE_REVIEWED | DOCUMENT_SUBMITTED | DOCUMENT_REVIEWED | REMOTE_ASSIGNED | REMOTE_CANCELLED
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+}
+
+model GeneratedDocument {
+  id            String   @id @default(cuid())
+  type          String
+  subjectUserId String
+  subjectUser   User     @relation("SubjectDocs", fields: [subjectUserId], references: [id])
+  generatedById String
+  generatedBy   User     @relation("GeneratedByDocs", fields: [generatedById], references: [id])
+  pdfPath       String
+  metadata      String   @default("{}")
+  createdAt     DateTime @default(now())
+}
