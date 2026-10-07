@@ -2,47 +2,13 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { Download, Loader2, Send, UserSearch } from "lucide-react";
+import { businessDaysBetween, nextBusinessDayIso } from "@/lib/dates";
 import { TEMPLATES, type TemplateConfig } from "@/lib/documents/templates.config";
 import { submitDocumentRequest, getDossierPrefill } from "@/app/(dashboard)/documents/actions";
 
 const INPUT_CLASS =
   "w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/20";
 const LABEL_CLASS = "mb-1 block text-sm font-medium text-slate-700";
-
-function businessDays(start: Date, end: Date): number {
-  let count = 0;
-  const cur = new Date(start);
-  while (cur <= end) {
-    const day = cur.getDay();
-    if (day !== 0 && day !== 6) count++;
-    cur.setDate(cur.getDate() + 1);
-  }
-  return count;
-}
-
-/** Parse a `yyyy-mm-dd` string as a LOCAL date (avoids UTC off-by-one). */
-function parseLocalDate(iso: string): Date | null {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
-  if (!m) return null;
-  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-}
-
-function toIso(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-/** Next weekday strictly after `iso` (skips Sat/Sun) — the "date de reprise". */
-function nextBusinessDay(iso: string): string {
-  const d = parseLocalDate(iso);
-  if (!d) return "";
-  do {
-    d.setDate(d.getDate() + 1);
-  } while (d.getDay() === 0 || d.getDay() === 6);
-  return toIso(d);
-}
 
 /** `yyyy-mm-dd` → `dd/mm/yyyy` for read-only display. */
 function formatFr(iso: string): string {
@@ -110,10 +76,10 @@ export function DocumentForm({ dynamicData = {}, sessionUser, mode = "generate",
         const s = new Date(startVal);
         const e = new Date(endVal);
         if (e < s) return;
-        result[field.name] = String(businessDays(s, e));
+        result[field.name] = String(businessDaysBetween(s, e));
       } else if (field.computeReturnDate) {
         const endVal = fields[field.computeReturnDate];
-        if (endVal) result[field.name] = nextBusinessDay(endVal);
+        if (endVal) result[field.name] = nextBusinessDayIso(endVal);
       }
     });
     return result;

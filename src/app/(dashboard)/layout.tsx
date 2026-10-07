@@ -35,7 +35,7 @@ export default async function DashboardLayout({
   return (
     // data-company re-points the --brand-* ramp declared in globals.css, so
     // every accent in the shell and the pages below follows the active space.
-    <div data-company={activeCompany} className="flex min-h-screen bg-slate-50">
+    <div data-company={activeCompany} className="flex min-h-screen bg-slate-50 dark:bg-black">
       {/* Lets keyboard users jump the whole nav — first stop on every page. */}
       <a
         href="#contenu"

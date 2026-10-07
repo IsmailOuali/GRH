@@ -1,6 +1,16 @@
 @import "tailwindcss";
 
 /* ───────────────────────────────────────────────────────────────────────────
+   Dark theme is OPT-IN, not OS-driven. Tying it to `prefers-color-scheme`
+   would flip every page the moment someone's OS is dark — and the other
+   routes still hardcode light surfaces, so they'd break. Instead `dark:`
+   activates only under [data-theme="dark"], which the app sets deliberately
+   as each surface is migrated (the dashboard is the first). Flip nothing and
+   nothing changes; set the attribute on <html> once every page is ready.
+   ─────────────────────────────────────────────────────────────────────────── */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ───────────────────────────────────────────────────────────────────────────
    Design tokens
    The brand ramp is declared as plain custom properties so it can be swapped
    at runtime per company (see [data-company] below) — `@theme inline` then
@@ -50,6 +60,15 @@
   --chrome-border: rgb(255 255 255 / 0.10);
   --chrome-hover: rgb(255 255 255 / 0.07);
   --chrome-active: rgb(255 255 255 / 0.14);
+}
+
+/* ── OLED dark surface ramp ───────────────────────────────────────────────────
+   Meta-style elevation-by-lightness: pure #000 canvas, floating sheets on
+   #121212, hairlines at 10% white. Consumed through `dark:` variants on
+   migrated components; inert until [data-theme="dark"] is present. */
+[data-theme="dark"] {
+  --background: #000000;
+  --foreground: #f5f5f5;
 }
 
 /* FAIR2UP — violet. Set on <html> by the dashboard layout. */
@@ -159,6 +178,16 @@ time {
   select,
   textarea {
     font-size: 16px;
+  }
+}
+
+/* Tactile press feedback — the tap analogue of a hover lift. The scale is
+   small on purpose (0.97): enough to register under a thumb, not so much it
+   reads as a bug. Zeroed automatically by the reduced-motion block above. */
+@utility press {
+  transition: transform 0.12s cubic-bezier(0.32, 0.72, 0, 1);
+  &:active {
+    transform: scale(0.97);
   }
 }
 

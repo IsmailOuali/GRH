@@ -3,17 +3,25 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Users, ChevronDown, X } from "lucide-react";
-import { AbsenceCalendar, type CalendarAbsence } from "@/components/AbsenceCalendar";
+import { PlanningCalendar } from "@/components/PlanningCalendar";
+import type { PlanningEntry } from "@/lib/planning";
+import type { PlanningPerson } from "@/components/PlanningCalendar";
 import { Card, CardEyebrow } from "@/components/ui/Card";
 
 export function AbsenceTeamCard({
   count,
   employees,
   absences,
+  people = [],
+  currentUserId,
+  teamIds,
 }: {
   count: number;
   employees: string[];
-  absences: CalendarAbsence[];
+  absences: PlanningEntry[];
+  people?: PlanningPerson[];
+  currentUserId?: string;
+  teamIds?: string[];
 }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -37,23 +45,23 @@ export function AbsenceTeamCard({
       </CardEyebrow>
       <button
         onClick={() => setOpen(true)}
-        className="mt-4 flex items-baseline gap-1.5 rounded-lg text-left transition-opacity hover:opacity-70"
+        className="press mt-4 flex items-baseline gap-1.5 rounded-lg text-left transition-opacity hover:opacity-70"
         aria-label="Voir le calendrier des absences"
       >
-        <span className="text-[2rem] font-semibold leading-none tabular-nums tracking-tight text-slate-900">{count}</span>
-        <span className="text-sm text-slate-500">
+        <span className="text-[2rem] font-bold leading-none tabular-nums tracking-tight text-slate-900 dark:text-white">{count}</span>
+        <span className="text-sm text-slate-500 dark:text-neutral-400">
           {count === 1 ? "personne" : "personnes"}
         </span>
-        <ChevronDown className="size-4 self-center text-slate-400" aria-hidden />
+        <ChevronDown className="size-4 self-center text-slate-400 dark:text-neutral-500" aria-hidden />
       </button>
 
       {employees.length > 0 && (
-        <p className="mt-2 truncate text-xs text-slate-500">{employees.join(", ")}</p>
+        <p className="mt-2 truncate text-xs text-slate-500 dark:text-neutral-400">{employees.join(", ")}</p>
       )}
 
       <button
         onClick={() => setOpen(true)}
-        className="mt-4 rounded-lg text-xs font-medium text-violet-700 hover:underline"
+        className="press mt-4 rounded-lg text-xs font-semibold text-violet-700 hover:underline dark:text-violet-300"
       >
         Voir le calendrier →
       </button>
@@ -70,10 +78,10 @@ export function AbsenceTeamCard({
             {/* w-max lets the scroll area grow to the fixed calendar; min-w-full keeps
                 it centered when the screen is wider. The calendar never resizes. */}
             <div className="flex min-h-full w-max min-w-full items-start justify-center p-4 sm:items-center">
-              <div className="relative" onClick={(e) => e.stopPropagation()}>
+              <div className="relative w-[min(1240px,92vw)]" onClick={(e) => e.stopPropagation()}>
                 <div className="mb-2 flex items-center justify-between">
                   <h2 className="text-sm font-semibold text-white drop-shadow">
-                    Calendrier des absences
+                    Planning de l&apos;équipe
                   </h2>
                   <button
                     onClick={() => setOpen(false)}
@@ -83,7 +91,12 @@ export function AbsenceTeamCard({
                     <X className="size-4" aria-hidden />
                   </button>
                 </div>
-                <AbsenceCalendar absences={absences} />
+                <PlanningCalendar
+                  entries={absences}
+                  people={people}
+                  currentUserId={currentUserId}
+                  teamIds={teamIds}
+                />
               </div>
             </div>
           </div>,

@@ -21,6 +21,9 @@ export function Card({
         // divider are clipped by the corner radius instead of squaring it off.
         // Safe here: every overlay in the product renders through a portal.
         "overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-slate-900/[0.07]",
+        // OLED dark: a floating #121212 sheet lifted off the pure-black canvas
+        // by a brighter hairline instead of a shadow (shadows vanish on black).
+        "dark:bg-[#121212] dark:shadow-none dark:ring-white/10",
         className
       )}
     >
@@ -47,14 +50,15 @@ export function CardHeader({
     <div
       className={cn(
         "flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-slate-100 px-5 py-4",
+        "dark:border-white/10",
         className
       )}
     >
-      {Icon && <Icon className="size-4 shrink-0 text-slate-400" />}
+      {Icon && <Icon className="size-4 shrink-0 text-slate-400 dark:text-neutral-500" />}
       {title && (
         // 15px: a card title heading a whole table needs to outrank the 14px
         // body inside it, and 14px-on-14px was reading as just another row.
-        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-slate-900">
+        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-slate-900 dark:text-white">
           {title}
         </h2>
       )}
@@ -65,10 +69,10 @@ export function CardHeader({
 }
 
 const EYEBROW_TONES = {
-  brand: "bg-brand-50 text-brand-600",
-  emerald: "bg-emerald-50 text-emerald-600",
-  violet: "bg-violet-50 text-violet-600",
-  slate: "bg-slate-100 text-slate-500",
+  brand: "bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-200",
+  emerald: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300",
+  violet: "bg-violet-50 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300",
+  slate: "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-neutral-300",
 } as const;
 
 /**
@@ -90,7 +94,7 @@ export function CardEyebrow({
       <span className={cn("grid size-8 shrink-0 place-items-center rounded-xl", EYEBROW_TONES[tone])}>
         <Icon className="size-4" />
       </span>
-      <span className="truncate text-sm font-medium text-slate-500">{children}</span>
+      <span className="truncate text-sm font-medium text-slate-500 dark:text-neutral-400">{children}</span>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useMemo } from "react";
-import { nextBusinessDayIso, formatFrIso } from "@/lib/dates";
+import { businessDaysBetween, nextBusinessDayIso, formatFrIso } from "@/lib/dates";
 import { Button } from "@/components/ui/Button";
 import { Field, FormMessage } from "@/components/ui/Field";
 import { controlClass } from "@/components/ui/control";
@@ -13,17 +13,6 @@ const TYPES = [
   { value: "MALADIE",    label: "Maladie" },
   { value: "SANS_SOLDE", label: "Sans Solde" },
 ];
-
-function businessDays(start: Date, end: Date): number {
-  let count = 0;
-  const cur = new Date(start);
-  while (cur <= end) {
-    const day = cur.getDay();
-    if (day !== 0 && day !== 6) count++;
-    cur.setDate(cur.getDate() + 1);
-  }
-  return count;
-}
 
 export function LeaveForm() {
   const ref = useRef<HTMLFormElement>(null);
@@ -37,7 +26,7 @@ export function LeaveForm() {
     const s = new Date(startDate);
     const e = new Date(endDate);
     if (e < s) return null;
-    return businessDays(s, e);
+    return businessDaysBetween(s, e);
   }, [startDate, endDate]);
 
   // Date de reprise = premier jour ouvré après la date de fin (verrouillée).

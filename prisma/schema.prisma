@@ -21,7 +21,7 @@ model User {
   // accounts; cleared once the user picks their own password.
   mustChangePassword Boolean @default(false)
 
-  company   String  @default("FAIRUP")
+  company String @default("FAIRUP")
 
   managerId String?
   manager   User?   @relation("ManagerEmployees", fields: [managerId], references: [id])
@@ -38,30 +38,36 @@ model User {
   docRequests    DocumentRequest[]   @relation("DocRequests")
   docReviews     DocumentRequest[]   @relation("DocReviews")
 
-  subjectDossiers EmployeeDossier[]  @relation("DossierSubject")
-  createdDossiers EmployeeDossier[]  @relation("DossierCreatedBy")
-  updatedDossiers EmployeeDossier[]  @relation("DossierUpdatedBy")
+  subjectDossiers EmployeeDossier[] @relation("DossierSubject")
+  createdDossiers EmployeeDossier[] @relation("DossierCreatedBy")
+  updatedDossiers EmployeeDossier[] @relation("DossierUpdatedBy")
 
   advances         SalaryAdvance[] @relation("EmployeeAdvances")
   reviewedAdvances SalaryAdvance[] @relation("ReviewerAdvances")
 
-  remoteDays        RemoteWorkDay[] @relation("EmployeeRemoteDays")
-  createdRemoteDays RemoteWorkDay[] @relation("RemoteDaysCreatedBy")
+  remoteDays         RemoteWorkDay[] @relation("EmployeeRemoteDays")
+  createdRemoteDays  RemoteWorkDay[] @relation("RemoteDaysCreatedBy")
+  reviewedRemoteDays RemoteWorkDay[] @relation("RemoteDayReviewer")
+
+  trackedRecord TrackedEmployee? @relation("TrackedEmployeeAccount")
 
   resetTokens PasswordResetToken[]
 
   notifications Notification[]
+
+  vaultDocuments   VaultDocument[] @relation("VaultSubject")
+  uploadedVaultDocs VaultDocument[] @relation("VaultUploadedBy")
 }
 
 model PasswordResetToken {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   // SHA-256 hash of the token; the raw token only ever lives in the emailed URL.
-  tokenHash String   @unique
+  tokenHash String    @unique
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   usedAt    DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   @@index([userId])
 }
@@ -173,12 +179,76 @@ model RemoteWorkDay {
 
   note String?
 
+  // PENDING only ever comes from an employee's own request. A manager
+  // assigning days creates them APPROVED outright, and the default keeps every
+  // pre-existing row approved when this column is added.
+  status String @default("APPROVED") // PENDING | APPROVED | REJECTED
+
+  // Groups the days of one submission so a manager validates the request as a
+  // whole instead of clicking through eight separate Tuesdays. Null for days a
+  // manager assigned directly.
+  requestId String?
+
+  reviewedById String?
+  reviewedBy   User?     @relation("RemoteDayReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewNote   String?
+  reviewedAt   DateTime?
+
   createdById String?
   createdBy   User?    @relation("RemoteDaysCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
 
   @@unique([userId, date])
   @@index([date])
+  @@index([status])
+  @@index([requestId])
+}
+
+/// One tracked salarié from the "Salariés" sheet of the Suivi RH workbook.
+/// Imported from CSV rather than typed in, so a row may describe someone who
+/// has no app account at all — the same problem EmployeeDossier already
+/// solves, hence the optional userId.
+model TrackedEmployee {
+  id      String @id @default(cuid())
+  company String @default("FAIRUP")
+
+  // The "ID" column of the sheet. Kept for reconciliation with the workbook,
+  // but not a key here: two companies can both have an employee #1.
+  externalId Int?
+
+  nom        String
+  prenom     String
+  // "Prénom NOM", whitespace-normalised. The sheet carries trailing spaces on
+  // several names ("RHEZOUANE "), which would silently break name matching.
+  nomComplet String
+
+  poste      String?
+  dateEntree String? // yyyy-mm-dd
+  dateSortie String? // yyyy-mm-dd — set in-app when someone leaves
+
+  // "Solde congés N (j)". Null for the employees the sheet leaves blank.
+  soldeCongesN Float?
+
+  // ── Opening baseline ─────────────────────────────────────────────────────
+  // The sheet's "à date" columns are cumulative totals with no underlying
+  // dated entries, so they are stored as a starting point. When the tracking
+  // journal lands, its entries add on top of these rather than replacing
+  // them — that keeps figures continuous across the import boundary.
+  repriseCongesPris Float @default(0)
+  repriseAbsences   Float @default(0)
+  repriseRetardsNb  Int   @default(0)
+  repriseRetardsH   Float @default(0)
+
+  // Linked app account, set only when the import found exactly one name match.
+  userId String? @unique
+  user   User?   @relation("TrackedEmployeeAccount", fields: [userId], references: [id], onDelete: SetNull)
+
+  importedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([company, nomComplet])
+  @@index([company])
 }
 
 model Company {
@@ -220,10 +290,10 @@ model EmployeeDossier {
   numeroCnss           String?
 
   // ── Section 3 · Coordonnées / Accès / Matériel ───────────────────────────
-  emailPro            String?
-  identifiantRingover String?
-  extensionLigne      String?
-  outilsAttribues     String @default("[]") // JSON array of strings
+  emailPro             String?
+  identifiantRingover  String?
+  extensionLigne       String?
+  outilsAttribues      String  @default("[]") // JSON array of strings
   materielInformatique String?
 
   // ── Section 4 · Contact d'Urgence ────────────────────────────────────────
@@ -246,6 +316,34 @@ model EmployeeDossier {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// One document filed into an employee's coffre-fort by HR. Native uploads
+/// only — bulletins (Payslip) and generated attestations (GeneratedDocument)
+/// are surfaced in the same vault view read-only, without being copied here.
+model VaultDocument {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("VaultSubject", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Denormalized so a document stays scoped even if the account moves company.
+  company String @default("FAIRUP")
+
+  // CONTRAT | ADMINISTRATIF | JUSTIFICATIF | AUTRE — see src/lib/coffre-fort.ts.
+  category String @default("AUTRE")
+
+  title    String // display name, e.g. "Contrat CDI signé"
+  filename String // stored name under uploads/coffre-fort/
+  mimeType String @default("application/pdf")
+  size     Int    @default(0)
+
+  uploadedById String
+  uploadedBy   User   @relation("VaultUploadedBy", fields: [uploadedById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([company])
 }
 
 model Notification {

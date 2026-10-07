@@ -7,23 +7,12 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveCompany } from "@/lib/company";
-import { nextBusinessDay } from "@/lib/dates";
+import { businessDaysBetween, nextBusinessDay } from "@/lib/dates";
 import { accrueLeaveBalance } from "@/lib/accrual";
 import { notifyTeamReviewers, notifyUser } from "@/lib/notifications";
 import { TEMPLATES_MAP } from "@/lib/documents/templates.config";
 import { renderTemplate } from "@/lib/documents/render-template";
 import { generatePdf } from "@/lib/documents/generate-pdf";
-
-function businessDays(start: Date, end: Date): number {
-  let count = 0;
-  const cur = new Date(start);
-  while (cur <= end) {
-    const day = cur.getDay();
-    if (day !== 0 && day !== 6) count++;
-    cur.setDate(cur.getDate() + 1);
-  }
-  return count;
-}
 
 /**
  * Renders the "Demande de congés payés" attestation for an approved CP
@@ -75,7 +64,7 @@ export async function submitLeaveRequest(formData: FormData) {
   if (endDate < startDate)
     return { error: "La date de fin doit être après la date de début." };
 
-  const days = businessDays(startDate, endDate);
+  const days = businessDaysBetween(startDate, endDate);
   if (days === 0) return { error: "La période ne contient aucun jour ouvré." };
 
   const userId = session.user.id;

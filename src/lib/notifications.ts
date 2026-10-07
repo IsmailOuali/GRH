@@ -10,7 +10,10 @@ export type NotificationType =
   | "DOCUMENT_SUBMITTED"
   | "DOCUMENT_REVIEWED"
   | "REMOTE_ASSIGNED"
-  | "REMOTE_CANCELLED";
+  | "REMOTE_CANCELLED"
+  | "REMOTE_SUBMITTED"
+  | "REMOTE_REVIEWED"
+  | "VAULT_DOCUMENT_ADDED";
 
 /**
  * Pending "demandes" awaiting a reviewer, keyed by nav href so the
@@ -29,19 +32,106 @@ export async function getPendingCounts(
   const isSupervisor = role === "SUPERVISEUR";
   const teamFilter = isSupervisor ? { managerId: userId } : {};
 
-  const [conges, documents, paie] = await Promise.all([
+  const [conges, documents, paie, teletravail] = await Promise.all([
     prisma.leaveRequest.count({ where: { status: "PENDING", user: { company, ...teamFilter } } }),
     isSupervisor
       ? Promise.resolve(0)
       : prisma.documentRequest.count({ where: { status: "PENDING", user: { company } } }),
     prisma.salaryAdvance.count({ where: { status: "PENDING", user: { company, ...teamFilter } } }),
+    // Distinct requests, not days: the queue shows one row per submission, so
+    // a badge counting the eight Tuesdays inside it would not match what the
+    // reviewer actually has to action.
+    prisma.remoteWorkDay
+      .findMany({
+        where: { status: "PENDING", user: { company, ...teamFilter } },
+        select: { requestId: true, id: true },
+      })
+      .then((rows) => new Set(rows.map((r) => r.requestId ?? r.id)).size),
   ]);
 
   const counts: Record<string, number> = {};
   if (conges) counts["/conges"] = conges;
   if (documents) counts["/documents"] = documents;
   if (paie) counts["/paie"] = paie;
+  if (teletravail) counts["/teletravail"] = teletravail;
   return counts;
+}
+
+export type PendingSummaryItem = {
+  key: "conges" | "documents" | "paie" | "teletravail";
+  label: string;
+  href: string;
+  count: number;
+  /** createdAt of the longest-waiting request in the category. */
+  oldest: Date;
+};
+
+/**
+ * Per-category breakdown of what awaits the viewer, for the dashboard "À
+ * traiter" card. Same scoping and role guard as getPendingCounts (so the card
+ * and the sidebar badges never disagree), plus the age of the oldest request.
+ * Categories with nothing pending are omitted.
+ */
+export async function getPendingSummary(
+  role: string,
+  userId: string,
+  company: string,
+): Promise<PendingSummaryItem[]> {
+  if (role !== "MANAGER" && role !== "ADMIN" && role !== "SUPERVISEUR") return [];
+  const isSupervisor = role === "SUPERVISEUR";
+  const teamFilter = isSupervisor ? { managerId: userId } : {};
+
+  const [leaves, documents, advances, remoteDays] = await Promise.all([
+    prisma.leaveRequest.aggregate({
+      where: { status: "PENDING", user: { company, ...teamFilter } },
+      _count: true,
+      _min: { createdAt: true },
+    }),
+    isSupervisor
+      ? Promise.resolve(null)
+      : prisma.documentRequest.aggregate({
+          where: { status: "PENDING", user: { company } },
+          _count: true,
+          _min: { createdAt: true },
+        }),
+    prisma.salaryAdvance.aggregate({
+      where: { status: "PENDING", user: { company, ...teamFilter } },
+      _count: true,
+      _min: { createdAt: true },
+    }),
+    prisma.remoteWorkDay.findMany({
+      where: { status: "PENDING", user: { company, ...teamFilter } },
+      select: { id: true, requestId: true, createdAt: true },
+    }),
+  ]);
+
+  // Remote days are one row each; collapse them to one entry per submission so
+  // the count matches the queue (see getPendingCounts).
+  const remoteRequests = new Map<string, Date>();
+  for (const day of remoteDays) {
+    const key = day.requestId ?? day.id;
+    const seen = remoteRequests.get(key);
+    if (!seen || day.createdAt < seen) remoteRequests.set(key, day.createdAt);
+  }
+  const remoteOldest = [...remoteRequests.values()].sort((a, b) => a.getTime() - b.getTime())[0];
+
+  const items: PendingSummaryItem[] = [];
+  const push = (
+    key: PendingSummaryItem["key"],
+    label: string,
+    href: string,
+    count: number,
+    oldest: Date | null | undefined,
+  ) => {
+    if (count > 0 && oldest) items.push({ key, label, href, count, oldest });
+  };
+  push("conges", "Demandes de congés", "/conges", leaves._count, leaves._min.createdAt);
+  if (documents) {
+    push("documents", "Demandes de documents", "/documents", documents._count, documents._min.createdAt);
+  }
+  push("paie", "Avances sur salaire", "/paie", advances._count, advances._min.createdAt);
+  push("teletravail", "Télétravail à valider", "/teletravail", remoteRequests.size, remoteOldest);
+  return items;
 }
 
 /**

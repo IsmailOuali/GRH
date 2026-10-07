@@ -9,13 +9,17 @@ import { EmptyState } from "@/components/EmptyState";
 import { ValidationButtons } from "@/components/ValidationButtons";
 import { TappableRow } from "@/components/TappableRow";
 import { Tabs } from "@/components/Tabs";
-import { AbsenceCalendar } from "@/components/AbsenceCalendar";
+import { PlanningCalendar } from "@/components/PlanningCalendar";
 import { Card, CardBody } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Table, Thead, Th, Tbody } from "@/components/ui/Table";
 import { LinkButton } from "@/components/ui/Button";
 import { nextBusinessDay } from "@/lib/dates";
+import { buildPlanningEntries } from "@/lib/planning";
 import { accrueLeaveBalance } from "@/lib/accrual";
+import { SuiviImporter } from "@/components/suivi/SuiviImporter";
+import { SuiviKpis, SuiviAlerts, SuiviTable, SuiviStats } from "@/components/suivi/SuiviPanels";
+import { computeSuivi, joursOuvresDuMois } from "@/lib/suivi/compute";
 import { LeaveForm } from "./LeaveForm";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -159,22 +163,48 @@ export default async function CongesPage() {
   }
 
   // ── Manager / Admin view ───────────────────────────────────────────────────
+  // ── Suivi RH ───────────────────────────────────────────────────────────────
+  // Imported from the "Salariés" CSV, so this population is independent of the
+  // app's user accounts: a tracked salarie may have no account, and an account
+  // may have no tracked record until an import links them by name.
+  const tracked = await prisma.trackedEmployee.findMany({
+    where: { company },
+    orderBy: { nomComplet: "asc" },
+  });
+  const now = new Date();
+  const joursOuvres = joursOuvresDuMois(now.getFullYear(), now.getMonth() + 1);
+  const suivi = computeSuivi(tracked, joursOuvres);
+
   // In this branch every request includes the employee (see query above).
   const teamRequests = requests as Array<
     (typeof requests)[number] & { user: { name: string } }
   >;
   const pendingRequests = teamRequests.filter((r) => r.status === "PENDING");
 
-  const approvedAbsences = teamRequests
-    .filter((r) => r.status === "APPROVED")
-    .map((r) => ({
-      name: r.user.name,
-      type: r.type,
-      start: format(new Date(r.startDate), "yyyy-MM-dd"),
-      end: format(new Date(r.endDate), "yyyy-MM-dd"),
-    }));
+  // The planning merges congés with télétravail, so it needs the remote days
+  // and the roster too — a salarié with nothing booked still gets a row.
+  const [planningRemote, roster] = await Promise.all([
+    prisma.remoteWorkDay.findMany({
+      where: { user: { company, ...(role === "SUPERVISEUR" ? { managerId: userId } : {}) } },
+      include: { user: { select: { name: true } } },
+    }),
+    prisma.user.findMany({
+      where: { company, ...(role === "SUPERVISEUR" ? { managerId: userId } : {}) },
+      select: { id: true, name: true, managerId: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
-  const calendarCard = <AbsenceCalendar absences={approvedAbsences} />;
+  const planningEntries = buildPlanningEntries(teamRequests, planningRemote);
+
+  const calendarCard = (
+    <PlanningCalendar
+      entries={planningEntries}
+      people={roster.map((u) => ({ id: u.id, name: u.name }))}
+      currentUserId={userId}
+      teamIds={roster.filter((u) => u.managerId === userId).map((u) => u.id)}
+    />
+  );
 
   const pendingCard = (
     <Card>
@@ -281,14 +311,29 @@ export default async function CongesPage() {
     </Card>
   );
 
+  const importCard = (
+    <Card className="max-w-3xl">
+      <CardBody>
+        <SuiviImporter />
+      </CardBody>
+    </Card>
+  );
+
   return (
     <div>
       {header}
+      {/* At-a-glance layer sits above the tabs so the headline figures and any
+          threshold breach stay visible whichever tab is open. */}
+      <SuiviKpis totals={suivi} joursOuvres={joursOuvres} />
+      <SuiviAlerts totals={suivi} />
       <Tabs
         defaultKey="pending"
         tabs={[
           { key: "pending", label: "En attente de validation", badge: pendingRequests.length, content: pendingCard },
-          { key: "calendrier", label: "Calendrier", content: calendarCard },
+          { key: "suivi", label: "Suivi RH", badge: suivi.effectif, content: <SuiviTable totals={suivi} /> },
+          { key: "stats", label: "Statistiques", content: <SuiviStats totals={suivi} /> },
+          { key: "import", label: "Import CSV", content: importCard },
+          { key: "calendrier", label: "Planning", content: calendarCard },
           { key: "historique", label: "Historique équipe", content: teamHistoryCard },
           { key: "nouvelle", label: "Nouvelle demande", content: formCard },
         ]}

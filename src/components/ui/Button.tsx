@@ -12,19 +12,19 @@ type Size = "sm" | "md";
  */
 const VARIANTS: Record<Variant, string> = {
   primary:
-    "bg-brand-600 text-white shadow-card hover:bg-brand-700 active:bg-brand-700",
+    "bg-brand-600 text-white shadow-sm hover:bg-brand-700 hover:shadow-md active:bg-brand-700 active:shadow-sm",
   secondary:
-    "border border-slate-200 bg-white text-slate-700 shadow-card hover:border-slate-300 hover:bg-slate-50 active:bg-slate-100",
+    "border border-slate-300 bg-white text-slate-700 shadow-sm hover:border-slate-400 hover:bg-slate-50 hover:shadow-md active:bg-slate-100",
   ghost:
-    "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+    "text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200",
   /** Opens a destructive flow — still reversible at this point. */
   danger:
-    "border border-red-200 bg-white text-red-600 hover:border-red-300 hover:bg-red-50",
+    "border border-red-200 bg-white text-red-600 shadow-sm hover:border-red-300 hover:bg-red-50 hover:shadow-md active:bg-red-100",
   /** Commits the destructive action — filled, so it reads as the point of no return. */
   destructive:
-    "bg-red-600 text-white shadow-card hover:bg-red-700 active:bg-red-700",
+    "bg-red-600 text-white shadow-sm hover:bg-red-700 hover:shadow-md active:bg-red-700 active:shadow-sm",
   success:
-    "bg-emerald-600 text-white shadow-card hover:bg-emerald-700 active:bg-emerald-700",
+    "bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 hover:shadow-md active:bg-emerald-700 active:shadow-sm",
 };
 
 const SIZES: Record<Size, string> = {
@@ -56,8 +56,8 @@ export function Button({
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cn(
-        "inline-flex select-none items-center justify-center font-medium transition-[background-color,border-color,color,box-shadow] duration-150",
-        "disabled:pointer-events-none disabled:opacity-55",
+        "inline-flex select-none items-center justify-center font-medium transition-[background-color,border-color,color,box-shadow,transform] duration-150 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-600/20 active:scale-[0.98]",
+        "disabled:pointer-events-none disabled:opacity-55 disabled:shadow-none",
         SIZES[size],
         VARIANTS[variant],
         fullWidth && "w-full",

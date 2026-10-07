@@ -4,7 +4,7 @@
  * same representation as the RemoteWorkDay.date column.
  */
 
-import { parseLocalDate, toIso } from "@/lib/dates";
+import { isBusinessDay, parseLocalDate, toIso } from "@/lib/dates";
 
 /** Monday–Friday, in the order the form shows them. `value` is `Date#getDay()`. */
 export const WEEKDAYS = [
@@ -43,8 +43,7 @@ export function expandRemoteDays(
   const cur = new Date(start);
   while (cur <= end) {
     const dow = cur.getDay();
-    const isBusinessDay = dow !== 0 && dow !== 6;
-    if (isBusinessDay && (wanted.length === 0 || wanted.includes(dow))) {
+    if (isBusinessDay(cur) && (wanted.length === 0 || wanted.includes(dow))) {
       days.push(toIso(cur));
     }
     cur.setDate(cur.getDate() + 1);
