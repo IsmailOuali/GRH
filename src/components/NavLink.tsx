@@ -42,7 +42,7 @@ export function NavLink({ item, count = 0, onNavigate }: NavLinkProps) {
         // Rendered only inside the dark nav chrome (Sidebar + mobile drawer),
         // so the states are tints of white rather than of the brand ramp —
         // a navy accent on a navy surface would be invisible.
-        "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors md:py-2",
+        "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 md:py-2.5",
         active
           ? "bg-chrome-active text-white"
           : "text-chrome-dim hover:bg-chrome-hover hover:text-white"

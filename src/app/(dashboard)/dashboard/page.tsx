@@ -109,10 +109,10 @@ export default async function DashboardPage() {
     .join("");
 
   return (
-    <div className="animate-rise space-y-7">
+    <div className="animate-rise space-y-8">
       {/* Identity-forward header: a brand-tinted avatar anchors the greeting,
           the date drops to muted metadata. Bold-on-muted weight contrast. */}
-      <div className="flex items-center gap-3.5">
+      <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white/70 p-4 shadow-card backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.03]">
         <span
           aria-hidden
           className="grid size-11 shrink-0 place-items-center rounded-full bg-brand-600 text-sm font-bold text-white ring-2 ring-white dark:ring-white/10"
@@ -132,7 +132,7 @@ export default async function DashboardPage() {
       {/* Two-column at lg: a rail of stat cards beside the feed. Stacking all
           of it full-width left the lower two thirds of a desktop page empty
           and made the feed's line length uncomfortably long. */}
-      <div className="grid items-start gap-5 lg:grid-cols-3">
+      <div className="grid items-start gap-6 lg:grid-cols-3">
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
           {(isManager || role === "SUPERVISEUR") && <PendingActionsCard items={pending} />}
 
