@@ -53,7 +53,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-chrome-border bg-chrome",
+        "sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-chrome-border bg-chrome shadow-[8px_0_24px_-20px_rgb(0_0_0/0.35)]",
         className
       )}
     >

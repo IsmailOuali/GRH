@@ -20,7 +20,7 @@ export function Card({
         // overflow-hidden so a table's tinted header band and a list's first
         // divider are clipped by the corner radius instead of squaring it off.
         // Safe here: every overlay in the product renders through a portal.
-        "overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-slate-900/[0.07]",
+        "overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-slate-900/[0.07] transition-[box-shadow,transform] duration-200 hover:-translate-y-px hover:shadow-card-hover",
         // OLED dark: a floating #121212 sheet lifted off the pure-black canvas
         // by a brighter hairline instead of a shadow (shadows vanish on black).
         "dark:bg-[#121212] dark:shadow-none dark:ring-white/10",

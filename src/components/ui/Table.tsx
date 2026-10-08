@@ -15,7 +15,7 @@ export function Table({
 }: React.TableHTMLAttributes<HTMLTableElement>) {
   return (
     <div className="overflow-x-auto">
-      <table {...props} className={cn("w-full text-sm text-slate-700", className)}>
+      <table {...props} className={cn("w-full text-sm text-slate-700 dark:text-neutral-200", className)}>
         {children}
       </table>
     </div>
@@ -26,7 +26,7 @@ export function Thead({ children }: { children: React.ReactNode }) {
   return (
     // A faint tint separates the header band from the first data row more
     // calmly than a heavier rule would, and survives horizontal scrolling.
-    <thead className="bg-slate-50/80">
+    <thead className="bg-slate-50/80 dark:bg-white/[0.04]">
       <tr className="border-b border-slate-200 text-left">{children}</tr>
     </thead>
   );
@@ -50,7 +50,7 @@ export function Th({
 
 export function Tbody({ children }: { children: React.ReactNode }) {
   return (
-    <tbody className="divide-y divide-slate-100 [&_tr]:transition-colors [&_tr:hover]:bg-slate-50/80">
+    <tbody className="divide-y divide-slate-100 dark:divide-white/10 [&_tr]:transition-colors [&_tr:hover]:bg-slate-50/80 dark:[&_tr:hover]:bg-white/[0.03]">
       {children}
     </tbody>
   );
