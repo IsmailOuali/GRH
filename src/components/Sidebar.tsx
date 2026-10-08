@@ -58,31 +58,34 @@ export function Sidebar({
       )}
     >
       {/* Company branding */}
-      <div className="flex h-[4.5rem] items-center gap-2.5 border-b border-chrome-border px-5">
-        {company === "FAIRUP" ? (
-          // The logo artwork is dark navy on an opaque white background, so on
-          // the navy chrome it needs its own white chip — otherwise it renders
-          // as a bare white rectangle. Swap for a transparent/light-on-dark
-          // variant and this wrapper can go.
-          <span className="grid h-8 shrink-0 place-items-center rounded-lg bg-white px-1.5">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/api/logo/fairup" alt="Fair'Up" className="h-5 w-auto object-contain" />
-          </span>
-        ) : (
-          <div className="grid size-8 place-items-center rounded-xl bg-white/10 text-xs font-black text-chrome-fg">
-            F2
+      <div className="border-b border-chrome-border px-4 py-4">
+        <div className="flex items-center gap-2.5">
+          {company === "FAIRUP" ? (
+            <span className="grid h-9 shrink-0 place-items-center rounded-xl bg-white px-2 shadow-sm">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/api/logo/fairup" alt="Fair'Up" className="h-5 w-auto object-contain" />
+            </span>
+          ) : (
+            <div className="grid size-9 place-items-center rounded-xl bg-white/10 text-xs font-black text-chrome-fg">
+              F2
+            </div>
+          )}
+          <div className="min-w-0">
+            <p className="truncate text-[15px] font-semibold tracking-tight text-chrome-fg">
+              {company === "FAIRUP" ? "Fair’Up OS" : "FAIR2UP"}
+            </p>
+            <p className="mt-0.5 text-[11px] font-medium uppercase tracking-[0.14em] text-chrome-muted">
+              Espace de travail
+            </p>
           </div>
-        )}
-        <span className="text-base font-semibold tracking-tight text-chrome-fg">
-          {company === "FAIRUP" ? "Fair’Up OS" : "FAIR2UP"}
-        </span>
-        <NotificationBell
-          notifications={notifications}
-          unreadCount={unreadCount}
-          reminders={reminders}
-          className="ml-auto"
-          align="left"
-        />
+          <NotificationBell
+            notifications={notifications}
+            unreadCount={unreadCount}
+            reminders={reminders}
+            className="ml-auto"
+            align="left"
+          />
+        </div>
       </div>
 
       {/* Grouped so admin tools stop competing with the daily routes. A single
