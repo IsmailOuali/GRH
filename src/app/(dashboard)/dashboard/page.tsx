@@ -109,7 +109,7 @@ export default async function DashboardPage() {
     .join("");
 
   return (
-    <div className="space-y-6">
+    <div className="animate-rise space-y-7">
       {/* Identity-forward header: a brand-tinted avatar anchors the greeting,
           the date drops to muted metadata. Bold-on-muted weight contrast. */}
       <div className="flex items-center gap-3.5">
