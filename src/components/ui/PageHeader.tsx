@@ -23,7 +23,7 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        "mb-6 flex flex-wrap items-end justify-between gap-x-4 gap-y-3 md:mb-8",
+        "mb-7 flex flex-wrap items-end justify-between gap-x-4 gap-y-4 md:mb-9",
         className
       )}
     >

@@ -53,12 +53,12 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-chrome-border bg-chrome shadow-[8px_0_24px_-20px_rgb(0_0_0/0.35)]",
+        "sticky top-0 flex h-screen w-[17rem] shrink-0 flex-col border-r border-chrome-border bg-chrome shadow-[8px_0_24px_-20px_rgb(0_0_0/0.35)]",
         className
       )}
     >
       {/* Company branding */}
-      <div className="flex h-16 items-center gap-2.5 px-5">
+      <div className="flex h-[4.5rem] items-center gap-2.5 border-b border-chrome-border px-5">
         {company === "FAIRUP" ? (
           // The logo artwork is dark navy on an opaque white background, so on
           // the navy chrome it needs its own white chip — otherwise it renders
@@ -87,7 +87,7 @@ export function Sidebar({
 
       {/* Grouped so admin tools stop competing with the daily routes. A single
           group renders unlabelled — an employee has nothing to disambiguate. */}
-      <nav aria-label="Navigation principale" className="flex-1 space-y-5 overflow-y-auto px-3 py-2">
+      <nav aria-label="Navigation principale" className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
         {groups.map(({ section, items }) => (
           <div key={section} className="space-y-0.5">
             {groups.length > 1 && (
