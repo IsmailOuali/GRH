@@ -1,5 +1,6 @@
 import path from "path";
 import { prisma } from "@/lib/prisma";
+import { legalisationFilePath } from "@/lib/documents/legalisation-storage";
 
 /**
  * The coffre-fort ("digital safe") is a per-employee, unified view of every
@@ -115,8 +116,23 @@ export async function getVaultForUser(userId: string): Promise<VaultItem[]> {
       year: created.getFullYear(),
       downloadUrl: `/api/documents/download/${r.id}`,
       deletable: false,
-      meta: "Attestation",
+      meta: r.legalise ? "Attestation (non légalisée)" : "Attestation",
     });
+
+    // The scanned légalisée copy is its own entry, next to the plain one.
+    if (r.legalise && r.legaliseFile && r.legaliseAt) {
+      items.push({
+        key: `document-legalise:${r.id}`,
+        source: "document",
+        category: "ADMINISTRATIF",
+        title: `${prettyTemplateId(r.templateId)} (légalisée)`,
+        createdAt: r.legaliseAt,
+        year: r.legaliseAt.getFullYear(),
+        downloadUrl: `/api/documents/download/${r.id}?version=legalisee`,
+        deletable: false,
+        meta: "Attestation légalisée",
+      });
+    }
   }
 
   items.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -164,6 +180,10 @@ export async function collectVaultFiles(userId: string): Promise<VaultFile[]> {
   for (const r of docRequests) {
     // DocumentRequest.pdfPath is stored as an absolute path.
     add(prettyTemplateId(r.templateId), "pdf", r.pdfPath!);
+    if (r.legalise && r.legaliseFile && r.legaliseAt) {
+      const ext = extFromMime(r.legaliseMime ?? "") ?? "pdf";
+      add(`${prettyTemplateId(r.templateId)} (légalisée)`, ext, legalisationFilePath(r.legaliseFile));
+    }
   }
   return files;
 }
@@ -196,7 +216,7 @@ const MIME_EXT: Record<string, string> = {
   "image/webp": "webp",
 };
 
-function extFromMime(mime: string): string | null {
+export function extFromMime(mime: string): string | null {
   return MIME_EXT[mime] ?? null;
 }
 

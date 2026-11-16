@@ -55,6 +55,8 @@ export function DocumentForm({ dynamicData = {}, sessionUser, mode = "generate",
   );
   const [prefillId, setPrefillId] = useState("");
   const [prefilling, setPrefilling] = useState(false);
+  const [legalise, setLegalise] = useState(false);
+  const [legaliseReason, setLegaliseReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -137,10 +139,20 @@ export function DocumentForm({ dynamicData = {}, sessionUser, mode = "generate",
 
     try {
       if (mode === "request") {
-        const result = await submitDocumentRequest(templateId, { ...fields, ...computedFields });
+        const result = await submitDocumentRequest(
+          templateId,
+          { ...fields, ...computedFields },
+          { legalise, reason: legaliseReason },
+        );
         if (result.error) { setError(result.error); return; }
-        setSuccess("Demande envoyée. Vous serez notifié une fois traitée.");
+        setSuccess(
+          legalise
+            ? "Demande envoyée. Une fois validée, la version légalisée vous sera remise ou publiée ici."
+            : "Demande envoyée. Vous serez notifié une fois traitée.",
+        );
         handleTemplateChange(templateId); // reset fields
+        setLegalise(false);
+        setLegaliseReason("");
         return;
       }
 
@@ -278,8 +290,61 @@ export function DocumentForm({ dynamicData = {}, sessionUser, mode = "generate",
         ))}
       </div>
 
+      {/* Légalisation — employee requests only. A manager generating directly
+          is producing the plain document themselves. */}
+      {mode === "request" && (
+        <fieldset className="space-y-3">
+          <legend className={LABEL_CLASS}>Version légalisée ?</legend>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              { value: false, label: "Non, version simple" },
+              { value: true, label: "Oui, légalisée" },
+            ].map((opt) => {
+              const checked = legalise === opt.value;
+              return (
+                <label
+                  key={String(opt.value)}
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium transition-colors has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-brand-500/30 ${
+                    checked
+                      ? "border-brand-500 bg-brand-50 text-brand-800"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="legalise"
+                    checked={checked}
+                    onChange={() => setLegalise(opt.value)}
+                    className="size-4 accent-brand-600"
+                  />
+                  {opt.label}
+                </label>
+              );
+            })}
+          </div>
+          {legalise && (
+            <div className="space-y-2">
+              <p className="rounded-xl bg-sky-50 px-3 py-2 text-xs text-sky-800 ring-1 ring-inset ring-sky-200">
+                La légalisation est faite par les RH auprès de la commune. Une fois votre demande validée,
+                vous pourrez télécharger la version simple ; la version légalisée sera publiée ici
+                (scan) ou remise en main propre.
+              </p>
+              <input
+                type="text"
+                value={legaliseReason}
+                onChange={(e) => setLegaliseReason(e.target.value)}
+                maxLength={300}
+                placeholder="Motif (optionnel) — ex. dossier de visa, banque…"
+                aria-label="Motif de la légalisation"
+                className={INPUT_CLASS}
+              />
+            </div>
+          )}
+        </fieldset>
+      )}
+
       {error && <p className="text-sm text-red-600">{error}</p>}
-      {success && <p className="text-sm text-emerald-600">{success}</p>}
+      {success &&<p className="text-sm text-emerald-600">{success}</p>}
 
       <button
         type="submit"

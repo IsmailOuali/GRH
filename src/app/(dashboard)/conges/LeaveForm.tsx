@@ -5,21 +5,24 @@ import { businessDaysBetween, nextBusinessDayIso, formatFrIso } from "@/lib/date
 import { Button } from "@/components/ui/Button";
 import { Field, FormMessage } from "@/components/ui/Field";
 import { controlClass } from "@/components/ui/control";
+import {
+  STANDARD_LEAVE_TYPES,
+  SPECIAL_LEAVE_TYPES,
+  isSpecialLeave,
+  specialLeaveEntitlement,
+} from "@/lib/leave-types";
 import { submitLeaveRequest } from "./actions";
-
-const TYPES = [
-  { value: "CP",         label: "Congés Payés" },
-  { value: "RTT",        label: "RTT" },
-  { value: "MALADIE",    label: "Maladie" },
-  { value: "SANS_SOLDE", label: "Sans Solde" },
-];
 
 export function LeaveForm() {
   const ref = useRef<HTMLFormElement>(null);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [type, setType] = useState(STANDARD_LEAVE_TYPES[0].value);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  const special = isSpecialLeave(type);
+  const droit = specialLeaveEntitlement(type);
 
   const days = useMemo(() => {
     if (!startDate || !endDate) return null;
@@ -40,6 +43,7 @@ export function LeaveForm() {
     if (result.success) {
       setMsg({ type: "ok", text: "Demande envoyée avec succès." });
       ref.current?.reset();
+      setType(STANDARD_LEAVE_TYPES[0].value);
       setStartDate("");
       setEndDate("");
     } else {
@@ -52,11 +56,30 @@ export function LeaveForm() {
     <form ref={ref} onSubmit={handleSubmit} className="space-y-4">
       <Field label="Type" required>
         {(props) => (
-          <select {...props} name="type" required className={controlClass}>
-            {TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+          <select
+            {...props}
+            name="type"
+            required
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            className={controlClass}
+          >
+            <optgroup label="Congés">
+              {STANDARD_LEAVE_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+            </optgroup>
+            <optgroup label="Congés spéciaux (événements familiaux)">
+              {SPECIAL_LEAVE_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+            </optgroup>
           </select>
         )}
       </Field>
+
+      {special && (
+        <p className="rounded-xl bg-sky-50 px-3 py-2 text-xs text-sky-800 ring-1 ring-inset ring-sky-200">
+          Congé spécial : il n&apos;est pas déduit de votre solde CP/RTT. Droit habituel :{" "}
+          <strong>{droit} jour{droit && droit > 1 ? "s" : ""}</strong>. Un justificatif pourra vous être demandé.
+        </p>
+      )}
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Date de début" required>
@@ -105,7 +128,16 @@ export function LeaveForm() {
         </div>
       </dl>
 
-      <Field label="Commentaire" hint="Optionnel — précisez le contexte si utile.">
+      {special && droit !== undefined && days !== null && days > droit && (
+        <p role="status" className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-800 ring-1 ring-inset ring-amber-200">
+          Cette période dépasse le droit habituel ({droit} jour{droit > 1 ? "s" : ""}). Votre responsable décidera de la suite.
+        </p>
+      )}
+
+      <Field
+        label="Commentaire"
+        hint={special ? "Précisez l'événement (lien de parenté, date…)." : "Optionnel — précisez le contexte si utile."}
+      >
         {(props) => <textarea {...props} name="comment" rows={3} className={controlClass} />}
       </Field>
 

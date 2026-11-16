@@ -11,6 +11,8 @@ import {
   formatPct,
   initials,
   SEUIL_SOLDE_FAIBLE,
+  SEUIL_SOLDE_ELEVE,
+  type SuiviAlert,
   type SuiviTotals,
 } from "@/lib/suivi/compute";
 
@@ -55,8 +57,17 @@ export function SuiviKpis({ totals, joursOuvres }: { totals: SuiviTotals; joursO
 
 /** Threshold breaches, criticals first. Each chip states the reason in words —
  *  the tint is a second cue, never the only one. */
-export function SuiviAlerts({ totals }: { totals: SuiviTotals }) {
-  const alerts = computeAlerts(totals);
+export function SuiviAlerts({
+  totals,
+  extra = [],
+}: {
+  totals: SuiviTotals;
+  /** Alerts from outside the Suivi sheet, e.g. high balances of app accounts. */
+  extra?: SuiviAlert[];
+}) {
+  const alerts = [...computeAlerts(totals), ...extra].sort((a, b) =>
+    a.level === b.level ? 0 : a.level === "crit" ? -1 : 1,
+  );
   if (alerts.length === 0) return null;
 
   return (
@@ -109,6 +120,7 @@ export function SuiviTable({ totals }: { totals: SuiviTotals }) {
         <Tbody>
           {totals.rows.map((r) => {
             const faible = r.solde !== null && r.solde < SEUIL_SOLDE_FAIBLE;
+            const eleve = r.solde !== null && r.solde >= SEUIL_SOLDE_ELEVE;
             return (
               <tr key={r.employee.id} className={r.parti ? "opacity-55" : undefined}>
                 <td className="px-5 py-3">
@@ -136,9 +148,10 @@ export function SuiviTable({ totals }: { totals: SuiviTotals }) {
                   {r.solde === null ? (
                     <span className="text-slate-400">—</span>
                   ) : (
-                    <span className={`font-medium tabular-nums ${faible ? "text-rose-600" : "text-slate-800"}`}>
+                    <span className={`font-medium tabular-nums ${faible ? "text-rose-600" : eleve ? "text-amber-700" : "text-slate-800"}`}>
                       {formatNum(r.solde)} j
                       {faible && <span className="ml-1 text-xs font-normal">· faible</span>}
+                      {eleve && <span className="ml-1 text-xs font-normal">· élevé</span>}
                     </span>
                   )}
                 </td>

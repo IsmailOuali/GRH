@@ -11,6 +11,7 @@ import { NewsDeleteButton } from "@/components/NewsDeleteButton";
 import { EmptyState } from "@/components/EmptyState";
 import { Card, CardHeader, CardEyebrow } from "@/components/ui/Card";
 import { accrueLeaveBalance } from "@/lib/accrual";
+import { SEUIL_SOLDE_ELEVE } from "@/lib/suivi/compute";
 import { getPendingSummary } from "@/lib/notifications";
 import { PendingActionsCard } from "@/components/PendingActionsCard";
 
@@ -169,6 +170,11 @@ export default async function DashboardPage() {
               </span>
               <span className="text-sm text-slate-500 dark:text-neutral-400">jours CP</span>
             </p>
+            {balance && balance.cpDays >= SEUIL_SOLDE_ELEVE && (
+              <p role="status" className="mt-3 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-200">
+                Solde élevé : pensez à poser vos congés.
+              </p>
+            )}
             {balance?.expiryDate && (
               <p className="mt-2 text-xs text-slate-500 dark:text-neutral-500">
                 Expire le {format(new Date(balance.expiryDate), "dd/MM/yyyy")}

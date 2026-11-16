@@ -111,6 +111,25 @@ export type SuiviAlert = { level: "crit" | "warn"; text: string };
 export const SEUIL_ABSENTEISME = 0.05;
 export const SEUIL_SOLDE_FAIBLE = 2;
 export const SEUIL_RETARDS = 3;
+/** A solde at or above this many jours is worth nudging the salarié to use. */
+export const SEUIL_SOLDE_ELEVE = 25;
+
+/**
+ * Alerts for app accounts whose CP balance has piled up (>= SEUIL_SOLDE_ELEVE).
+ * The caller passes only accounts with no Suivi record, so a salarié present in
+ * both places is not alerted twice.
+ */
+export function computeBalanceAlerts(
+  balances: { name: string; cpDays: number }[],
+): SuiviAlert[] {
+  return balances
+    .filter((b) => b.cpDays >= SEUIL_SOLDE_ELEVE)
+    .sort((a, b) => b.cpDays - a.cpDays)
+    .map((b) => ({
+      level: "warn" as const,
+      text: `${b.name} — solde congés élevé (${formatDays(b.cpDays)})`,
+    }));
+}
 
 export function computeAlerts(t: SuiviTotals): SuiviAlert[] {
   const alerts: SuiviAlert[] = [];
@@ -128,6 +147,12 @@ export function computeAlerts(t: SuiviTotals): SuiviAlert[] {
       alerts.push({
         level: "warn",
         text: `${r.employee.nomComplet} — solde congés faible (${formatDays(r.solde)})`,
+      });
+    }
+    if (r.solde !== null && r.solde >= SEUIL_SOLDE_ELEVE) {
+      alerts.push({
+        level: "warn",
+        text: `${r.employee.nomComplet} — solde congés élevé (${formatDays(r.solde)})`,
       });
     }
     if (r.retardsNb >= SEUIL_RETARDS) {

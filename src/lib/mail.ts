@@ -36,6 +36,53 @@ function getTransporter(): Transporter {
   return transporter;
 }
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/**
+ * Generic notification e-mail: a greeting, the notification message, and a
+ * button to the relevant page. Links only — no attachment ever leaves the
+ * platform (documents contain CIN / salary data).
+ */
+export async function sendNotificationEmail(opts: {
+  to: string;
+  name: string;
+  subject: string;
+  message: string;
+  /** Absolute URL of the page the notification points to. */
+  url: string;
+}): Promise<void> {
+  const { to, name, subject, message, url } = opts;
+  const html = `
+    <div style="font-family: system-ui, sans-serif; color: #1e293b; line-height: 1.6; max-width: 520px;">
+      <p>Bonjour ${escapeHtml(name)},</p>
+      <p>${escapeHtml(message)}</p>
+      <p>
+        <a href="${escapeHtml(url)}"
+           style="display:inline-block; background:#4f46e5; color:#fff; padding:10px 18px;
+                  border-radius:8px; text-decoration:none; font-weight:600;">
+          Ouvrir Fair'Up OS
+        </a>
+      </p>
+      <p style="font-size:12px; color:#64748b;">
+        Vous recevez cet e-mail car une action vous concerne sur Fair'Up OS.
+      </p>
+    </div>`;
+
+  await getTransporter().sendMail({
+    from: process.env.SMTP_FROM,
+    to,
+    subject,
+    html,
+    text: `Bonjour ${name},\n\n${message}\n\nOuvrir Fair'Up OS : ${url}\n`,
+  });
+}
+
 export async function sendPasswordResetEmail(to: string, name: string, link: string): Promise<void> {
   const html = `
     <div style="font-family: system-ui, sans-serif; color: #1e293b; line-height: 1.6;">

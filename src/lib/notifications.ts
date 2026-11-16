@@ -1,6 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { prisma } from "@/lib/prisma";
+import { isMailConfigured, sendNotificationEmail } from "@/lib/mail";
 
 export type NotificationType =
   | "LEAVE_SUBMITTED"
@@ -179,6 +180,7 @@ export async function notifyTeamReviewers(
   await prisma.notification.createMany({
     data: [...recipients].map((userId) => ({ userId, type, message, link })),
   });
+  emailUsers([...recipients], type, message, link);
 }
 
 /**
@@ -200,6 +202,7 @@ export async function notifyCompanyReviewers(
   await prisma.notification.createMany({
     data: reviewers.map((r) => ({ userId: r.id, type, message, link })),
   });
+  emailUsers(reviewers.map((r) => r.id), type, message, link);
 }
 
 /** Notify a single user — used when a request they submitted gets reviewed. */
@@ -210,6 +213,67 @@ export async function notifyUser(
   link: string,
 ): Promise<void> {
   await prisma.notification.create({ data: { userId, type, message, link } });
+  emailUsers([userId], type, message, link);
+}
+
+// ── E-mail ───────────────────────────────────────────────────────────────────
+// Every notification is also mailed to its recipients. Sending is direct and
+// best-effort: it is fired without being awaited and every failure is caught,
+// so a mail outage can never slow down or fail an approval, a submission or an
+// upload. No retry — a failed mail is only logged; the in-app notification
+// above is already stored either way.
+
+const EMAIL_SUBJECTS: Record<NotificationType, string> = {
+  LEAVE_SUBMITTED: "Nouvelle demande de congé",
+  LEAVE_REVIEWED: "Votre demande de congé a été traitée",
+  ADVANCE_SUBMITTED: "Nouvelle demande d'avance sur salaire",
+  ADVANCE_REVIEWED: "Votre demande d'avance a été traitée",
+  DOCUMENT_SUBMITTED: "Nouvelle demande de document",
+  DOCUMENT_REVIEWED: "Votre demande de document a été traitée",
+  REMOTE_ASSIGNED: "Télétravail planifié",
+  REMOTE_CANCELLED: "Télétravail annulé",
+  REMOTE_SUBMITTED: "Nouvelle demande de télétravail",
+  REMOTE_REVIEWED: "Votre demande de télétravail a été traitée",
+  VAULT_DOCUMENT_ADDED: "Nouveau document dans votre coffre-fort",
+};
+
+/** Absolute URL for an in-app link, so it works from a mail client. */
+function absoluteUrl(link: string): string {
+  const base = (process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000").replace(/\/+$/, "");
+  return `${base}${link.startsWith("/") ? link : `/${link}`}`;
+}
+
+function emailUsers(
+  userIds: string[],
+  type: NotificationType,
+  message: string,
+  link: string | null,
+): void {
+  if (userIds.length === 0 || !isMailConfigured()) return;
+
+  void (async () => {
+    const users = await prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { email: true, name: true },
+    });
+    const subject = `Fair'Up OS — ${EMAIL_SUBJECTS[type] ?? "Notification"}`;
+    const results = await Promise.allSettled(
+      users.map((u) =>
+        sendNotificationEmail({
+          to: u.email,
+          name: u.name,
+          subject,
+          message,
+          url: absoluteUrl(link ?? "/dashboard"),
+        }),
+      ),
+    );
+    results.forEach((res, i) => {
+      if (res.status === "rejected") {
+        console.error(`[mail] échec d'envoi à ${users[i].email} (${type}):`, res.reason);
+      }
+    });
+  })().catch((err) => console.error("[mail] erreur d'envoi des notifications:", err));
 }
 
 export type NotificationItem = {

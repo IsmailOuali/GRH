@@ -6,6 +6,7 @@ import { toIso } from "@/lib/dates";
 import { DocumentForm } from "@/components/DocumentForm";
 import { DocRequestHistory } from "@/components/DocRequestHistory";
 import { DocRequestQueue } from "@/components/DocRequestQueue";
+import { LegalisationQueue } from "@/components/LegalisationQueue";
 import { Tabs } from "@/components/Tabs";
 import { Card, CardBody } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -32,10 +33,15 @@ export default async function DocumentsPage() {
 
   // ── Employee view ──────────────────────────────────────────────────────────
   if (!isManager) {
-    const myRequests = await prisma.documentRequest.findMany({
+    const myRequestsRaw = await prisma.documentRequest.findMany({
       where: { userId: session.user.id },
       orderBy: { createdAt: "desc" },
     });
+    // Never ship the stored scan filename to the client — only whether one exists.
+    const myRequests = myRequestsRaw.map(({ legaliseFile, ...r }) => ({
+      ...r,
+      hasLegaliseFile: Boolean(legaliseFile),
+    }));
 
     const requestForm = (
       <Card>
@@ -72,9 +78,22 @@ export default async function DocumentsPage() {
     orderBy: { createdAt: "asc" },
   });
 
+  // Approved requests whose légalisée copy is still to be delivered.
+  const toLegalise = await prisma.documentRequest.findMany({
+    where: { status: "APPROVED", legalise: true, legaliseAt: null, user: { company } },
+    include: { user: { select: { name: true } } },
+    orderBy: { reviewedAt: "asc" },
+  });
+
   const queueCard = (
     <Card>
       <DocRequestQueue requests={pendingRequests} />
+    </Card>
+  );
+
+  const legaliseCard = (
+    <Card>
+      <LegalisationQueue requests={toLegalise} />
     </Card>
   );
 
@@ -93,6 +112,7 @@ export default async function DocumentsPage() {
         defaultKey="attente"
         tabs={[
           { key: "attente", label: "Demandes en attente", badge: pendingRequests.length, content: queueCard },
+          { key: "legaliser", label: "À légaliser", badge: toLegalise.length, content: legaliseCard },
           { key: "generation", label: "Génération directe", content: generateForm },
         ]}
       />

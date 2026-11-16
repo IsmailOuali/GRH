@@ -15,8 +15,9 @@
  */
 
 import { parseLocalDate, toIso } from "@/lib/dates";
+import { isSpecialLeave } from "@/lib/leave-types";
 
-export type PlanningType = "CP" | "RTT" | "MALADIE" | "SANS_SOLDE" | "TELETRAVAIL";
+export type PlanningType = "CP" | "RTT" | "MALADIE" | "SANS_SOLDE" | "SPECIAL" | "TELETRAVAIL";
 export type PlanningStatus = "APPROVED" | "PENDING";
 
 export type PlanningEntry = {
@@ -64,6 +65,10 @@ export const TYPE_META: Record<PlanningType, TypeMeta> = {
   SANS_SOLDE: {
     code: "SS", label: "Sans solde", countsAsWorked: false,
     cell: "bg-amber-100 text-amber-800", swatch: "bg-amber-400",
+  },
+  SPECIAL: {
+    code: "CS", label: "Congé spécial", countsAsWorked: false,
+    cell: "bg-sky-100 text-sky-800", swatch: "bg-sky-400",
   },
   TELETRAVAIL: {
     code: "TT", label: "Télétravail", countsAsWorked: true,
@@ -115,7 +120,9 @@ export function buildPlanningEntries(
   const entries: PlanningEntry[] = [];
 
   for (const l of leaves) {
-    if (!isPlanningType(l.type)) continue;
+    // All congés spéciaux (mariage, décès…) share one planning colour.
+    const planningType: string = isSpecialLeave(l.type) ? "SPECIAL" : l.type;
+    if (!isPlanningType(planningType)) continue;
     if (l.status !== "APPROVED" && l.status !== "PENDING") continue;
 
     const cur = new Date(l.startDate);
@@ -126,7 +133,7 @@ export function buildPlanningEntries(
         userId: l.userId,
         name: l.user.name,
         date: toIso(cur),
-        type: l.type,
+        type: planningType,
         status: l.status as PlanningStatus,
         countsAsWorked: false,
         note: l.comment,

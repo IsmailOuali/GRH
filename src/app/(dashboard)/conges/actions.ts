@@ -9,6 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { getActiveCompany } from "@/lib/company";
 import { businessDaysBetween, nextBusinessDay } from "@/lib/dates";
 import { accrueLeaveBalance } from "@/lib/accrual";
+import { isValidLeaveType } from "@/lib/leave-types";
 import { notifyTeamReviewers, notifyUser } from "@/lib/notifications";
 import { TEMPLATES_MAP } from "@/lib/documents/templates.config";
 import { renderTemplate } from "@/lib/documents/render-template";
@@ -61,6 +62,7 @@ export async function submitLeaveRequest(formData: FormData) {
 
   if (!type || isNaN(startDate.getTime()) || isNaN(endDate.getTime()))
     return { error: "Champs obligatoires manquants." };
+  if (!isValidLeaveType(type)) return { error: "Type de congé invalide." };
   if (endDate < startDate)
     return { error: "La date de fin doit être après la date de début." };
 

@@ -2,9 +2,16 @@ import fs from "fs";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { extFromMime } from "@/lib/coffre-fort";
+import { legalisationFilePath } from "@/lib/documents/legalisation-storage";
 
+/**
+ * Downloads an approved document. By default the generated PDF (for a
+ * légalisation request this is the plain, non-légalisée copy). With
+ * `?version=legalisee` it serves the scanned légalisée copy instead.
+ */
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await auth();
@@ -23,6 +30,20 @@ export async function GET(
     docRequest.userId !== session.user.id
   ) {
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+  }
+
+  if (req.nextUrl.searchParams.get("version") === "legalisee") {
+    if (!docRequest.legaliseFile || !docRequest.legaliseAt) {
+      return NextResponse.json({ error: "Version légalisée non disponible" }, { status: 404 });
+    }
+    const mime = docRequest.legaliseMime ?? "application/pdf";
+    const buffer = fs.readFileSync(legalisationFilePath(docRequest.legaliseFile));
+    return new NextResponse(new Uint8Array(buffer), {
+      headers: {
+        "Content-Type": mime,
+        "Content-Disposition": `attachment; filename="${docRequest.templateId}-legalisee.${extFromMime(mime) ?? "pdf"}"`,
+      },
+    });
   }
 
   const buffer = fs.readFileSync(docRequest.pdfPath);

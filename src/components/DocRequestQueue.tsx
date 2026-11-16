@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Check, X, ChevronDown, ChevronUp, Inbox } from "lucide-react";
+import { Check, X, ChevronDown, ChevronUp, Inbox, Stamp } from "lucide-react";
 import { format } from "date-fns";
 import { EmptyState } from "./EmptyState";
 import { TEMPLATES_MAP } from "@/lib/documents/templates.config";
@@ -13,6 +13,8 @@ type DocRequest = {
   fieldsJson: string;
   status: string;
   createdAt: Date;
+  legalise: boolean;
+  legaliseReason: string | null;
   user: { name: string };
 };
 
@@ -45,6 +47,15 @@ function RequestRow({ r }: { r: DocRequest }) {
             {template?.label ?? r.templateId} ·{" "}
             {format(new Date(r.createdAt), "dd/MM/yyyy")}
           </p>
+          {r.legalise && (
+            <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+              <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 font-medium text-sky-800 ring-1 ring-inset ring-sky-200">
+                <Stamp className="size-3" aria-hidden />
+                Version légalisée demandée
+              </span>
+              {r.legaliseReason && <span className="italic text-slate-500">{r.legaliseReason}</span>}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <button

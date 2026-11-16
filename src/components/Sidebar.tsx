@@ -53,7 +53,11 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "sticky top-0 flex h-screen w-[17rem] shrink-0 flex-col border-r border-chrome-border bg-chrome shadow-[8px_0_24px_-20px_rgb(0_0_0/0.35)]",
+        // z-30: the notification panel hangs out of the sidebar over the page.
+        // Without its own z-index the sidebar paints in DOM order, so the
+        // animated/hovered cards in <main> (later in the DOM) draw over it.
+        // Stays below the z-50 modals and popovers, which must cover the nav.
+        "sticky top-0 z-30 flex h-screen w-[17rem] shrink-0 flex-col border-r border-chrome-border bg-chrome shadow-[8px_0_24px_-20px_rgb(0_0_0/0.35)]",
         className
       )}
     >

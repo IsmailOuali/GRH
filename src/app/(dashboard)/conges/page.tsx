@@ -16,15 +16,19 @@ import { Table, Thead, Th, Tbody } from "@/components/ui/Table";
 import { LinkButton } from "@/components/ui/Button";
 import { nextBusinessDay } from "@/lib/dates";
 import { buildPlanningEntries } from "@/lib/planning";
-import { accrueLeaveBalance } from "@/lib/accrual";
+import { accrueLeaveBalance, accrueCompanyLeaveBalances } from "@/lib/accrual";
 import { SuiviImporter } from "@/components/suivi/SuiviImporter";
 import { SuiviKpis, SuiviAlerts, SuiviTable, SuiviStats } from "@/components/suivi/SuiviPanels";
-import { computeSuivi, joursOuvresDuMois } from "@/lib/suivi/compute";
+import {
+  computeSuivi,
+  computeBalanceAlerts,
+  joursOuvresDuMois,
+  SEUIL_SOLDE_ELEVE,
+} from "@/lib/suivi/compute";
+import { LEAVE_TYPE_LABELS } from "@/lib/leave-types";
 import { LeaveForm } from "./LeaveForm";
 
-const TYPE_LABELS: Record<string, string> = {
-  CP: "Congés Payés", RTT: "RTT", MALADIE: "Maladie", SANS_SOLDE: "Sans Solde",
-};
+const TYPE_LABELS = LEAVE_TYPE_LABELS;
 
 function periodeOf(r: { startDate: Date; endDate: Date }) {
   return `${format(new Date(r.startDate), "dd/MM/yyyy")} – ${format(new Date(r.endDate), "dd/MM/yyyy")}`;
@@ -195,6 +199,24 @@ export default async function CongesPage() {
     }),
   ]);
 
+  // Accounts whose CP balance has piled up. Accounts already covered by a Suivi
+  // record are skipped — their solde is alerted from the sheet figures instead.
+  await accrueCompanyLeaveBalances(company);
+  const highBalances = await prisma.leaveBalance.findMany({
+    where: {
+      cpDays: { gte: SEUIL_SOLDE_ELEVE },
+      user: {
+        company,
+        trackedRecord: null,
+        ...(role === "SUPERVISEUR" ? { managerId: userId } : {}),
+      },
+    },
+    select: { cpDays: true, user: { select: { name: true } } },
+  });
+  const balanceAlerts = computeBalanceAlerts(
+    highBalances.map((b) => ({ name: b.user.name, cpDays: b.cpDays })),
+  );
+
   const planningEntries = buildPlanningEntries(teamRequests, planningRemote);
 
   const calendarCard = (
@@ -325,7 +347,7 @@ export default async function CongesPage() {
       {/* At-a-glance layer sits above the tabs so the headline figures and any
           threshold breach stay visible whichever tab is open. */}
       <SuiviKpis totals={suivi} joursOuvres={joursOuvres} />
-      <SuiviAlerts totals={suivi} />
+      <SuiviAlerts totals={suivi} extra={balanceAlerts} />
       <Tabs
         defaultKey="pending"
         tabs={[

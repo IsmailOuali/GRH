@@ -147,6 +147,20 @@ model DocumentRequest {
   reviewedAt   DateTime?
   pdfPath      String?
   createdAt    DateTime  @default(now())
+
+  // ── Légalisation ─────────────────────────────────────────────────────────
+  // The employee can ask for a légalisée copy (stamped at the commune). It is a
+  // physical step done by a manager, so the app only tracks it: once the request
+  // is APPROVED, "légalisation en cours" = legalise && !legaliseAt (see
+  // src/lib/documents/legalisation.ts). It closes either with a scanned copy or
+  // a hand-over note.
+  legalise         Boolean   @default(false)
+  legaliseReason   String?
+  legaliseDelivery String? // SCAN | MAIN_PROPRE
+  legaliseFile     String? // stored filename under uploads/legalisations/
+  legaliseMime     String?
+  legaliseNote     String?
+  legaliseAt       DateTime?
 }
 
 model SalaryAdvance {

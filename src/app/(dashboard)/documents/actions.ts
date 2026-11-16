@@ -15,6 +15,7 @@ import { notifyCompanyReviewers, notifyUser } from "@/lib/notifications";
 export async function submitDocumentRequest(
   templateId: string,
   fields: Record<string, string>,
+  legalisation?: { legalise: boolean; reason?: string },
 ) {
   const session = await auth();
   if (!session?.user) return { error: "Non authentifié." };
@@ -27,11 +28,16 @@ export async function submitDocumentRequest(
     .map((f) => f.label);
   if (missing.length > 0) return { error: `Champs manquants : ${missing.join(", ")}` };
 
+  const legalise = legalisation?.legalise === true;
+  const legaliseReason = legalise ? legalisation?.reason?.trim().slice(0, 300) || null : null;
+
   await prisma.documentRequest.create({
     data: {
       userId: session.user.id,
       templateId,
       fieldsJson: JSON.stringify(fields),
+      legalise,
+      legaliseReason,
     },
   });
 
@@ -43,7 +49,7 @@ export async function submitDocumentRequest(
     await notifyCompanyReviewers(
       requester.company,
       "DOCUMENT_SUBMITTED",
-      `${requester.name} a soumis une demande de document (${template.label}).`,
+      `${requester.name} a soumis une demande de document (${template.label}${legalise ? ", version légalisée" : ""}).`,
       "/documents",
     );
   }
@@ -147,8 +153,53 @@ export async function reviewDocumentRequest(
     docRequest.userId,
     "DOCUMENT_REVIEWED",
     decision === "APPROVED"
-      ? "Votre demande de document a été validée."
+      ? docRequest.legalise
+        ? "Votre demande de document a été validée. La légalisation est en cours."
+        : "Votre demande de document a été validée."
       : "Votre demande de document a été refusée.",
+    "/documents",
+  );
+
+  revalidatePath("/documents");
+  return { success: true };
+}
+
+/**
+ * Closes a légalisation without a scan: the légalisée copy was handed to the
+ * employee in person. (The scan path is the upload route,
+ * /api/documents/[id]/legalise.)
+ */
+export async function markLegalisationDelivered(id: string, note?: string) {
+  const session = await auth();
+  if (!session?.user) return { error: "Non authentifié." };
+  const role = session.user.role;
+  if (role !== "MANAGER" && role !== "ADMIN") return { error: "Accès refusé." };
+
+  const docRequest = await prisma.documentRequest.findUnique({
+    where: { id },
+    include: { user: { select: { company: true } } },
+  });
+  if (!docRequest) return { error: "Demande introuvable." };
+
+  const company = await getActiveCompany(role, session.user.company);
+  if (docRequest.user.company !== company) return { error: "Accès refusé." };
+  if (docRequest.status !== "APPROVED" || !docRequest.legalise)
+    return { error: "Cette demande n'a pas de légalisation à clôturer." };
+  if (docRequest.legaliseAt) return { error: "Légalisation déjà clôturée." };
+
+  await prisma.documentRequest.update({
+    where: { id },
+    data: {
+      legaliseDelivery: "MAIN_PROPRE",
+      legaliseAt: new Date(),
+      legaliseNote: note?.trim().slice(0, 300) || null,
+    },
+  });
+
+  await notifyUser(
+    docRequest.userId,
+    "DOCUMENT_REVIEWED",
+    "Votre attestation légalisée est prête : elle vous sera remise en main propre par les RH.",
     "/documents",
   );
 
