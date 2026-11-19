@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, CalendarRange, CalendarCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isBusinessDay, parseLocalDate } from "@/lib/dates";
+import { frenchHolidays, holidaysOfMonth } from "@/lib/holidays";
 import {
   TYPE_META,
   PLANNING_TYPES,
@@ -47,6 +48,7 @@ export function PlanningCalendar({
   lockTypes = false,
   currentUserId,
   teamIds,
+  hidePersonFilter = false,
 }: {
   entries: PlanningEntry[];
   people?: PlanningPerson[];
@@ -54,6 +56,8 @@ export function PlanningCalendar({
   lockTypes?: boolean;
   currentUserId?: string;
   teamIds?: string[];
+  /** Personal planning: a single row, so the "Salarié" picker is pointless. */
+  hidePersonFilter?: boolean;
 }) {
   const today = new Date();
   const [cursor, setCursor] = useState({ year: today.getFullYear(), month: today.getMonth() + 1 });
@@ -65,6 +69,13 @@ export function PlanningCalendar({
   const { year, month } = cursor;
   const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
   const days = useMemo(() => monthDays(year, month), [year, month]);
+
+  // Jours fériés: computed per year, so any month the user navigates to is right.
+  const holidayByDate = useMemo(
+    () => new Map(frenchHolidays(year).map((h) => [h.date, h.label])),
+    [year],
+  );
+  const monthHolidays = useMemo(() => holidaysOfMonth(year, month), [year, month]);
 
   const filtered = useMemo(() => {
     const team = teamIds ? new Set(teamIds) : null;
@@ -167,20 +178,22 @@ export function PlanningCalendar({
 
       {/* ── Filters ────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-b border-slate-100 px-5 py-3">
-        <FilterGroup label="Salarié">
-          <select
-            value={who}
-            onChange={(e) => setWho(e.target.value)}
-            className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-700 focus:border-brand-600 focus:outline-none focus:ring-4 focus:ring-brand-600/15"
-          >
-            <option value="all">(Tous)</option>
-            {teamIds && teamIds.length > 0 && <option value="team">(Mon équipe)</option>}
-            {currentUserId && <option value="me">(Moi)</option>}
-            {people.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-        </FilterGroup>
+        {!hidePersonFilter && (
+          <FilterGroup label="Salarié">
+            <select
+              value={who}
+              onChange={(e) => setWho(e.target.value)}
+              className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-700 focus:border-brand-600 focus:outline-none focus:ring-4 focus:ring-brand-600/15"
+            >
+              <option value="all">(Tous)</option>
+              {teamIds && teamIds.length > 0 && <option value="team">(Mon équipe)</option>}
+              {currentUserId && <option value="me">(Moi)</option>}
+              {people.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </FilterGroup>
+        )}
 
         {!lockTypes && (
           <FilterGroup label="Type">
@@ -235,6 +248,18 @@ export function PlanningCalendar({
         </FilterGroup>
       </div>
 
+      {/* ── Jours fériés du mois ───────────────────────────────────────── */}
+      {monthHolidays.length > 0 && (
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-slate-100 bg-rose-50/50 px-5 py-2.5 text-xs text-rose-900">
+          <span className="font-semibold">Jours fériés :</span>
+          {monthHolidays.map((h) => (
+            <span key={h.date} className="tabular-nums">
+              {Number(h.date.slice(8))} {MONTHS[month - 1].toLowerCase()} · {h.label}
+            </span>
+          ))}
+        </p>
+      )}
+
       {/* ── Timeline ───────────────────────────────────────────────────── */}
       {rows.length === 0 ? (
         <p className="px-5 py-12 text-center text-sm text-slate-500">
@@ -252,12 +277,15 @@ export function PlanningCalendar({
                 {days.map((iso) => {
                   const d = parseLocalDate(iso)!;
                   const off = !isBusinessDay(d);
+                  const holiday = holidayByDate.get(iso);
                   return (
                     <th
                       key={iso}
+                      title={holiday}
                       className={cn(
                         "w-7 min-w-[28px] border-l border-slate-100 px-0 py-2 text-center text-[10px] font-semibold",
                         off ? "bg-slate-100/70 text-slate-400" : "text-slate-500",
+                        holiday && "bg-rose-100 text-rose-700",
                         iso === todayIso && "bg-brand-50 text-brand-700",
                       )}
                     >
@@ -280,13 +308,18 @@ export function PlanningCalendar({
                       const e = dayMap?.get(iso);
                       const off = !isBusinessDay(parseLocalDate(iso)!);
                       const meta = e ? TYPE_META[e.type] : null;
+                      const holiday = holidayByDate.get(iso);
+                      const entryTitle = e
+                        ? `${p.name} — ${meta!.label}${e.status === "PENDING" ? " (en attente)" : ""}${e.note ? ` · ${e.note}` : ""}`
+                        : undefined;
                       return (
                         <td
                           key={iso}
-                          title={e ? `${p.name} — ${meta!.label}${e.status === "PENDING" ? " (en attente)" : ""}${e.note ? ` · ${e.note}` : ""}` : undefined}
+                          title={holiday ? `${holiday} (jour férié)${entryTitle ? ` — ${entryTitle}` : ""}` : entryTitle}
                           className={cn(
                             "border-l border-slate-100 p-0 text-center",
                             !e && off && "bg-slate-100/70",
+                            holiday && "bg-rose-50",
                           )}
                         >
                           {e && (
@@ -335,6 +368,10 @@ export function PlanningCalendar({
         <span className="inline-flex items-center gap-1.5">
           <span className="size-4 rounded bg-slate-100" aria-hidden />
           Week-end
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="size-4 rounded bg-rose-100" aria-hidden />
+          Jour férié
         </span>
       </div>
     </div>

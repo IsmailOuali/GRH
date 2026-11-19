@@ -53,7 +53,7 @@ export async function createEmployee(formData: FormData) {
       // month back so the hire month itself is credited its full 1,5 on the
       // first read, whatever day of the month the employee started.
       leaveBalance: {
-        create: { cpDays: 0, rttDays: 10, expiryDate: expiry, lastAccrualAt: initialAccrualAnchor(new Date()) },
+        create: { cpDays: 0, expiryDate: expiry, lastAccrualAt: initialAccrualAnchor(new Date()) },
       },
     },
   });
@@ -121,9 +121,8 @@ export async function updateLeaveBalance(formData: FormData) {
   const admin = await requireManager();
   const userId = formData.get("userId") as string;
   const cpDays = parseFloat(formData.get("cpDays") as string);
-  const rttDays = parseFloat(formData.get("rttDays") as string);
 
-  if (!userId || isNaN(cpDays) || isNaN(rttDays)) return { error: "Données invalides." };
+  if (!userId || isNaN(cpDays)) return { error: "Données invalides." };
 
   const target = await prisma.user.findUnique({ where: { id: userId } });
   if (!target || target.company !== admin.activeCompany) return { error: "Accès refusé." };
@@ -136,8 +135,8 @@ export async function updateLeaveBalance(formData: FormData) {
   const expiry = new Date(new Date().getFullYear() + 1, 5, 30);
   await prisma.leaveBalance.upsert({
     where: { userId },
-    create: { userId, cpDays, rttDays, expiryDate: expiry, lastAccrualAt: startOfMonth(new Date()) },
-    update: { cpDays, rttDays },
+    create: { userId, cpDays, expiryDate: expiry, lastAccrualAt: startOfMonth(new Date()) },
+    update: { cpDays },
   });
 
   revalidatePath("/admin");

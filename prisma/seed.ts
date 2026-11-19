@@ -85,7 +85,7 @@ async function main() {
   // ── Leave balances ────────────────────────────────────────────────────────
   for (const user of [emp1, emp2, emp3, mgr1, mgr2, admin]) {
     await prisma.leaveBalance.create({
-      data: { userId: user.id, cpDays: 25, rttDays: 10, expiryDate: EXPIRY },
+      data: { userId: user.id, cpDays: 25, expiryDate: EXPIRY },
     });
   }
 
@@ -99,19 +99,6 @@ async function main() {
       days: 5,
       comment: "Vacances d'été",
       status: "PENDING",
-    },
-  });
-
-  await prisma.leaveRequest.create({
-    data: {
-      userId: emp1.id,
-      type: "RTT",
-      startDate: new Date("2026-06-02"),
-      endDate: new Date("2026-06-02"),
-      days: 1,
-      status: "APPROVED",
-      reviewedById: mgr1.id,
-      reviewedAt: new Date("2026-05-28"),
     },
   });
 

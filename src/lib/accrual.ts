@@ -6,7 +6,6 @@ import { prisma } from "@/lib/prisma";
  * Rule (Code du travail marocain, art. 231): every month of service credits
  * 1,5 jour ouvrable of CP. There is no proration — someone hired on the 20th
  * still earns the full 1,5 for that month — and no ceiling on the balance.
- * RTT is not accrued; it stays admin-managed.
  *
  * There is no scheduler in this app, so accrual is *lazy*: every read path
  * that shows or spends a balance calls {@link accrueLeaveBalance} first, which

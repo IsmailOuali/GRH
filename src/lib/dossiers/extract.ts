@@ -195,6 +195,8 @@ export function parseDossierText(text: string): ExtractedDossier {
         fields[a.field.name] = findCheckboxField(segment, a.field) ?? "";
       } else if (a.field.type === "date") {
         fields[a.field.name] = normalizeDate(cleanValue(segment));
+      } else if (a.field.type === "number") {
+        fields[a.field.name] = /^\d{1,2}$/.exec(cleanValue(segment))?.[0] ?? "";
       } else {
         fields[a.field.name] = cleanValue(segment);
       }

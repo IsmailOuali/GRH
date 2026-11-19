@@ -31,7 +31,7 @@ export const SECTIONS: DossierSection[] = [
   { id: "pieces-justificatives", title: "Pièces Justificatives" },
 ];
 
-export type FieldType = "text" | "date" | "textarea" | "select";
+export type FieldType = "text" | "date" | "textarea" | "select" | "number";
 
 export interface SelectOption {
   value: string;
@@ -63,6 +63,13 @@ export const TYPE_CONTRAT_OPTIONS: SelectOption[] = [
   { value: "AUTRE", label: "Autre" },
 ];
 
+export const SITUATION_FAMILIALE_OPTIONS: SelectOption[] = [
+  { value: "CELIBATAIRE", label: "Célibataire" },
+  { value: "MARIE", label: "Marié(e)" },
+  { value: "DIVORCE", label: "Divorcé(e)" },
+  { value: "VEUF", label: "Veuf(ve)" },
+];
+
 export const STATUT_ESSAI_OPTIONS: SelectOption[] = [
   { value: "EN_COURS", label: "En cours" },
   { value: "VALIDEE", label: "Validée" },
@@ -85,6 +92,11 @@ export const SCALAR_FIELDS: DossierField[] = [
   { name: "telephonePersonnel", label: "Téléphone personnel", section: "informations-personnelles", type: "text", parseLabels: ["Téléphone personnel"] },
   { name: "emailPersonnel", label: "Adresse email personnelle", section: "informations-personnelles", type: "text", parseLabels: ["Adresse email personnelle"] },
   { name: "numeroCnss", label: "Numéro CNSS", section: "informations-personnelles", type: "text", parseLabels: ["Numéro CNSS"] },
+  // RIB / famille: not on the original intake form, so older PDFs leave them
+  // "non détecté"; the app's own regenerated PDF prints these exact labels.
+  { name: "rib", label: "RIB", section: "informations-personnelles", type: "text", parseLabels: ["RIB"] },
+  { name: "situationFamiliale", label: "Situation familiale", section: "informations-personnelles", type: "select", options: SITUATION_FAMILIALE_OPTIONS, checkbox: true, parseLabels: ["Situation familiale"] },
+  { name: "nombreEnfants", label: "Nombre d'enfants", section: "informations-personnelles", type: "number", parseLabels: ["Nombre d'enfants"] },
 
   // ── 2 · Situation Professionnelle chez Fair'UP ────────────────────────────
   { name: "matricule", label: "Matricule Salarié", section: "situation-professionnelle", type: "text", parseLabels: ["Matricule Salarié"] },

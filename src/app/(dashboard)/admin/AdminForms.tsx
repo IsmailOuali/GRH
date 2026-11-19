@@ -453,15 +453,9 @@ function QuotaForm({ users }: { users: User[] }) {
             ))}
           </select>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Jours CP</label>
-            <input name="cpDays" type="number" min="0" step="0.5" defaultValue={25} required className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/20" />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Jours RTT</label>
-            <input name="rttDays" type="number" min="0" step="0.5" defaultValue={10} required className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/20" />
-          </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Jours CP</label>
+          <input name="cpDays" type="number" min="0" step="0.5" defaultValue={25} required className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/20" />
         </div>
         {msg && <p className={`text-sm ${msg.type === "ok" ? "text-emerald-600" : "text-red-600"}`}>{msg.text}</p>}
         <button type="submit" disabled={loading} className="flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm text-white hover:bg-brand-700 disabled:opacity-60">

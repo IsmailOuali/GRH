@@ -6,6 +6,9 @@ import { isMailConfigured, sendNotificationEmail } from "@/lib/mail";
 export type NotificationType =
   | "LEAVE_SUBMITTED"
   | "LEAVE_REVIEWED"
+  | "LEAVE_JUSTIFICATIF_ADDED"
+  | "TICKET_SUBMITTED"
+  | "TICKET_ANSWERED"
   | "ADVANCE_SUBMITTED"
   | "ADVANCE_REVIEWED"
   | "DOCUMENT_SUBMITTED"
@@ -33,11 +36,15 @@ export async function getPendingCounts(
   const isSupervisor = role === "SUPERVISEUR";
   const teamFilter = isSupervisor ? { managerId: userId } : {};
 
-  const [conges, documents, paie, teletravail] = await Promise.all([
+  const [conges, documents, tickets, paie, teletravail] = await Promise.all([
     prisma.leaveRequest.count({ where: { status: "PENDING", user: { company, ...teamFilter } } }),
     isSupervisor
       ? Promise.resolve(0)
       : prisma.documentRequest.count({ where: { status: "PENDING", user: { company } } }),
+    // Tickets go to the RH (MANAGER/ADMIN), like document requests.
+    isSupervisor
+      ? Promise.resolve(0)
+      : prisma.ticket.count({ where: { status: { in: ["OPEN", "IN_PROGRESS"] }, user: { company } } }),
     prisma.salaryAdvance.count({ where: { status: "PENDING", user: { company, ...teamFilter } } }),
     // Distinct requests, not days: the queue shows one row per submission, so
     // a badge counting the eight Tuesdays inside it would not match what the
@@ -53,13 +60,14 @@ export async function getPendingCounts(
   const counts: Record<string, number> = {};
   if (conges) counts["/conges"] = conges;
   if (documents) counts["/documents"] = documents;
+  if (tickets) counts["/tickets"] = tickets;
   if (paie) counts["/paie"] = paie;
   if (teletravail) counts["/teletravail"] = teletravail;
   return counts;
 }
 
 export type PendingSummaryItem = {
-  key: "conges" | "documents" | "paie" | "teletravail";
+  key: "conges" | "documents" | "tickets" | "paie" | "teletravail";
   label: string;
   href: string;
   count: number;
@@ -82,7 +90,7 @@ export async function getPendingSummary(
   const isSupervisor = role === "SUPERVISEUR";
   const teamFilter = isSupervisor ? { managerId: userId } : {};
 
-  const [leaves, documents, advances, remoteDays] = await Promise.all([
+  const [leaves, documents, tickets, advances, remoteDays] = await Promise.all([
     prisma.leaveRequest.aggregate({
       where: { status: "PENDING", user: { company, ...teamFilter } },
       _count: true,
@@ -92,6 +100,13 @@ export async function getPendingSummary(
       ? Promise.resolve(null)
       : prisma.documentRequest.aggregate({
           where: { status: "PENDING", user: { company } },
+          _count: true,
+          _min: { createdAt: true },
+        }),
+    isSupervisor
+      ? Promise.resolve(null)
+      : prisma.ticket.aggregate({
+          where: { status: { in: ["OPEN", "IN_PROGRESS"] }, user: { company } },
           _count: true,
           _min: { createdAt: true },
         }),
@@ -130,7 +145,8 @@ export async function getPendingSummary(
   if (documents) {
     push("documents", "Demandes de documents", "/documents", documents._count, documents._min.createdAt);
   }
-  push("paie", "Avances sur salaire", "/paie", advances._count, advances._min.createdAt);
+  if (tickets) push("tickets", "Tickets RH", "/tickets", tickets._count, tickets._min.createdAt);
+  push("paie", "Acomptes sur salaire", "/paie", advances._count, advances._min.createdAt);
   push("teletravail", "Télétravail à valider", "/teletravail", remoteRequests.size, remoteOldest);
   return items;
 }
@@ -226,8 +242,11 @@ export async function notifyUser(
 const EMAIL_SUBJECTS: Record<NotificationType, string> = {
   LEAVE_SUBMITTED: "Nouvelle demande de congé",
   LEAVE_REVIEWED: "Votre demande de congé a été traitée",
-  ADVANCE_SUBMITTED: "Nouvelle demande d'avance sur salaire",
-  ADVANCE_REVIEWED: "Votre demande d'avance a été traitée",
+  LEAVE_JUSTIFICATIF_ADDED: "Justificatif d'absence déposé",
+  TICKET_SUBMITTED: "Nouveau ticket RH",
+  TICKET_ANSWERED: "Les RH ont répondu à votre ticket",
+  ADVANCE_SUBMITTED: "Nouvelle demande d'acompte sur salaire",
+  ADVANCE_REVIEWED: "Votre demande d'acompte a été traitée",
   DOCUMENT_SUBMITTED: "Nouvelle demande de document",
   DOCUMENT_REVIEWED: "Votre demande de document a été traitée",
   REMOTE_ASSIGNED: "Télétravail planifié",
@@ -345,7 +364,7 @@ export async function getPendingReminders(
   const combined = [
     ...leaves.map((r) => ({ id: r.id, label: "Congé", name: r.user.name, createdAt: r.createdAt, link: "/conges" })),
     ...documents.map((r) => ({ id: r.id, label: "Document", name: r.user.name, createdAt: r.createdAt, link: "/documents" })),
-    ...advances.map((r) => ({ id: r.id, label: "Avance", name: r.user.name, createdAt: r.createdAt, link: "/paie" })),
+    ...advances.map((r) => ({ id: r.id, label: "Acompte", name: r.user.name, createdAt: r.createdAt, link: "/paie" })),
   ];
   combined.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 

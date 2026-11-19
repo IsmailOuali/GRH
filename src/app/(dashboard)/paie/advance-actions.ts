@@ -22,7 +22,7 @@ export async function submitAdvance(formData: FormData): Promise<Result> {
   const pending = await prisma.salaryAdvance.count({
     where: { userId: session.user.id, status: "PENDING" },
   });
-  if (pending > 0) return { error: "Vous avez déjà une demande d'avance en attente." };
+  if (pending > 0) return { error: "Vous avez déjà une demande d'acompte en attente." };
 
   await prisma.salaryAdvance.create({
     data: { userId: session.user.id, amount, reason, repaymentMonth, status: "PENDING" },
@@ -37,7 +37,7 @@ export async function submitAdvance(formData: FormData): Promise<Result> {
       requester.company,
       requester.managerId,
       "ADVANCE_SUBMITTED",
-      `${requester.name} a soumis une demande d'avance sur salaire.`,
+      `${requester.name} a soumis une demande d'acompte sur salaire.`,
       "/paie",
     );
   }
@@ -83,8 +83,8 @@ export async function reviewAdvance(
     advance.userId,
     "ADVANCE_REVIEWED",
     decision === "APPROVED"
-      ? "Votre demande d'avance sur salaire a été validée."
-      : "Votre demande d'avance sur salaire a été refusée.",
+      ? "Votre demande d'acompte sur salaire a été validée."
+      : "Votre demande d'acompte sur salaire a été refusée.",
     "/paie",
   );
 

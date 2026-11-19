@@ -172,7 +172,8 @@ export function DossierForm({
           <textarea rows={2} value={value} onChange={(e) => setField(f.name, e.target.value)} className={`${INPUT_CLASS} ${borderClass}`} />
         ) : (
           <input
-            type={f.type === "date" ? "date" : "text"}
+            type={f.type === "date" ? "date" : f.type === "number" ? "number" : "text"}
+            {...(f.type === "number" ? { min: 0, max: 20, step: 1, inputMode: "numeric" as const } : {})}
             value={value}
             onChange={(e) => setField(f.name, e.target.value)}
             className={`${INPUT_CLASS} ${borderClass}`}

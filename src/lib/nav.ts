@@ -5,6 +5,7 @@ import {
   FilePlus2,
   FolderOpen,
   Laptop,
+  LifeBuoy,
   ShieldCheck,
   Settings,
   type LucideIcon,
@@ -46,6 +47,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/paie", icon: FileText, label: "Bulletins de Paie", roles: ["EMPLOYEE", "SUPERVISEUR", "MANAGER", "ADMIN"], section: "espace", primary: true },
   { href: "/documents", icon: FilePlus2, label: "Documents", roles: ["EMPLOYEE", "SUPERVISEUR", "MANAGER", "ADMIN"], section: "espace", primary: true },
   { href: "/coffre-fort", icon: ShieldCheck, label: "Coffre-fort", roles: ["EMPLOYEE", "SUPERVISEUR", "MANAGER", "ADMIN"], section: "espace" },
+  { href: "/tickets", icon: LifeBuoy, label: "Tickets RH", roles: ["EMPLOYEE", "SUPERVISEUR", "MANAGER", "ADMIN"], section: "espace" },
   { href: "/admin/dossiers", icon: FolderOpen, label: "Dossiers Salariés", roles: ["SUPERVISEUR", "MANAGER", "ADMIN"], section: "gestion" },
   { href: "/admin", icon: Settings, label: "Administration", roles: ["MANAGER", "ADMIN"], section: "gestion", exact: true },
 ];

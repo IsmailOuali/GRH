@@ -10,6 +10,7 @@ import {
   SCALAR_FIELDS_BY_SECTION,
   TYPE_CONTRAT_OPTIONS,
   STATUT_ESSAI_OPTIONS,
+  SITUATION_FAMILIALE_OPTIONS,
   OUTILS_LABEL,
   type DossierData,
   type SelectOption,
@@ -48,6 +49,7 @@ export function renderDossierHtml(data: DossierData, generatedAt: Date = new Dat
         let value = data.fields[f.name] ?? "";
         if (f.type === "date") value = value ? formatDate(value) : "";
         else if (f.name === "typeContrat") value = value ? optionLabel(TYPE_CONTRAT_OPTIONS, value) : "";
+        else if (f.name === "situationFamiliale") value = value ? optionLabel(SITUATION_FAMILIALE_OPTIONS, value) : "";
         else if (f.name === "statutPeriodeEssai") value = value ? optionLabel(STATUT_ESSAI_OPTIONS, value) : "";
         return `<tr><th>${escapeHtml(f.label)}</th><td>${cell(value)}</td></tr>`;
       })

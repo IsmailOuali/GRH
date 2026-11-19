@@ -26,9 +26,26 @@ import {
   SEUIL_SOLDE_ELEVE,
 } from "@/lib/suivi/compute";
 import { LEAVE_TYPE_LABELS } from "@/lib/leave-types";
+import { canFileJustificatif, justificatifState } from "@/lib/leave-justificatif";
+import { JustificatifCell } from "@/components/JustificatifCell";
 import { LeaveForm } from "./LeaveForm";
 
 const TYPE_LABELS = LEAVE_TYPE_LABELS;
+
+// Justificatif d'absence: download link / "attendu" marker for everyone, and the
+// upload button only for the employee on their own request.
+function justificatifOf(
+  r: { id: string; userId: string; type: string; status: string; justificatifFile: string | null },
+  currentUserId: string,
+) {
+  return (
+    <JustificatifCell
+      id={r.id}
+      state={justificatifState(r)}
+      canUpload={r.userId === currentUserId && canFileJustificatif(r)}
+    />
+  );
+}
 
 function periodeOf(r: { startDate: Date; endDate: Date }) {
   return `${format(new Date(r.startDate), "dd/MM/yyyy")} – ${format(new Date(r.endDate), "dd/MM/yyyy")}`;
@@ -85,8 +102,7 @@ export default async function CongesPage() {
         balance ? (
           <span className="inline-flex flex-wrap items-center gap-x-1.5">
             Solde :
-            <span className="font-medium text-slate-700">{balance.cpDays} CP</span>·
-            <span className="font-medium text-slate-700">{balance.rttDays} RTT</span>
+            <span className="font-medium text-slate-700">{balance.cpDays} CP</span>
           </span>
         ) : undefined
       }
@@ -105,6 +121,26 @@ export default async function CongesPage() {
 
   // ── Employee view ──────────────────────────────────────────────────────────
   if (!isManager) {
+    // Personal planning: my congés/absences, my télétravail and the jours fériés
+    // on one calendar. A single row, so the person picker is hidden.
+    const myName = session.user.name ?? "";
+    const myRemoteDays = await prisma.remoteWorkDay.findMany({
+      where: { userId },
+      include: { user: { select: { name: true } } },
+    });
+    const myPlanning = buildPlanningEntries(
+      requests.map((r) => ({ ...r, user: { name: myName } })),
+      myRemoteDays,
+    );
+    const planningCard = (
+      <PlanningCalendar
+        entries={myPlanning}
+        people={[{ id: userId, name: myName }]}
+        currentUserId={userId}
+        hidePersonFilter
+      />
+    );
+
     const historyCard = (
       <Card>
         {requests.length === 0 ? (
@@ -117,6 +153,7 @@ export default async function CongesPage() {
                   <Th className="hidden md:table-cell">Jours</Th>
                   <Th>Statut</Th>
                   <Th className="hidden md:table-cell">PDF</Th>
+                  <Th className="hidden md:table-cell">Justificatif</Th>
                   <Th className="w-8 md:hidden"><span className="sr-only">Détail</span></Th>
               </Thead>
               <Tbody>
@@ -135,6 +172,9 @@ export default async function CongesPage() {
                           { label: "Jours", value: r.days },
                           { label: "Statut", value: <StatusBadge status={r.status} /> },
                           { label: "PDF", value: pdfLinkOf(r) },
+                          ...(justificatifState(r) !== "NONE"
+                            ? [{ label: "Justificatif", value: justificatifOf(r, userId) }]
+                            : []),
                         ],
                       }}
                     >
@@ -143,6 +183,7 @@ export default async function CongesPage() {
                       <td className="hidden px-5 py-3.5 text-slate-600 md:table-cell">{r.days}</td>
                       <td className="px-5 py-3.5"><StatusBadge status={r.status} /></td>
                       <td className="hidden px-5 py-3.5 md:table-cell">{pdfLinkOf(r)}</td>
+                      <td className="hidden px-5 py-3.5 md:table-cell">{justificatifOf(r, userId)}</td>
                     </TappableRow>
                   );
                 })}
@@ -159,6 +200,7 @@ export default async function CongesPage() {
           defaultKey="nouvelle"
           tabs={[
             { key: "nouvelle", label: "Nouvelle demande", content: formCard },
+            { key: "planning", label: "Planning", content: planningCard },
             { key: "historique", label: "Historique", content: historyCard },
           ]}
         />
@@ -255,9 +297,13 @@ export default async function CongesPage() {
                         { label: "Salarié", value: r.user.name },
                         ...(r.comment ? [{ label: "Commentaire", value: r.comment }] : []),
                         { label: "Type", value: TYPE_LABELS[r.type] ?? r.type },
+                        ...(r.eventDate ? [{ label: "Date de l'événement", value: format(new Date(r.eventDate), "dd/MM/yyyy") }] : []),
                         { label: "Période", value: periode },
                         { label: "Reprise", value: repriseOf(r) },
                         { label: "Jours", value: r.days },
+                        ...(justificatifState(r) !== "NONE"
+                          ? [{ label: "Justificatif", value: justificatifOf(r, userId) }]
+                          : []),
                       ],
                       actions: <ValidationButtons id={r.id} />,
                     }}
@@ -268,7 +314,17 @@ export default async function CongesPage() {
                         <p className="mt-0.5 text-xs italic text-slate-500">{r.comment}</p>
                       )}
                     </td>
-                    <td className="hidden px-5 py-4 text-slate-600 md:table-cell">{TYPE_LABELS[r.type] ?? r.type}</td>
+                    <td className="hidden px-5 py-4 text-slate-600 md:table-cell">
+                      {TYPE_LABELS[r.type] ?? r.type}
+                      {r.eventDate && (
+                        <span className="block text-xs text-slate-500">
+                          Événement : {format(new Date(r.eventDate), "dd/MM/yyyy")}
+                        </span>
+                      )}
+                      {justificatifState(r) !== "NONE" && (
+                        <span className="mt-1.5 block">{justificatifOf(r, userId)}</span>
+                      )}
+                    </td>
                     <td className="px-5 py-4 text-slate-600">{periode}</td>
                     <td className="hidden px-5 py-4 text-slate-600 md:table-cell">{r.days}</td>
                     <td className="hidden px-5 py-4 md:table-cell">
@@ -296,6 +352,7 @@ export default async function CongesPage() {
                 <Th className="hidden md:table-cell">Jours</Th>
                 <Th>Statut</Th>
                 <Th className="hidden md:table-cell">PDF</Th>
+                <Th className="hidden md:table-cell">Justificatif</Th>
                 <Th className="w-8 md:hidden"><span className="sr-only">Détail</span></Th>
             </Thead>
             <Tbody>
@@ -315,6 +372,9 @@ export default async function CongesPage() {
                         { label: "Jours", value: r.days },
                         { label: "Statut", value: <StatusBadge status={r.status} /> },
                         { label: "PDF", value: pdfLinkOf(r) },
+                        ...(justificatifState(r) !== "NONE"
+                          ? [{ label: "Justificatif", value: justificatifOf(r, userId) }]
+                          : []),
                       ],
                     }}
                   >
@@ -324,6 +384,7 @@ export default async function CongesPage() {
                     <td className="hidden px-5 py-3.5 text-slate-600 md:table-cell">{r.days}</td>
                     <td className="px-5 py-3.5"><StatusBadge status={r.status} /></td>
                     <td className="hidden px-5 py-3.5 md:table-cell">{pdfLinkOf(r)}</td>
+                    <td className="hidden px-5 py-3.5 md:table-cell">{justificatifOf(r, userId)}</td>
                   </TappableRow>
                 );
               })}

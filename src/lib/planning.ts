@@ -17,7 +17,7 @@
 import { parseLocalDate, toIso } from "@/lib/dates";
 import { isSpecialLeave } from "@/lib/leave-types";
 
-export type PlanningType = "CP" | "RTT" | "MALADIE" | "SANS_SOLDE" | "SPECIAL" | "TELETRAVAIL";
+export type PlanningType = "CP" | "MALADIE" | "ABSENCE_JUSTIFIEE" | "ABSENCE_NON_JUSTIFIEE" | "SANS_SOLDE" | "SPECIAL" | "TELETRAVAIL";
 export type PlanningStatus = "APPROVED" | "PENDING";
 
 export type PlanningEntry = {
@@ -54,13 +54,17 @@ export const TYPE_META: Record<PlanningType, TypeMeta> = {
     code: "CP", label: "Congés payés", countsAsWorked: false,
     cell: "bg-indigo-100 text-indigo-800", swatch: "bg-indigo-400",
   },
-  RTT: {
-    code: "RTT", label: "RTT", countsAsWorked: false,
-    cell: "bg-violet-100 text-violet-800", swatch: "bg-violet-400",
-  },
   MALADIE: {
     code: "MAL", label: "Maladie", countsAsWorked: false,
     cell: "bg-rose-100 text-rose-800", swatch: "bg-rose-400",
+  },
+  ABSENCE_JUSTIFIEE: {
+    code: "AJ", label: "Absence justifiée", countsAsWorked: false,
+    cell: "bg-orange-100 text-orange-800", swatch: "bg-orange-400",
+  },
+  ABSENCE_NON_JUSTIFIEE: {
+    code: "ANJ", label: "Absence non justifiée", countsAsWorked: false,
+    cell: "bg-red-100 text-red-800", swatch: "bg-red-500",
   },
   SANS_SOLDE: {
     code: "SS", label: "Sans solde", countsAsWorked: false,

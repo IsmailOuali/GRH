@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { format } from "date-fns";
-import { FileText, Download, Wallet, CheckSquare } from "lucide-react";
+import { fr } from "date-fns/locale";
+import { FileText, Download, CheckSquare } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveCompany } from "@/lib/company";
-import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { TappableRow } from "@/components/TappableRow";
 import { Tabs } from "@/components/Tabs";
@@ -15,8 +15,10 @@ import { LinkButton } from "@/components/ui/Button";
 import { UploadPayslipForm } from "./UploadPayslipForm";
 import { AdvanceForm } from "./AdvanceForm";
 import { AdvanceButtons } from "./AdvanceButtons";
+import { AdvanceHistory, type AdvanceHistoryRow, type MonthOption } from "./AdvanceHistory";
 
 const dh = (n: number) => `${n.toLocaleString("fr-FR")} DH`;
+
 
 export default async function PaiePage() {
   const session = await auth();
@@ -111,6 +113,33 @@ export default async function PaiePage() {
     </div>
   );
 
+  // ── Acomptes history ────────────────────────────────────────────────────────
+  // One month is shown at a time, opening on the current one. Month keys and
+  // labels are computed HERE (server) and passed down as strings, so the server
+  // render and the browser can never disagree on which month a request is in.
+  const now = new Date();
+  const currentMonthKey = format(now, "yyyy-MM");
+  const historyRows: AdvanceHistoryRow[] = advances.map((a) => ({
+    id: a.id,
+    monthKey: format(new Date(a.createdAt), "yyyy-MM"),
+    dateLabel: format(new Date(a.createdAt), "dd/MM/yyyy"),
+    userName: (a as { user?: { name?: string } }).user?.name,
+    amount: a.amount,
+    status: a.status,
+    repaymentMonth: a.repaymentMonth,
+    reason: a.reason,
+    reviewNote: a.reviewNote,
+  }));
+  const monthLabel = (key: string) => {
+    const [y, m] = key.split("-").map(Number);
+    const label = format(new Date(y, m - 1, 1), "LLLL yyyy", { locale: fr });
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  };
+  // Every month that has a request, plus the current one even when empty.
+  const historyMonths: MonthOption[] = [...new Set([currentMonthKey, ...historyRows.map((r) => r.monthKey)])]
+    .sort((a, b) => b.localeCompare(a))
+    .map((key) => ({ key, label: monthLabel(key) }));
+
   // ── Avances tab ─────────────────────────────────────────────────────────────
   let avancesTab: React.ReactNode;
   let pendingCount = 0;
@@ -120,48 +149,19 @@ export default async function PaiePage() {
     avancesTab = (
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
-          <CardHeader title="Demander une avance" />
+          <CardHeader title="Demander un acompte" />
           <CardBody>
             <AdvanceForm />
           </CardBody>
         </Card>
         <Card>
           <CardHeader title="Mes demandes" />
-          {advances.length === 0 ? (
-            <EmptyState icon={Wallet} title="Aucune demande" description="Vos demandes d'avance apparaîtront ici." />
-          ) : (
-            <Table>
-                <Thead>
-                    <Th>Date</Th>
-                    <Th>Montant</Th>
-                    <Th>Statut</Th>
-                    <Th className="w-8 md:hidden"><span className="sr-only">Détail</span></Th>
-                </Thead>
-                <Tbody>
-                  {advances.map((a) => (
-                    <TappableRow
-                      key={a.id}
-                      className="hover:bg-slate-50/70"
-                      detail={{
-                        title: `Avance — ${dh(a.amount)}`,
-                        items: [
-                          { label: "Date", value: format(new Date(a.createdAt), "dd/MM/yyyy") },
-                          { label: "Montant", value: dh(a.amount) },
-                          { label: "Remboursement souhaité", value: a.repaymentMonth ?? "" },
-                          { label: "Motif", value: a.reason ?? "" },
-                          { label: "Statut", value: <StatusBadge status={a.status} /> },
-                          ...(a.reviewNote ? [{ label: "Note", value: a.reviewNote }] : []),
-                        ],
-                      }}
-                    >
-                      <td className="px-5 py-3.5 text-slate-600">{format(new Date(a.createdAt), "dd/MM/yyyy")}</td>
-                      <td className="px-5 py-3.5 font-medium text-slate-800">{dh(a.amount)}</td>
-                      <td className="px-5 py-3.5"><StatusBadge status={a.status} /></td>
-                    </TappableRow>
-                  ))}
-                </Tbody>
-            </Table>
-          )}
+          <AdvanceHistory
+            rows={historyRows}
+            months={historyMonths}
+            currentKey={currentMonthKey}
+            showEmployee={false}
+          />
         </Card>
       </div>
     );
@@ -183,7 +183,7 @@ export default async function PaiePage() {
             )}
           </CardHeader>
           {pending.length === 0 ? (
-            <EmptyState icon={CheckSquare} title="Tout est à jour" description="Aucune demande d'avance en attente." />
+            <EmptyState icon={CheckSquare} title="Tout est à jour" description="Aucune demande d'acompte en attente." />
           ) : (
             <Table>
                 <Thead>
@@ -227,43 +227,12 @@ export default async function PaiePage() {
         {/* Team history */}
         <Card>
           <CardHeader title="Historique équipe" />
-          {teamAdvances.length === 0 ? (
-            <EmptyState icon={Wallet} title="Aucune demande" description="Les demandes d'avance apparaîtront ici." />
-          ) : (
-            <Table>
-                <Thead>
-                    <Th>Salarié</Th>
-                    <Th className="hidden md:table-cell">Date</Th>
-                    <Th>Montant</Th>
-                    <Th>Statut</Th>
-                    <Th className="w-8 md:hidden"><span className="sr-only">Détail</span></Th>
-                </Thead>
-                <Tbody>
-                  {teamAdvances.map((a) => (
-                    <TappableRow
-                      key={a.id}
-                      className="hover:bg-slate-50/70"
-                      detail={{
-                        title: a.user.name,
-                        items: [
-                          { label: "Salarié", value: a.user.name },
-                          { label: "Date", value: format(new Date(a.createdAt), "dd/MM/yyyy") },
-                          { label: "Montant", value: dh(a.amount) },
-                          { label: "Remboursement souhaité", value: a.repaymentMonth ?? "" },
-                          { label: "Statut", value: <StatusBadge status={a.status} /> },
-                          ...(a.reviewNote ? [{ label: "Note", value: a.reviewNote }] : []),
-                        ],
-                      }}
-                    >
-                      <td className="px-5 py-3.5 font-medium text-slate-800">{a.user.name}</td>
-                      <td className="hidden px-5 py-3.5 text-slate-600 md:table-cell">{format(new Date(a.createdAt), "dd/MM/yyyy")}</td>
-                      <td className="px-5 py-3.5 font-medium text-slate-800">{dh(a.amount)}</td>
-                      <td className="px-5 py-3.5"><StatusBadge status={a.status} /></td>
-                    </TappableRow>
-                  ))}
-                </Tbody>
-            </Table>
-          )}
+          <AdvanceHistory
+            rows={historyRows}
+            months={historyMonths}
+            currentKey={currentMonthKey}
+            showEmployee
+          />
         </Card>
       </div>
     );
@@ -276,7 +245,7 @@ export default async function PaiePage() {
         defaultKey="bulletins"
         tabs={[
           { key: "bulletins", label: "Bulletins", content: bulletinsTab },
-          { key: "avances", label: "Avances", badge: pendingCount || undefined, content: avancesTab },
+          { key: "avances", label: "Acomptes", badge: pendingCount || undefined, content: avancesTab },
         ]}
       />
     </div>

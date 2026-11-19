@@ -51,6 +51,21 @@ export function businessDaysBetween(start: Date, end: Date): number {
   return count;
 }
 
+/**
+ * Jours ouvrables between two dates, both ends inclusive: Monday–Saturday,
+ * Sunday never counts. Only the congés spéciaux are counted this way (see
+ * leave-types.ts) — everything else keeps the Monday–Friday rule above.
+ */
+export function workingDaysMonSatBetween(start: Date, end: Date): number {
+  let count = 0;
+  const cur = new Date(start);
+  while (cur <= end) {
+    if (cur.getDay() !== 0) count++;
+    cur.setDate(cur.getDate() + 1);
+  }
+  return count;
+}
+
 /** Jours ouvrés in a calendar month. `month` is 1-based. */
 export function businessDaysInMonth(year: number, month: number): number {
   const days = new Date(year, month, 0).getDate();

@@ -7,9 +7,17 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveCompany } from "@/lib/company";
-import { businessDaysBetween, nextBusinessDay } from "@/lib/dates";
+import { nextBusinessDay } from "@/lib/dates";
 import { accrueLeaveBalance } from "@/lib/accrual";
-import { isValidLeaveType } from "@/lib/leave-types";
+import {
+  countLeaveDays,
+  cpDaysToDeduct,
+  isSpecialLeave,
+  isValidLeaveType,
+  LEAVE_TYPE_LABELS,
+  specialLeaveEntitlement,
+} from "@/lib/leave-types";
+import { MAX_COMMENT_LENGTH, validateEventDate, validateLeaveDates } from "@/lib/leave-validation";
 import { notifyTeamReviewers, notifyUser } from "@/lib/notifications";
 import { TEMPLATES_MAP } from "@/lib/documents/templates.config";
 import { renderTemplate } from "@/lib/documents/render-template";
@@ -55,33 +63,93 @@ export async function submitLeaveRequest(formData: FormData) {
   const session = await auth();
   if (!session?.user) return { error: "Non authentifié." };
 
-  const type = formData.get("type") as string;
-  const startDate = new Date(formData.get("startDate") as string);
-  const endDate = new Date(formData.get("endDate") as string);
-  const comment = (formData.get("comment") as string) || undefined;
+  // FormData values can be missing, or a File: only accept real strings, so a
+  // missing date can never silently become 1970-01-01.
+  const field = (name: string): string => {
+    const v = formData.get(name);
+    return typeof v === "string" ? v.trim() : "";
+  };
 
-  if (!type || isNaN(startDate.getTime()) || isNaN(endDate.getTime()))
-    return { error: "Champs obligatoires manquants." };
+  const type = field("type");
+  const startRaw = field("startDate");
+  const endRaw = field("endDate");
+  const comment = field("comment").slice(0, MAX_COMMENT_LENGTH) || undefined;
+
+  if (!type || !startRaw || !endRaw) return { error: "Champs obligatoires manquants." };
   if (!isValidLeaveType(type)) return { error: "Type de congé invalide." };
-  if (endDate < startDate)
-    return { error: "La date de fin doit être après la date de début." };
 
-  const days = businessDaysBetween(startDate, endDate);
+  const startDate = new Date(startRaw);
+  const endDate = new Date(endRaw);
+  // Must run BEFORE counting days: the counting loops walk every day of the range.
+  const dateError = validateLeaveDates(startDate, endDate);
+  if (dateError) return { error: dateError };
+
+  const days = countLeaveDays(type, startDate, endDate);
   if (days === 0) return { error: "La période ne contient aucun jour ouvré." };
 
   const userId = session.user.id;
 
-  if (type === "CP" || type === "RTT") {
+  // Never two live requests on the same days: they would be deducted twice.
+  const overlap = await prisma.leaveRequest.findFirst({
+    where: {
+      userId,
+      status: { in: ["PENDING", "APPROVED"] },
+      startDate: { lte: endDate },
+      endDate: { gte: startDate },
+    },
+    select: { type: true, startDate: true, endDate: true, status: true },
+  });
+  if (overlap) {
+    return {
+      error: `Vous avez déjà une demande ${overlap.status === "PENDING" ? "en attente" : "validée"} (${LEAVE_TYPE_LABELS[overlap.type] ?? overlap.type}) du ${format(overlap.startDate, "dd/MM/yyyy")} au ${format(overlap.endDate, "dd/MM/yyyy")} qui chevauche cette période.`,
+    };
+  }
+
+  // Congé spécial: capped per EVENT. The event date identifies the event, so a
+  // second request for the same marriage/décès counts against the same droit.
+  let eventDate: Date | undefined;
+  let usedForEvent = 0;
+  if (isSpecialLeave(type)) {
+    eventDate = new Date(field("eventDate"));
+    const eventError = validateEventDate(eventDate, startDate, endDate);
+    if (eventError) return { error: eventError };
+
+    const droit = specialLeaveEntitlement(type)!;
+    const already = await prisma.leaveRequest.aggregate({
+      where: { userId, type, eventDate, status: { in: ["PENDING", "APPROVED"] } },
+      _sum: { days: true },
+    });
+    const used = already._sum.days ?? 0;
+    usedForEvent = used;
+    if (used + days > droit) {
+      return {
+        error:
+          used > 0
+            ? `Droit maximum : ${droit} jour(s) pour cet événement (${used} déjà demandé(s), ${Math.max(0, droit - used)} restant(s)).`
+            : `Droit maximum : ${droit} jour(s) pour cet événement.`,
+      };
+    }
+  }
+
+  // Jours taken from CP: all of them for CP; for the mariage du salarié only
+  // what exceeds its 2 free jours.
+  const cpDeducted = cpDaysToDeduct(type, days, usedForEvent);
+  if (cpDeducted > 0) {
     // Credit any month(s) owed first, so the check runs against a current solde.
     await accrueLeaveBalance(userId);
     const balance = await prisma.leaveBalance.findUnique({ where: { userId } });
-    const available = type === "CP" ? (balance?.cpDays ?? 0) : (balance?.rttDays ?? 0);
-    if (days > available)
-      return { error: `Solde insuffisant (${available} jour(s) disponible(s)).` };
+    const available = balance?.cpDays ?? 0;
+    if (cpDeducted > available)
+      return {
+        error:
+          type === "CP"
+            ? `Solde CP insuffisant (${available} jour(s) disponible(s)).`
+            : `Solde CP insuffisant : ${cpDeducted} jour(s) à prendre du CP, ${available} disponible(s).`,
+      };
   }
 
   await prisma.leaveRequest.create({
-    data: { userId, type, startDate, endDate, days, comment, status: "PENDING" },
+    data: { userId, type, startDate, endDate, days, cpDeducted, comment, eventDate, status: "PENDING" },
   });
 
   const requester = await prisma.user.findUnique({
@@ -129,15 +197,13 @@ export async function reviewLeave(formData: FormData) {
   if (role === "SUPERVISEUR" && request.user.managerId !== session.user.id)
     return { error: "Accès refusé." };
 
-  if (decision === "APPROVED" && (request.type === "CP" || request.type === "RTT")) {
+  if (decision === "APPROVED" && request.cpDeducted > 0) {
     // The employee may not have opened the app in months — bring their solde
     // up to date before deducting, so the decrement lands on the right figure.
     await accrueLeaveBalance(request.userId);
     await prisma.leaveBalance.update({
       where: { userId: request.userId },
-      data: request.type === "CP"
-        ? { cpDays: { decrement: request.days } }
-        : { rttDays: { decrement: request.days } },
+      data: { cpDays: { decrement: request.cpDeducted } },
     });
   }
 

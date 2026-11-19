@@ -9,6 +9,7 @@ import {
   FilePlus2,
   FileText,
   Laptop,
+  LifeBuoy,
   type LucideIcon,
 } from "lucide-react";
 import { Card, CardEyebrow } from "@/components/ui/Card";
@@ -18,6 +19,7 @@ import { cn } from "@/lib/utils";
 const ICONS: Record<PendingSummaryItem["key"], LucideIcon> = {
   conges: CalendarDays,
   documents: FilePlus2,
+  tickets: LifeBuoy,
   paie: FileText,
   teletravail: Laptop,
 };

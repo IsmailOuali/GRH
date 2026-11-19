@@ -31,7 +31,8 @@ model User {
   leaveRequests  LeaveRequest[]      @relation("EmployeeLeaves")
   reviewedLeaves LeaveRequest[]      @relation("ReviewerLeaves")
   payslips       Payslip[]
-  tickets        Ticket[]
+  tickets        Ticket[]            @relation("TicketAuthor")
+  answeredTickets Ticket[]           @relation("TicketResponder")
   publishedNews  News[]
   generatedDocs  GeneratedDocument[] @relation("GeneratedByDocs")
   subjectDocs    GeneratedDocument[] @relation("SubjectDocs")
@@ -77,7 +78,6 @@ model LeaveBalance {
   userId     String   @unique
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   cpDays     Float    @default(25)
-  rttDays    Float    @default(10)
   expiryDate DateTime
   updatedAt  DateTime @updatedAt
 
@@ -95,7 +95,19 @@ model LeaveRequest {
   startDate    DateTime
   endDate      DateTime
   days         Float
+  // Jours taken from the CP solde when this request is approved: all of them
+  // for CP, the non-free part of a congé spécial (mariage du salarié), else 0.
+  cpDeducted   Float     @default(0)
   comment      String?
+  // Justificatif d'absence (maladie, urgence…), filed by the employee — possibly
+  // after the request. Stored under uploads/justificatifs/. See
+  // src/lib/leave-justificatif.ts.
+  justificatifFile String?
+  justificatifMime String?
+  justificatifAt   DateTime?
+  // Date of the family event (mariage, décès…) for congés spéciaux. Identifies
+  // "one event" so the maximum jours is enforced across all its requests.
+  eventDate    DateTime?
   status       String    @default("PENDING")
   reviewedById String?
   reviewedBy   User?     @relation("ReviewerLeaves", fields: [reviewedById], references: [id])
@@ -114,15 +126,25 @@ model Payslip {
   createdAt DateTime @default(now())
 }
 
+/// A salarié's question or error report to the RH (erreur de bulletin, de solde,
+/// question sur ses droits…). OPEN → IN_PROGRESS → RESOLVED. See src/lib/tickets.ts.
 model Ticket {
   id          String   @id @default(cuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User     @relation("TicketAuthor", fields: [userId], references: [id], onDelete: Cascade)
   category    String
+  subject     String   @default("")
   description String
   status      String   @default("OPEN")
+  // The RH's answer. Written when they take the ticket or resolve it.
+  response      String?
+  respondedById String?
+  respondedBy   User?     @relation("TicketResponder", fields: [respondedById], references: [id], onDelete: SetNull)
+  respondedAt   DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([status])
 }
 
 model News {
@@ -302,6 +324,9 @@ model EmployeeDossier {
   telephonePersonnel   String?
   emailPersonnel       String?
   numeroCnss           String?
+  rib                  String? // 24 digits, spaces stripped on save
+  situationFamiliale   String? // CELIBATAIRE | MARIE | DIVORCE | VEUF
+  nombreEnfants        String? // non-negative integer, stored as text like the other columns
 
   // ── Section 3 · Coordonnées / Accès / Matériel ───────────────────────────
   emailPro             String?

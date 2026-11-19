@@ -59,6 +59,11 @@ export function dataToColumns(data: DossierData): Record<string, string> {
   for (const f of SCALAR_FIELDS) {
     columns[f.name] = (data.fields[f.name] ?? "").trim();
   }
+  // A RIB is copied from bank documents with spaces/dashes; store it compact.
+  columns.rib = columns.rib.replace(/[\s.-]+/g, "");
+  // Number of children: a non-negative whole number, or empty (= not provided).
+  const kids = /^\d{1,2}$/.exec(columns.nombreEnfants);
+  columns.nombreEnfants = kids ? String(Number(kids[0])) : "";
 
   const outils = (data.outilsAttribues ?? [])
     .map((s) => String(s).trim())

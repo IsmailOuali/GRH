@@ -20,7 +20,7 @@ export function AdvanceForm() {
     if ("error" in res) {
       setMsg({ type: "err", text: res.error });
     } else {
-      setMsg({ type: "ok", text: "Demande d'avance envoyée." });
+      setMsg({ type: "ok", text: "Demande d'acompte envoyée." });
       ref.current?.reset();
     }
     setLoading(false);
