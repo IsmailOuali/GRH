@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, X, Loader2 } from "lucide-react";
 import { reviewRemoteRequest } from "@/app/(dashboard)/teletravail/actions";
+import { toastResult } from "@/lib/toast";
 
 /**
  * Approve / refuse one télétravail request as a whole.
@@ -33,9 +34,8 @@ export function RemoteRequestButtons({
     }
     setPending(decision);
     const res = await reviewRemoteRequest(requestId, decision);
-    if ("error" in res) {
+    if (!toastResult(res, decision === "APPROVED" ? "Télétravail validé." : "Télétravail refusé.")) {
       setPending(null);
-      window.alert(res.error);
     }
     // On success the list revalidates and the row disappears.
   }

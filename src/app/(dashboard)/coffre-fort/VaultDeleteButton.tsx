@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { deleteVaultDocument } from "./actions";
+import { toastResult } from "@/lib/toast";
 
 /** Removes a native coffre-fort document after an inline confirm. HR only. */
 export function VaultDeleteButton({ id, title }: { id: string; title: string }) {
@@ -15,9 +16,8 @@ export function VaultDeleteButton({ id, title }: { id: string; title: string }) 
   function handleDelete() {
     startTransition(async () => {
       const res = await deleteVaultDocument(id);
-      if ("error" in res) {
+      if (!toastResult(res, "Document supprimé.")) {
         setConfirming(false);
-        alert(res.error);
         return;
       }
       router.refresh();

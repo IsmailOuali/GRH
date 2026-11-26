@@ -13,12 +13,12 @@ import {
 } from "@/lib/dossiers/schema";
 import { dataToColumns } from "@/lib/dossiers/serialize";
 import { saveDossier } from "@/app/(dashboard)/admin/dossiers/actions";
+import { useFeedback } from "@/lib/toast";
 
 const INPUT_CLASS =
   "w-full rounded-lg border px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/20";
 const LABEL_CLASS = "mb-1 flex items-center gap-2 text-sm font-medium text-slate-700";
 
-type Msg = { type: "ok" | "err"; text: string } | null;
 
 /**
  * Stable serialization of the dossier in its CANONICAL persisted form.
@@ -56,7 +56,7 @@ export function DossierForm({
   const [outilDraft, setOutilDraft] = useState("");
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [msg, setMsg] = useState<Msg>(null);
+  const [msg, setMsg] = useFeedback();
 
   // Last-persisted state, so "Enregistrer" can stay disabled until something
   // actually changed. Tracked as two parts because the two save paths differ:
@@ -235,9 +235,7 @@ export function DossierForm({
         </div>
       ))}
 
-      {msg && (
-        <p className={`text-sm ${msg.type === "ok" ? "text-emerald-600" : "text-red-600"}`}>{msg.text}</p>
-      )}
+      {msg?.type === "err" && <p className="text-sm text-red-600">{msg.text}</p>}
 
       <div className="sticky bottom-4 flex flex-wrap gap-3 rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm backdrop-blur">
         <button

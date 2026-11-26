@@ -10,6 +10,7 @@ import { prisma } from "@/lib/prisma";
 import { isMailConfigured, sendPasswordResetEmail } from "@/lib/mail";
 import { generateResetToken, RESET_TOKEN_TTL_MS } from "@/lib/reset-tokens";
 import { accrueLeaveBalance, initialAccrualAnchor, startOfMonth } from "@/lib/accrual";
+import { setBalance } from "@/lib/leave-ledger";
 
 async function requireManager() {
   const session = await auth();
@@ -133,10 +134,16 @@ export async function updateLeaveBalance(formData: FormData) {
   await accrueLeaveBalance(userId);
 
   const expiry = new Date(new Date().getFullYear() + 1, 5, 30);
-  await prisma.leaveBalance.upsert({
-    where: { userId },
-    create: { userId, cpDays, expiryDate: expiry, lastAccrualAt: startOfMonth(new Date()) },
-    update: { cpDays },
+  await prisma.$transaction(async (tx) => {
+    await tx.leaveBalance.upsert({
+      where: { userId },
+      create: { userId, cpDays: 0, expiryDate: expiry, lastAccrualAt: startOfMonth(new Date()) },
+      update: {},
+    });
+    await setBalance(tx, userId, cpDays, {
+      kind: "ADJUSTMENT",
+      note: `Solde corrigé par ${admin.name ?? "les RH"}`,
+    });
   });
 
   revalidatePath("/admin");

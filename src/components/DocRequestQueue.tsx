@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { EmptyState } from "./EmptyState";
 import { TEMPLATES_MAP } from "@/lib/documents/templates.config";
 import { reviewDocumentRequest } from "@/app/(dashboard)/documents/actions";
+import { toastResult } from "@/lib/toast";
 
 type DocRequest = {
   id: string;
@@ -31,8 +32,9 @@ function RequestRow({ r }: { r: DocRequest }) {
 
   function handle(decision: "APPROVED" | "REJECTED") {
     startTransition(async () => {
-      await reviewDocumentRequest(r.id, decision, note || undefined);
-      setDone(true);
+      const res = await reviewDocumentRequest(r.id, decision, note || undefined);
+      // A refused action keeps the row on screen.
+      if (toastResult(res, decision === "APPROVED" ? "Document validé." : "Document refusé.")) setDone(true);
     });
   }
 

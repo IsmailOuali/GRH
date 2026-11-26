@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2, Check, X } from "lucide-react";
 import { reviewAdvance } from "./advance-actions";
+import { toastResult } from "@/lib/toast";
 
 export function AdvanceButtons({ id }: { id: string }) {
   const [loading, setLoading] = useState<"APPROVED" | "REJECTED" | null>(null);
@@ -11,7 +12,8 @@ export function AdvanceButtons({ id }: { id: string }) {
 
   async function submit(decision: "APPROVED" | "REJECTED") {
     setLoading(decision);
-    await reviewAdvance(id, decision, decision === "REJECTED" ? rejectNote || undefined : undefined);
+    const res = await reviewAdvance(id, decision, decision === "REJECTED" ? rejectNote || undefined : undefined);
+    toastResult(res, decision === "APPROVED" ? "Acompte validé." : "Acompte refusé.");
     setLoading(null);
   }
 

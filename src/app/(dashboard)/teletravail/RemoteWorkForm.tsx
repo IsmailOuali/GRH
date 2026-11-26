@@ -6,6 +6,7 @@ import { Field, FormMessage } from "@/components/ui/Field";
 import { controlClass, labelClass } from "@/components/ui/control";
 import { expandRemoteDays, WEEKDAYS } from "@/lib/teletravail";
 import { assignRemoteDays } from "./actions";
+import { useFeedback } from "@/lib/toast";
 
 export type Employee = { id: string; name: string; position: string | null };
 
@@ -14,7 +15,7 @@ type Mode = "range" | "weekly";
 export function RemoteWorkForm({ employees }: { employees: Employee[] }) {
   const ref = useRef<HTMLFormElement>(null);
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useFeedback();
 
   const [selected, setSelected] = useState<string[]>([]);
   const [mode, setMode] = useState<Mode>("range");
@@ -221,7 +222,7 @@ export function RemoteWorkForm({ employees }: { employees: Employee[] }) {
         {(props) => <input {...props} name="note" type="text" className={controlClass} />}
       </Field>
 
-      {msg && <FormMessage type={msg.type}>{msg.text}</FormMessage>}
+      {msg?.type === "err" && <FormMessage type="err">{msg.text}</FormMessage>}
 
       <Button type="submit" loading={loading} fullWidth>
         Planifier le télétravail

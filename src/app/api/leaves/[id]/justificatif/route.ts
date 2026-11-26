@@ -88,13 +88,17 @@ export async function POST(
     await unlink(justificatifFilePath(request.justificatifFile)).catch(() => {});
   }
 
-  await notifyTeamReviewers(
-    request.user.company,
-    request.user.managerId,
-    "LEAVE_JUSTIFICATIF_ADDED",
-    `${request.user.name} a déposé un justificatif pour son absence du ${format(request.startDate, "dd/MM/yyyy")}.`,
-    "/conges",
-  );
+  // Attached in the same gesture as the request itself: the reviewers were just
+  // notified of the request, a second "justificatif déposé" would be noise.
+  if (formData.get("atSubmission") !== "1") {
+    await notifyTeamReviewers(
+      request.user.company,
+      request.user.managerId,
+      "LEAVE_JUSTIFICATIF_ADDED",
+      `${request.user.name} a déposé un justificatif pour son absence du ${format(request.startDate, "dd/MM/yyyy")}.`,
+      "/conges",
+    );
+  }
 
   return NextResponse.json({ success: true });
 }

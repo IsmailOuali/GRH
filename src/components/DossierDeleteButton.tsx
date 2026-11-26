@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Trash2, Loader2 } from "lucide-react";
 import { deleteDossier } from "@/app/(dashboard)/admin/dossiers/actions";
+import { toastResult } from "@/lib/toast";
 
 export function DossierDeleteButton({ id, name }: { id: string; name: string }) {
   const [loading, setLoading] = useState(false);
@@ -13,10 +14,7 @@ export function DossierDeleteButton({ id, name }: { id: string; name: string }) 
     }
     setLoading(true);
     const res = await deleteDossier(id);
-    if ("error" in res) {
-      setLoading(false);
-      window.alert(res.error);
-    }
+    if (!toastResult(res, "Dossier supprimé.")) setLoading(false);
     // On success the list revalidates and the row disappears.
   }
 

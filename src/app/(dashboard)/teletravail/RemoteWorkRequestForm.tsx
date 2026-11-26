@@ -6,6 +6,7 @@ import { Field, FormMessage } from "@/components/ui/Field";
 import { controlClass, labelClass } from "@/components/ui/control";
 import { expandRemoteDays, WEEKDAYS } from "@/lib/teletravail";
 import { requestRemoteDays } from "./actions";
+import { useFeedback } from "@/lib/toast";
 
 type Mode = "range" | "weekly";
 
@@ -20,7 +21,7 @@ type Mode = "range" | "weekly";
 export function RemoteWorkRequestForm() {
   const ref = useRef<HTMLFormElement>(null);
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useFeedback();
 
   const [mode, setMode] = useState<Mode>("range");
   const [weekdays, setWeekdays] = useState<number[]>([]);
@@ -161,7 +162,7 @@ export function RemoteWorkRequestForm() {
         {(props) => <input {...props} name="note" type="text" className={controlClass} />}
       </Field>
 
-      {msg && <FormMessage type={msg.type}>{msg.text}</FormMessage>}
+      {msg?.type === "err" && <FormMessage type="err">{msg.text}</FormMessage>}
 
       <Button type="submit" loading={loading} fullWidth>
         Envoyer la demande

@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -11,6 +12,8 @@ export async function markNotificationRead(id: string) {
     where: { id, userId: session.user.id },
     data: { read: true },
   });
+  // The dashboard's "Mes demandes" card lists unread answers: refresh it.
+  revalidatePath("/dashboard");
   return { success: true };
 }
 

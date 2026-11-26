@@ -1,7 +1,10 @@
 "use client";
 
 import { useRef, useState, useMemo } from "react";
-import { nextBusinessDayIso, formatFrIso } from "@/lib/dates";
+import { useRouter } from "next/navigation";
+import { nextBusinessDayIso, formatFrIso, toIso } from "@/lib/dates";
+import { useAidHolidays } from "@/components/AidProvider";
+import { JUSTIFICATIF_MAX_BYTES, allowsJustificatif } from "@/lib/leave-justificatif";
 import { Button } from "@/components/ui/Button";
 import { Field, FormMessage } from "@/components/ui/Field";
 import { controlClass } from "@/components/ui/control";
@@ -23,11 +26,20 @@ import {
   validateLeaveDates,
 } from "@/lib/leave-validation";
 import { submitLeaveRequest } from "./actions";
+import { useFeedback } from "@/lib/toast";
+
+const JUSTIFICATIF_ACCEPT = "application/pdf,image/png,image/jpeg,image/webp";
 
 export function LeaveForm() {
+  const router = useRouter();
   const ref = useRef<HTMLFormElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  // Held in state, NOT in the <form> data: the file must not travel through the
+  // server action (1 MB body cap) — it is sent to the justificatif route afterwards.
+  const [file, setFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useFeedback();
   const [type, setType] = useState(STANDARD_LEAVE_TYPES[0].value);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -35,6 +47,7 @@ export function LeaveForm() {
 
   const special = isSpecialLeave(type);
   const absence = ABSENCE_LEAVE_TYPES.some((t) => t.value === type);
+  const canAttach = allowsJustificatif(type);
   const droit = specialLeaveEntitlement(type);
   const freeDays = specialLeaveFreeDays(type);
 
@@ -53,18 +66,48 @@ export function LeaveForm() {
     [special, eventDate, startDate, endDate, dateError],
   );
 
+  const aidHolidays = useAidHolidays();
+  const aidDates = useMemo(() => new Set(aidHolidays.map((h) => h.date)), [aidHolidays]);
+  // Aïd days falling in the period typed so far: shown, so the count is explained.
+  const aidInPeriod = useMemo(() => {
+    if (!startDate || !endDate || dateError) return [];
+    const from = toIso(new Date(startDate));
+    const to = toIso(new Date(endDate));
+    return aidHolidays.filter((h) => h.date >= from && h.date <= to);
+  }, [aidHolidays, startDate, endDate, dateError]);
+
   const days = useMemo(() => {
     if (!startDate || !endDate || dateError) return null;
-    return countLeaveDays(type, new Date(startDate), new Date(endDate));
-  }, [type, startDate, endDate, dateError]);
+    return countLeaveDays(type, new Date(startDate), new Date(endDate), aidDates);
+  }, [type, startDate, endDate, dateError, aidDates]);
 
   // A congé spécial can never exceed its droit. The server also enforces it
   // across the other requests of the same event; this just stops the obvious.
   const overCap = special && droit !== undefined && days !== null && days > droit;
-  const blocked = overCap || Boolean(dateError) || Boolean(eventError);
+  const blocked = overCap || Boolean(dateError) || Boolean(eventError) || (canAttach && Boolean(fileError));
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const picked = e.target.files?.[0] ?? null;
+    setFileError(null);
+    if (picked && !JUSTIFICATIF_ACCEPT.split(",").includes(picked.type)) {
+      setFileError("Type de fichier non accepté (PDF ou image).");
+    } else if (picked && (picked.size === 0 || picked.size > JUSTIFICATIF_MAX_BYTES)) {
+      setFileError("Fichier vide ou trop volumineux (15 Mo max).");
+    }
+    setFile(picked);
+  }
+
+  function clearFile() {
+    setFile(null);
+    setFileError(null);
+    if (fileRef.current) fileRef.current.value = "";
+  }
 
   // Date de reprise = premier jour ouvré après la date de fin (verrouillée).
-  const returnDate = useMemo(() => (endDate ? nextBusinessDayIso(endDate) : ""), [endDate]);
+  const returnDate = useMemo(
+    () => (endDate ? nextBusinessDayIso(endDate, aidDates) : ""),
+    [endDate, aidDates],
+  );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -74,12 +117,42 @@ export function LeaveForm() {
     try {
       const result = await submitLeaveRequest(new FormData(ref.current!));
       if (result.success) {
-        setMsg({ type: "ok", text: "Demande envoyée avec succès." });
+        // Optional justificatif: sent once the request exists. A failure here never
+        // cancels the request — it is already saved — it is only reported.
+        let attachError: string | null = null;
+        const toSend = canAttach ? file : null;
+        if (toSend) {
+          try {
+            const body = new FormData();
+            body.append("file", toSend);
+            body.append("atSubmission", "1");
+            const res = await fetch(`/api/leaves/${result.id}/justificatif`, { method: "POST", body });
+            if (!res.ok) {
+              const json = (await res.json().catch(() => ({}))) as { error?: string };
+              attachError = json.error ?? "Échec de l'envoi.";
+            }
+          } catch {
+            attachError = "Impossible de contacter le serveur.";
+          }
+        }
+
+        if (attachError) {
+          setMsg({
+            type: "err",
+            text: needsJustificatif(type)
+              ? `Demande envoyée, mais le justificatif n'a pas pu être joint (${attachError}) Vous pouvez le déposer depuis l'historique de vos demandes.`
+              : `Demande envoyée, mais le justificatif n'a pas pu être joint (${attachError}) Contactez les RH pour le leur transmettre.`,
+          });
+        } else {
+          setMsg({ type: "ok", text: toSend ? "Demande envoyée avec son justificatif." : "Demande envoyée avec succès." });
+        }
         ref.current?.reset();
+        clearFile();
         setType(STANDARD_LEAVE_TYPES[0].value);
         setStartDate("");
         setEndDate("");
         setEventDate("");
+        router.refresh(); // show the justificatif in the history
       } else {
         setMsg({ type: "err", text: result.error ?? "Erreur." });
       }
@@ -100,7 +173,11 @@ export function LeaveForm() {
             name="type"
             required
             value={type}
-            onChange={(e) => setType(e.target.value)}
+            onChange={(e) => {
+              setType(e.target.value);
+              // The file input disappears for types without a justificatif: drop the file with it.
+              if (!allowsJustificatif(e.target.value)) clearFile();
+            }}
             className={controlClass}
           >
             <optgroup label="Congés">
@@ -121,7 +198,8 @@ export function LeaveForm() {
           {needsJustificatif(type) ? (
             <>
               Vous pouvez déclarer cette absence <strong>après coup</strong> (dates passées acceptées).{" "}
-              <strong>Le justificatif peut être déposé plus tard</strong> depuis l&apos;historique de vos demandes.
+              Le justificatif est <strong>optionnel</strong> : joignez-le ci-dessous ou{" "}
+              <strong>déposez-le plus tard</strong> depuis l&apos;historique de vos demandes.
               Cette absence n&apos;est pas déduite de votre solde CP.
             </>
           ) : (
@@ -223,6 +301,14 @@ export function LeaveForm() {
         </div>
       </dl>
 
+      {aidInPeriod.length > 0 && (
+        <p className="rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-900 ring-1 ring-inset ring-rose-200">
+          Non décompté : {aidInPeriod.map((h) => `${formatFrIso(h.date)} · ${h.label}`).join(", ")}.
+          {aidInPeriod.some((h) => h.label.includes("prévisionnel")) &&
+            " Le décompte sera ajusté si la date change à la confirmation."}
+        </p>
+      )}
+
       {dateError && <FormMessage type="err">{dateError}</FormMessage>}
       {eventError && <FormMessage type="err">{eventError}</FormMessage>}
 
@@ -242,7 +328,26 @@ export function LeaveForm() {
         )}
       </Field>
 
-      {msg && <FormMessage type={msg.type}>{msg.text}</FormMessage>}
+      {canAttach && (
+        <Field
+          label="Justificatif"
+          hint="Optionnel — PDF ou image (JPG, PNG, WebP), 15 Mo maximum."
+          error={fileError ?? undefined}
+        >
+          {(props) => (
+            <input
+              {...props}
+              ref={fileRef}
+              type="file"
+              accept={JUSTIFICATIF_ACCEPT}
+              onChange={handleFile}
+              className={`${controlClass} file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1 file:text-sm file:font-medium file:text-brand-700`}
+            />
+          )}
+        </Field>
+      )}
+
+      {msg?.type === "err" && <FormMessage type="err">{msg.text}</FormMessage>}
 
       <Button type="submit" loading={loading} disabled={blocked} fullWidth>
         Soumettre la demande

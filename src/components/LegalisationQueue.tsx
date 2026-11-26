@@ -8,6 +8,7 @@ import { EmptyState } from "./EmptyState";
 import { Button, LinkButton } from "./ui/Button";
 import { TEMPLATES_MAP } from "@/lib/documents/templates.config";
 import { markLegalisationDelivered } from "@/app/(dashboard)/documents/actions";
+import { showToast, toastResult } from "@/lib/toast";
 
 type LegalisationItem = {
   id: string;
@@ -42,11 +43,14 @@ function Row({ r }: { r: LegalisationItem }) {
       const json = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
         setError(json.error ?? "Échec de l'import.");
+        showToast("err", json.error ?? "Échec de l'import.");
         return;
       }
+      showToast("ok", "Copie légalisée publiée.");
       router.refresh();
     } catch {
       setError("Impossible de contacter le serveur.");
+      showToast("err", "Impossible de contacter le serveur.");
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -59,6 +63,7 @@ function Row({ r }: { r: LegalisationItem }) {
       const res = await markLegalisationDelivered(r.id, note || undefined);
       if (res.error) setError(res.error);
       else router.refresh();
+      toastResult(res, "Remise en main propre enregistrée.");
     });
   }
 

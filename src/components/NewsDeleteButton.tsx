@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Trash2, Loader2 } from "lucide-react";
 import { deleteNews } from "@/app/(dashboard)/admin/actions";
+import { toastResult } from "@/lib/toast";
 
 export function NewsDeleteButton({ id }: { id: string }) {
   const [loading, setLoading] = useState(false);
@@ -11,7 +12,7 @@ export function NewsDeleteButton({ id }: { id: string }) {
     setLoading(true);
     const fd = new FormData();
     fd.append("id", id);
-    await deleteNews(fd);
+    toastResult(await deleteNews(fd), "Actualité supprimée.");
     setLoading(false);
   }
 

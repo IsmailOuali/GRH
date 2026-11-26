@@ -2,7 +2,8 @@
  * Small, dependency-free date helpers shared by client and server code.
  *
  * THE WORKING WEEK IS DEFINED ONCE, HERE. FAIR2UP works Monday–Friday; Saturday
- * and Sunday are both chômés, and public holidays are not modelled. Congé
+ * and Sunday are both chômés. The days of the Aïds are skipped when passed in
+ * (see aid.ts); the other jours fériés are only displayed. Congé
  * day-counts, the date de reprise, télétravail expansion and the absenteeism
  * denominator all read this same rule — they used to carry private copies of
  * it, which drifted (the suivi module counted Saturday as worked while the
@@ -32,20 +33,20 @@ export function isBusinessDay(d: Date): boolean {
 }
 
 /** Next weekday strictly after `d` — the "date de reprise". */
-export function nextBusinessDay(d: Date): Date {
+export function nextBusinessDay(d: Date, daysOff?: ReadonlySet<string>): Date {
   const r = new Date(d);
   do {
     r.setDate(r.getDate() + 1);
-  } while (!isBusinessDay(r));
+  } while (!isBusinessDay(r) || daysOff?.has(toIso(r)));
   return r;
 }
 
 /** Jours ouvrés between two dates, both ends inclusive. */
-export function businessDaysBetween(start: Date, end: Date): number {
+export function businessDaysBetween(start: Date, end: Date, daysOff?: ReadonlySet<string>): number {
   let count = 0;
   const cur = new Date(start);
   while (cur <= end) {
-    if (isBusinessDay(cur)) count++;
+    if (isBusinessDay(cur) && !daysOff?.has(toIso(cur))) count++;
     cur.setDate(cur.getDate() + 1);
   }
   return count;
@@ -56,11 +57,11 @@ export function businessDaysBetween(start: Date, end: Date): number {
  * Sunday never counts. Only the congés spéciaux are counted this way (see
  * leave-types.ts) — everything else keeps the Monday–Friday rule above.
  */
-export function workingDaysMonSatBetween(start: Date, end: Date): number {
+export function workingDaysMonSatBetween(start: Date, end: Date, daysOff?: ReadonlySet<string>): number {
   let count = 0;
   const cur = new Date(start);
   while (cur <= end) {
-    if (cur.getDay() !== 0) count++;
+    if (cur.getDay() !== 0 && !daysOff?.has(toIso(cur))) count++;
     cur.setDate(cur.getDate() + 1);
   }
   return count;
@@ -77,9 +78,9 @@ export function businessDaysInMonth(year: number, month: number): number {
 }
 
 /** Same as {@link nextBusinessDay} but string in / string out (`yyyy-mm-dd`). */
-export function nextBusinessDayIso(iso: string): string {
+export function nextBusinessDayIso(iso: string, daysOff?: ReadonlySet<string>): string {
   const d = parseLocalDate(iso);
-  return d ? toIso(nextBusinessDay(d)) : "";
+  return d ? toIso(nextBusinessDay(d, daysOff)) : "";
 }
 
 /** `yyyy-mm-dd` → `dd/mm/yyyy` (returns the input unchanged if it doesn't match). */

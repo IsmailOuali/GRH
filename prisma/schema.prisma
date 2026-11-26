@@ -54,10 +54,42 @@ model User {
 
   resetTokens PasswordResetToken[]
 
+  profileChanges         ProfileChangeRequest[] @relation("ProfileChangeAuthor")
+  reviewedProfileChanges ProfileChangeRequest[] @relation("ProfileChangeReviewer")
+
   notifications Notification[]
+
+  leaveMovements LeaveMovement[]
 
   vaultDocuments   VaultDocument[] @relation("VaultSubject")
   uploadedVaultDocs VaultDocument[] @relation("VaultUploadedBy")
+}
+
+/// A salarié's request to change one block of their fiche (adresse, téléphone,
+/// situation familiale, RIB, contact d'urgence). Nothing touches the dossier until
+/// the RH approves it. See src/lib/profile-changes.ts.
+model ProfileChangeRequest {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("ProfileChangeAuthor", fields: [userId], references: [id], onDelete: Cascade)
+
+  // ADRESSE | TELEPHONE | SITUATION_FAMILIALE | RIB | CONTACT_URGENCE
+  topic String
+  // JSON { dossierColumn: value }: what is proposed, and what it replaces (kept
+  // so the reviewer sees the difference and there is an audit trail).
+  newValues      String
+  previousValues String
+  comment        String?
+
+  status       String    @default("PENDING") // PENDING | APPROVED | REJECTED
+  reviewedById String?
+  reviewedBy   User?     @relation("ProfileChangeReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewNote   String?
+  reviewedAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([status])
+  @@index([userId])
 }
 
 model PasswordResetToken {
@@ -73,6 +105,19 @@ model PasswordResetToken {
   @@index([userId])
 }
 
+/// First day of an Aïd as announced, confirmed by the RH. Without a row the
+/// date is only estimated. Applies to every company. See src/lib/aid.ts.
+model AidConfirmation {
+  id            String   @id @default(cuid())
+  feast         String // FITR | ADHA
+  hijriYear     Int
+  startDate     String // yyyy-mm-dd
+  confirmedById String?
+  confirmedAt   DateTime @default(now())
+
+  @@unique([feast, hijriYear])
+}
+
 model LeaveBalance {
   id         String   @id @default(cuid())
   userId     String   @unique
@@ -85,6 +130,21 @@ model LeaveBalance {
   // Existing rows default to "now", so nothing is credited retroactively.
   // See src/lib/accrual.ts.
   lastAccrualAt DateTime @default(now())
+}
+
+/// One addition to, or deduction from, a CP solde. See src/lib/leave-ledger.ts.
+model LeaveMovement {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  delta          Float // negative for a deduction
+  balanceAfter   Float
+  kind           String // OPENING | ACCRUAL | LEAVE | ADJUSTMENT | RECALC
+  note           String
+  leaveRequestId String?
+  createdAt      DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model LeaveRequest {
@@ -144,7 +204,24 @@ model Ticket {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  attachments TicketAttachment[]
+
   @@index([status])
+}
+
+/// A screenshot / image / PDF the salarié attached to a ticket to help the RH
+/// understand it. Files live under uploads/tickets/.
+model TicketAttachment {
+  id           String   @id @default(cuid())
+  ticketId     String
+  ticket       Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  filename     String // stored name under uploads/tickets/
+  originalName String // what the salarié called it, for display only
+  mimeType     String
+  size         Int
+  createdAt    DateTime @default(now())
+
+  @@index([ticketId])
 }
 
 model News {
@@ -272,8 +349,6 @@ model TrackedEmployee {
   // them — that keeps figures continuous across the import boundary.
   repriseCongesPris Float @default(0)
   repriseAbsences   Float @default(0)
-  repriseRetardsNb  Int   @default(0)
-  repriseRetardsH   Float @default(0)
 
   // Linked app account, set only when the import found exactly one name match.
   userId String? @unique

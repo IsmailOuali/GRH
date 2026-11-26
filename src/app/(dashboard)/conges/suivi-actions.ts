@@ -89,8 +89,6 @@ export async function commitSuiviImport(formData: FormData): Promise<CommitResul
       soldeCongesN: r.soldeCongesN,
       repriseCongesPris: r.repriseCongesPris,
       repriseAbsences: r.repriseAbsences,
-      repriseRetardsNb: r.repriseRetardsNb,
-      repriseRetardsH: r.repriseRetardsH,
       importedAt: now,
       ...(userId ? { userId } : {}),
     };
@@ -152,8 +150,6 @@ export type TrackedEmployeeEdit = {
   soldeCongesN: string; // "" → null (affiche "—")
   congesPris: string;
   absences: string;
-  retardsNb: string;
-  retardsH: string;
 };
 
 /** "" → null. Rejects non-numbers and negatives. Accepts "14", "14,5", "14.5". */
@@ -193,13 +189,9 @@ export async function updateTrackedEmployee(
   const soldeN = parseNum(input.soldeCongesN);
   const pris = parseNum(input.congesPris);
   const abs = parseNum(input.absences);
-  const retNb = parseNum(input.retardsNb);
-  const retH = parseNum(input.retardsH);
   if (!soldeN.ok) return { error: "Solde congés N invalide." };
   if (!pris.ok) return { error: "Congés pris invalide." };
   if (!abs.ok) return { error: "Absences invalides." };
-  if (!retNb.ok) return { error: "Retards (nb) invalides." };
-  if (!retH.ok) return { error: "Retards (h) invalides." };
 
   await prisma.trackedEmployee.update({
     where: { id },
@@ -210,8 +202,6 @@ export async function updateTrackedEmployee(
       soldeCongesN: soldeN.value,
       repriseCongesPris: pris.value ?? 0,
       repriseAbsences: abs.value ?? 0,
-      repriseRetardsNb: Math.trunc(retNb.value ?? 0),
-      repriseRetardsH: retH.value ?? 0,
     },
   });
   revalidatePath("/conges");

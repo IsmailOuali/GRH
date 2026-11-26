@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { format } from "date-fns";
-import { LifeBuoy, MessageSquareReply } from "lucide-react";
+import { FileText, LifeBuoy, MessageSquareReply } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveCompany } from "@/lib/company";
@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { Tabs } from "@/components/Tabs";
 import { Card, CardBody } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { TICKET_CATEGORY_LABELS } from "@/lib/tickets";
+import { isImageMime, TICKET_CATEGORY_LABELS } from "@/lib/tickets";
 import { TicketForm } from "./TicketForm";
 import { TicketReply } from "./TicketReply";
 
@@ -24,7 +24,45 @@ type TicketRow = {
   respondedAt: Date | null;
   createdAt: Date;
   user?: { name: string };
+  attachments: { id: string; originalName: string; mimeType: string }[];
 };
+
+/** The files attached to a ticket: image thumbnails open full size, PDFs download. */
+function Attachments({ ticketId, items }: { ticketId: string; items: TicketRow["attachments"] }) {
+  if (items.length === 0) return null;
+  return (
+    <ul className="flex flex-wrap gap-2">
+      {items.map((a) => {
+        const href = `/api/tickets/${ticketId}/attachments/${a.id}`;
+        return (
+          <li key={a.id}>
+            {isImageMime(a.mimeType) ? (
+              <a
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                title={`${a.originalName} — ouvrir en grand`}
+                className="block overflow-hidden rounded-lg ring-1 ring-slate-200 transition-shadow hover:ring-brand-400"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- private, authenticated route: not optimisable */}
+                <img src={href} alt={a.originalName} loading="lazy" className="h-20 w-28 object-cover" />
+              </a>
+            ) : (
+              <a
+                href={href}
+                title={a.originalName}
+                className="inline-flex h-20 w-28 flex-col items-center justify-center gap-1 rounded-lg bg-slate-50 px-2 text-center text-[11px] text-slate-600 ring-1 ring-slate-200 transition-shadow hover:ring-brand-400"
+              >
+                <FileText className="size-5 text-slate-400" aria-hidden />
+                <span className="line-clamp-2 break-all">{a.originalName}</span>
+              </a>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 /** One ticket: what was asked, the RH's answer, and (for the RH) the reply form. */
 function TicketItem({ t, children }: { t: TicketRow; children?: React.ReactNode }) {
@@ -42,6 +80,8 @@ function TicketItem({ t, children }: { t: TicketRow; children?: React.ReactNode 
       </div>
 
       <p className="whitespace-pre-line text-sm leading-relaxed text-slate-700">{t.description}</p>
+
+      <Attachments ticketId={t.id} items={t.attachments} />
 
       {t.response && (
         <div className="rounded-xl bg-brand-50/60 px-3.5 py-3 ring-1 ring-inset ring-brand-100">
@@ -96,8 +136,11 @@ export default async function TicketsPage() {
   const isHr = role === "MANAGER" || role === "ADMIN";
   const company = await getActiveCompany(role, session.user.company);
 
+  const attachmentSelect = { select: { id: true, originalName: true, mimeType: true }, orderBy: { createdAt: "asc" } } as const;
+
   const mine = await prisma.ticket.findMany({
     where: { userId },
+    include: { attachments: attachmentSelect },
     orderBy: { createdAt: "desc" },
   });
 
@@ -140,12 +183,12 @@ export default async function TicketsPage() {
   const [active, resolved] = await Promise.all([
     prisma.ticket.findMany({
       where: { status: { in: ["OPEN", "IN_PROGRESS"] }, user: { company } },
-      include: { user: { select: { name: true } } },
+      include: { user: { select: { name: true } }, attachments: attachmentSelect },
       orderBy: { createdAt: "asc" }, // longest-waiting first
     }),
     prisma.ticket.findMany({
       where: { status: "RESOLVED", user: { company } },
-      include: { user: { select: { name: true } } },
+      include: { user: { select: { name: true } }, attachments: attachmentSelect },
       orderBy: { updatedAt: "desc" },
       take: 100,
     }),

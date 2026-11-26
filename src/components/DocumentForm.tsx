@@ -5,6 +5,7 @@ import { Download, Loader2, Send, UserSearch } from "lucide-react";
 import { businessDaysBetween, nextBusinessDayIso } from "@/lib/dates";
 import { TEMPLATES, type TemplateConfig } from "@/lib/documents/templates.config";
 import { submitDocumentRequest, getDossierPrefill } from "@/app/(dashboard)/documents/actions";
+import { showToast } from "@/lib/toast";
 
 const INPUT_CLASS =
   "w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/20";
@@ -59,7 +60,6 @@ export function DocumentForm({ dynamicData = {}, sessionUser, mode = "generate",
   const [legaliseReason, setLegaliseReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   const isEmployee = sessionUser?.role === "EMPLOYEE";
   const canPickEmployee = !isEmployee && employees.length > 0;
@@ -134,7 +134,6 @@ export function DocumentForm({ dynamicData = {}, sessionUser, mode = "generate",
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setSuccess(null);
     setLoading(true);
 
     try {
@@ -144,8 +143,9 @@ export function DocumentForm({ dynamicData = {}, sessionUser, mode = "generate",
           { ...fields, ...computedFields },
           { legalise, reason: legaliseReason },
         );
-        if (result.error) { setError(result.error); return; }
-        setSuccess(
+        if (result.error) { setError(result.error); showToast("err", result.error); return; }
+        showToast(
+          "ok",
           legalise
             ? "Demande envoyée. Une fois validée, la version légalisée vous sera remise ou publiée ici."
             : "Demande envoyée. Vous serez notifié une fois traitée.",
@@ -165,6 +165,7 @@ export function DocumentForm({ dynamicData = {}, sessionUser, mode = "generate",
       if (!res.ok) {
         const json = await res.json().catch(() => ({})) as { error?: string };
         setError(json.error ?? "Erreur lors de la génération.");
+        showToast("err", json.error ?? "Erreur lors de la génération.");
         return;
       }
 
@@ -175,8 +176,10 @@ export function DocumentForm({ dynamicData = {}, sessionUser, mode = "generate",
       a.download = `${templateId}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
+      showToast("ok", "Document généré et téléchargé.");
     } catch {
       setError("Impossible de contacter le serveur.");
+      showToast("err", "Impossible de contacter le serveur.");
     } finally {
       setLoading(false);
     }
@@ -344,7 +347,6 @@ export function DocumentForm({ dynamicData = {}, sessionUser, mode = "generate",
       )}
 
       {error && <p className="text-sm text-red-600">{error}</p>}
-      {success &&<p className="text-sm text-emerald-600">{success}</p>}
 
       <button
         type="submit"

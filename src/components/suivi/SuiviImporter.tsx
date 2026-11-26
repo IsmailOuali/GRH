@@ -7,6 +7,7 @@ import { FormMessage } from "@/components/ui/Field";
 import { Table, Thead, Th, Tbody } from "@/components/ui/Table";
 import type { ImportPreview } from "@/app/api/suivi/import/route";
 import { commitSuiviImport } from "@/app/(dashboard)/conges/suivi-actions";
+import { useFeedback } from "@/lib/toast";
 
 /**
  * Two-step import: the file is parsed server-side into a preview, and nothing
@@ -18,7 +19,7 @@ export function SuiviImporter() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [busy, setBusy] = useState<"parse" | "commit" | null>(null);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useFeedback();
 
   function reset() {
     setFile(null);
@@ -93,7 +94,7 @@ export function SuiviImporter() {
         </span>
       </label>
 
-      {msg && <FormMessage type={msg.type}>{msg.text}</FormMessage>}
+      {msg?.type === "err" && <FormMessage type="err">{msg.text}</FormMessage>}
 
       {preview && (
         <div className="space-y-4">

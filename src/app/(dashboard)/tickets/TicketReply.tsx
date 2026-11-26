@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { controlClass } from "@/components/ui/control";
 import { MAX_RESPONSE_LENGTH } from "@/lib/tickets";
 import { answerTicket } from "./actions";
+import { showToast } from "@/lib/toast";
 
 /** RH side of a ticket: take it, or answer and resolve it. */
 export function TicketReply({
@@ -35,12 +36,15 @@ export function TicketReply({
       const res = await answerTicket(id, next, text);
       if ("error" in res) {
         setError(res.error);
+        showToast("err", res.error);
         return;
       }
       setText("");
+      showToast("ok", next === "RESOLVED" ? "Réponse envoyée, ticket résolu." : "Ticket pris en charge.");
       router.refresh();
     } catch {
       setError("Impossible de contacter le serveur.");
+      showToast("err", "Impossible de contacter le serveur.");
     } finally {
       setLoading(null);
     }

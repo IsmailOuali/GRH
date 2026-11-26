@@ -6,12 +6,13 @@ import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Field, FormMessage } from "@/components/ui/Field";
 import { controlClass } from "@/components/ui/control";
+import { useFeedback } from "@/lib/toast";
 
 type User = { id: string; name: string };
 
 export function UploadPayslipForm({ employees }: { employees: User[] }) {
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useFeedback();
   const formRef = useRef<HTMLFormElement>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -69,7 +70,7 @@ export function UploadPayslipForm({ employees }: { employees: User[] }) {
             )}
           </Field>
 
-          {msg && <FormMessage type={msg.type}>{msg.text}</FormMessage>}
+          {msg?.type === "err" && <FormMessage type="err">{msg.text}</FormMessage>}
 
           <Button type="submit" loading={loading}>
             {!loading && <Upload className="size-4" aria-hidden />}

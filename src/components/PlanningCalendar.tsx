@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, CalendarRange, CalendarCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isBusinessDay, parseLocalDate } from "@/lib/dates";
-import { frenchHolidays, holidaysOfMonth } from "@/lib/holidays";
+import { frenchHolidays } from "@/lib/holidays";
+import { useAidHolidays } from "@/components/AidProvider";
 import {
   TYPE_META,
   PLANNING_TYPES,
@@ -71,11 +72,23 @@ export function PlanningCalendar({
   const days = useMemo(() => monthDays(year, month), [year, month]);
 
   // Jours fériés: computed per year, so any month the user navigates to is right.
-  const holidayByDate = useMemo(
-    () => new Map(frenchHolidays(year).map((h) => [h.date, h.label])),
-    [year],
-  );
-  const monthHolidays = useMemo(() => holidaysOfMonth(year, month), [year, month]);
+  const aidHolidays = useAidHolidays();
+  const holidayByDate = useMemo(() => {
+    const map = new Map(frenchHolidays(year).map((h) => [h.date, h.label]));
+    for (const h of aidHolidays) {
+      if (!h.date.startsWith(`${year}-`)) continue;
+      const other = map.get(h.date);
+      map.set(h.date, other ? `${other}, ${h.label}` : h.label);
+    }
+    return map;
+  }, [year, aidHolidays]);
+  const monthHolidays = useMemo(() => {
+    const prefix = `${year}-${String(month).padStart(2, "0")}-`;
+    return [...holidayByDate]
+      .filter(([date]) => date.startsWith(prefix))
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, label]) => ({ date, label }));
+  }, [holidayByDate, year, month]);
 
   const filtered = useMemo(() => {
     const team = teamIds ? new Set(teamIds) : null;

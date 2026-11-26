@@ -3,7 +3,7 @@
  * in" rule. Pure and client-safe (disk paths live in leave-justificatif-storage.ts).
  */
 
-import { needsJustificatif } from "@/lib/leave-types";
+import { isSpecialLeave, needsJustificatif } from "@/lib/leave-types";
 
 export const JUSTIFICATIF_MAX_BYTES = 15 * 1024 * 1024; // 15 MB
 
@@ -28,7 +28,16 @@ export function justificatifState(r: JustificatifLike): JustificatifState {
   return "NONE";
 }
 
+/**
+ * This type of request may carry a justificatif: the absences that expect one
+ * (maladie, absence justifiée) and the congés spéciaux (acte de mariage, de
+ * décès…). On a congé spécial it is optional and never reported as "attendu".
+ */
+export function allowsJustificatif(type: string): boolean {
+  return needsJustificatif(type) || isSpecialLeave(type);
+}
+
 /** The employee may file (or replace) a justificatif on this request. */
 export function canFileJustificatif(r: JustificatifLike): boolean {
-  return needsJustificatif(r.type) && r.status !== "REJECTED";
+  return allowsJustificatif(r.type) && r.status !== "REJECTED";
 }

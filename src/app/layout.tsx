@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { Toaster } from "@/components/Toaster";
 
 export const metadata: Metadata = {
   title: "Fair'Up OS",
@@ -27,6 +28,7 @@ export default function RootLayout({
     <html lang="fr" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
         {children}
+        <Toaster />
       </body>
     </html>
   );

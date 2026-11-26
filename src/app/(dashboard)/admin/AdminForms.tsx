@@ -13,6 +13,7 @@ import {
   deleteCompany,
   sendPasswordReset,
 } from "./actions";
+import { toastResult, useFeedback } from "@/lib/toast";
 
 type User = { id: string; name: string; email: string; role: string; position: string | null };
 type Company = { code: string; name: string; tagline: string | null; logoPath: string | null };
@@ -51,7 +52,7 @@ export function AdminTabs({ users, managers, companies }: { users: User[]; manag
 // ── Companies tab ─────────────────────────────────────────────────────────────
 function CompaniesForm({ companies }: { companies: Company[] }) {
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useFeedback();
   const formRef = useRef<HTMLFormElement>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -106,7 +107,7 @@ function CompaniesForm({ companies }: { companies: Company[] }) {
             />
             <p className="mt-1 text-xs text-slate-500">Image (PNG, JPG…), 2 Mo max.</p>
           </div>
-          {msg && <p className={`text-sm ${msg.type === "ok" ? "text-emerald-600" : "text-red-600"}`}>{msg.text}</p>}
+          {msg?.type === "err" && <p className="text-sm text-red-600">{msg.text}</p>}
           <button
             type="submit"
             disabled={loading}
@@ -136,6 +137,7 @@ function CompanyRow({ company, canDelete }: { company: Company; canDelete: boole
     fd.set("code", company.code);
     const res = await updateCompany(fd);
     setBusy(null);
+    toastResult(res, "Entreprise mise à jour.");
     if (res.success) setEditing(false);
     else setErr(res.error ?? "Erreur.");
   }
@@ -148,6 +150,7 @@ function CompanyRow({ company, canDelete }: { company: Company; canDelete: boole
     fd.set("code", company.code);
     const res = await deleteCompany(fd);
     setBusy(null);
+    toastResult(res, "Entreprise supprimée.");
     if (!res.success) setErr(res.error ?? "Erreur.");
   }
 
@@ -241,7 +244,7 @@ function UserManagement({ users, managers }: { users: User[]; managers: User[] }
   const [loading, setLoading] = useState(false);
   const [deleteLoadingId, setDeleteLoadingId] = useState<string | null>(null);
   const [resetLoadingId, setResetLoadingId] = useState<string | null>(null);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useFeedback();
   const formRef = useRef<HTMLFormElement>(null);
   const [selectedRole, setSelectedRole] = useState("EMPLOYEE");
 
@@ -268,7 +271,7 @@ function UserManagement({ users, managers }: { users: User[]; managers: User[] }
     setDeleteLoadingId(id);
     const fd = new FormData();
     fd.append("id", id);
-    await deleteEmployee(fd);
+    toastResult(await deleteEmployee(fd), "Compte supprimé.");
     setDeleteLoadingId(null);
   }
 
@@ -285,9 +288,7 @@ function UserManagement({ users, managers }: { users: User[]; managers: User[] }
 
   return (
     <div className="space-y-4">
-      {msg && (
-        <p className={`text-sm ${msg.type === "ok" ? "text-emerald-600" : "text-red-600"}`}>{msg.text}</p>
-      )}
+      {msg?.type === "err" && <p className="text-sm text-red-600">{msg.text}</p>}
 
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
@@ -426,7 +427,7 @@ function UserManagement({ users, managers }: { users: User[]; managers: User[] }
 // ── Quotas tab ────────────────────────────────────────────────────────────────
 function QuotaForm({ users }: { users: User[] }) {
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useFeedback();
   const formRef = useRef<HTMLFormElement>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -457,7 +458,7 @@ function QuotaForm({ users }: { users: User[] }) {
           <label className="mb-1 block text-sm font-medium text-slate-700">Jours CP</label>
           <input name="cpDays" type="number" min="0" step="0.5" defaultValue={25} required className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/20" />
         </div>
-        {msg && <p className={`text-sm ${msg.type === "ok" ? "text-emerald-600" : "text-red-600"}`}>{msg.text}</p>}
+        {msg?.type === "err" && <p className="text-sm text-red-600">{msg.text}</p>}
         <button type="submit" disabled={loading} className="flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm text-white hover:bg-brand-700 disabled:opacity-60">
           {loading && <Loader2 className="size-4 animate-spin" />}
           Enregistrer
@@ -470,7 +471,7 @@ function QuotaForm({ users }: { users: User[] }) {
 // ── News tab ──────────────────────────────────────────────────────────────────
 function NewsForm() {
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useFeedback();
   const formRef = useRef<HTMLFormElement>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -495,7 +496,7 @@ function NewsForm() {
           <label className="mb-1 block text-sm font-medium text-slate-700">Message</label>
           <textarea name="content" rows={5} required placeholder="Rédigez votre annonce ici..." className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/20" />
         </div>
-        {msg && <p className={`text-sm ${msg.type === "ok" ? "text-emerald-600" : "text-red-600"}`}>{msg.text}</p>}
+        {msg?.type === "err" && <p className="text-sm text-red-600">{msg.text}</p>}
         <button type="submit" disabled={loading} className="flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm text-white hover:bg-brand-700 disabled:opacity-60">
           {loading && <Loader2 className="size-4 animate-spin" />}
           Publier

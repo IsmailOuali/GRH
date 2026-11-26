@@ -1,13 +1,13 @@
 "use server";
 
-import path from "path";
-import fs from "fs";
 import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveCompany } from "@/lib/company";
-import { nextBusinessDay } from "@/lib/dates";
+import { getAidDates } from "@/lib/aid-server";
+import { generateCongePayesPdf } from "@/lib/leave-pdf";
+import { changeBalance } from "@/lib/leave-ledger";
 import { accrueLeaveBalance } from "@/lib/accrual";
 import {
   countLeaveDays,
@@ -19,45 +19,6 @@ import {
 } from "@/lib/leave-types";
 import { MAX_COMMENT_LENGTH, validateEventDate, validateLeaveDates } from "@/lib/leave-validation";
 import { notifyTeamReviewers, notifyUser } from "@/lib/notifications";
-import { TEMPLATES_MAP } from "@/lib/documents/templates.config";
-import { renderTemplate } from "@/lib/documents/render-template";
-import { generatePdf } from "@/lib/documents/generate-pdf";
-
-/**
- * Renders the "Demande de congés payés" attestation for an approved CP
- * request — the same template Documents used to offer standalone, now
- * generated automatically instead of as a separate DocumentRequest.
- */
-async function generateCongePayesPdf(request: {
-  id: string;
-  days: number;
-  startDate: Date;
-  endDate: Date;
-  createdAt: Date;
-  user: { name: string };
-}): Promise<string> {
-  const template = TEMPLATES_MAP["conge-payes"];
-  const fields: Record<string, string> = {
-    nom_salarie: request.user.name,
-    date_demande: format(request.createdAt, "dd/MM/yyyy"),
-    date_debut: format(request.startDate, "dd/MM/yyyy"),
-    date_fin: format(request.endDate, "dd/MM/yyyy"),
-    nombre_jours: String(request.days),
-    date_reprise: format(nextBusinessDay(request.endDate), "dd/MM/yyyy"),
-  };
-
-  const templatePath = path.join(process.cwd(), template.templatePath);
-  const templateDir = path.dirname(templatePath);
-  const html = fs.readFileSync(templatePath, "utf-8");
-  const rendered = renderTemplate(html, fields);
-  const pdf = await generatePdf(rendered, templateDir);
-
-  const dir = path.join(process.cwd(), "uploads", "leaves");
-  fs.mkdirSync(dir, { recursive: true });
-  const pdfPath = path.join(dir, `${request.id}-conge-payes.pdf`);
-  fs.writeFileSync(pdfPath, pdf);
-  return pdfPath;
-}
 
 export async function submitLeaveRequest(formData: FormData) {
   const session = await auth();
@@ -84,7 +45,7 @@ export async function submitLeaveRequest(formData: FormData) {
   const dateError = validateLeaveDates(startDate, endDate);
   if (dateError) return { error: dateError };
 
-  const days = countLeaveDays(type, startDate, endDate);
+  const days = countLeaveDays(type, startDate, endDate, await getAidDates());
   if (days === 0) return { error: "La période ne contient aucun jour ouvré." };
 
   const userId = session.user.id;
@@ -148,8 +109,9 @@ export async function submitLeaveRequest(formData: FormData) {
       };
   }
 
-  await prisma.leaveRequest.create({
+  const created = await prisma.leaveRequest.create({
     data: { userId, type, startDate, endDate, days, cpDeducted, comment, eventDate, status: "PENDING" },
+    select: { id: true },
   });
 
   const requester = await prisma.user.findUnique({
@@ -168,7 +130,9 @@ export async function submitLeaveRequest(formData: FormData) {
 
   revalidatePath("/conges");
   revalidatePath("/dashboard");
-  return { success: true };
+  // The id lets the form attach an optional justificatif right after (the file
+  // goes through the justificatif API route, not this action: actions cap the body at 1 MB).
+  return { success: true, id: created.id };
 }
 
 export async function reviewLeave(formData: FormData) {
@@ -190,6 +154,8 @@ export async function reviewLeave(formData: FormData) {
     include: { user: true },
   });
   if (!request) return { error: "Demande introuvable." };
+  // A second validation would deduct the days a second time.
+  if (request.status !== "PENDING") return { error: "Cette demande a déjà été traitée." };
 
   const company = await getActiveCompany(role, session.user.company);
   if (request.user.company !== company) return { error: "Accès refusé." };
@@ -197,31 +163,39 @@ export async function reviewLeave(formData: FormData) {
   if (role === "SUPERVISEUR" && request.user.managerId !== session.user.id)
     return { error: "Accès refusé." };
 
-  if (decision === "APPROVED" && request.cpDeducted > 0) {
-    // The employee may not have opened the app in months — bring their solde
-    // up to date before deducting, so the decrement lands on the right figure.
-    await accrueLeaveBalance(request.userId);
-    await prisma.leaveBalance.update({
-      where: { userId: request.userId },
-      data: { cpDays: { decrement: request.cpDeducted } },
-    });
-  }
+  // The employee may not have opened the app in months — bring their solde
+  // up to date before deducting, so the decrement lands on the right figure.
+  const deducts = decision === "APPROVED" && request.cpDeducted > 0;
+  if (deducts) await accrueLeaveBalance(request.userId);
 
+  // Rendered first: if it fails, nothing has been deducted yet.
   let pdfPath: string | undefined;
   if (decision === "APPROVED" && request.type === "CP") {
     pdfPath = await generateCongePayesPdf(request);
   }
 
-  await prisma.leaveRequest.update({
-    where: { id },
-    data: {
-      status: decision,
-      reviewedById: session.user.id,
-      reviewNote,
-      reviewedAt: new Date(),
-      ...(pdfPath ? { pdfPath } : {}),
-    },
+  const reviewed = await prisma.$transaction(async (tx) => {
+    const { count } = await tx.leaveRequest.updateMany({
+      where: { id, status: "PENDING" },
+      data: {
+        status: decision,
+        reviewedById: session.user.id,
+        reviewNote,
+        reviewedAt: new Date(),
+        ...(pdfPath ? { pdfPath } : {}),
+      },
+    });
+    if (count === 0) return false;
+    if (deducts) {
+      await changeBalance(tx, request.userId, -request.cpDeducted, {
+        kind: "LEAVE",
+        note: `${LEAVE_TYPE_LABELS[request.type] ?? request.type} du ${format(request.startDate, "dd/MM/yyyy")} au ${format(request.endDate, "dd/MM/yyyy")}`,
+        leaveRequestId: id,
+      });
+    }
+    return true;
   });
+  if (!reviewed) return { error: "Cette demande a déjà été traitée." };
 
   await notifyUser(
     request.userId,

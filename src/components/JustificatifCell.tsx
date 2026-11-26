@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Download, Paperclip, Upload } from "lucide-react";
 import { Button, LinkButton } from "./ui/Button";
 import { JUSTIFICATIF_MAX_BYTES, type JustificatifState } from "@/lib/leave-justificatif";
+import { showToast } from "@/lib/toast";
 
 /**
  * Justificatif column of a leave request.
@@ -33,6 +34,7 @@ export function JustificatifCell({
     setError(null);
     if (file.size > JUSTIFICATIF_MAX_BYTES) {
       setError("Fichier trop volumineux (15 Mo max).");
+      showToast("err", "Fichier trop volumineux (15 Mo max).");
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
@@ -44,11 +46,14 @@ export function JustificatifCell({
       const json = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
         setError(json.error ?? "Échec de l'envoi.");
+        showToast("err", json.error ?? "Échec de l'envoi.");
         return;
       }
+      showToast("ok", "Justificatif déposé.");
       router.refresh();
     } catch {
       setError("Impossible de contacter le serveur.");
+      showToast("err", "Impossible de contacter le serveur.");
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";

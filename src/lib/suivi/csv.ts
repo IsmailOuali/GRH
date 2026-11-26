@@ -96,8 +96,6 @@ export type SalarieRow = {
   soldeCongesN: number | null;
   repriseCongesPris: number;
   repriseAbsences: number;
-  repriseRetardsNb: number;
-  repriseRetardsH: number;
   /** Row-level notes surfaced in the import preview. */
   warnings: string[];
 };
@@ -123,8 +121,6 @@ const COLUMNS = {
   soldeCongesN: /^solde\s*cong/,
   congesPris: /^cong.?s\s*pris/,
   absences: /^absences/,
-  retardsNb: /^retards.*\(nb\)/,
-  retardsH: /^retards.*\(h\)/,
 } as const;
 
 function findHeader(rows: string[][]): { index: number; map: Record<string, number> } | null {
@@ -198,8 +194,6 @@ export function parseSalariesCsv(text: string): ParseResult {
       soldeCongesN: solde,
       repriseCongesPris: parseFrNumber(at(row, "congesPris")) ?? 0,
       repriseAbsences: parseFrNumber(at(row, "absences")) ?? 0,
-      repriseRetardsNb: Math.trunc(parseFrNumber(at(row, "retardsNb")) ?? 0),
-      repriseRetardsH: parseFrNumber(at(row, "retardsH")) ?? 0,
       warnings,
     });
   }

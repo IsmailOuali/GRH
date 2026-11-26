@@ -151,7 +151,7 @@ export function MobileNav({
           </button>
         </div>
 
-        <nav aria-label="Navigation principale" className="flex-1 space-y-5 overflow-y-auto px-3 py-2">
+        <nav aria-label="Navigation principale" className="scrollbar-chrome flex-1 space-y-5 overflow-y-auto px-3 py-2">
           {groups.map(({ section, items }) => (
             <div key={section} className="space-y-0.5">
               {groups.length > 1 && (

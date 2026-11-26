@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Upload, FilePlus2 } from "lucide-react";
 import { createBlankDossier } from "@/app/(dashboard)/admin/dossiers/actions";
+import { showToast } from "@/lib/toast";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -33,11 +34,14 @@ export function DossierUploader() {
       const json = (await res.json().catch(() => ({}))) as { id?: string; error?: string };
       if (!res.ok || !json.id) {
         setError(json.error ?? "Échec de l'import.");
+        showToast("err", json.error ?? "Échec de l'import.");
         return;
       }
+      showToast("ok", "Dossier importé : vérifiez les informations détectées.");
       router.push(`/admin/dossiers/${json.id}`);
     } catch {
       setError("Impossible de contacter le serveur.");
+      showToast("err", "Impossible de contacter le serveur.");
     } finally {
       setUploading(false);
     }
@@ -48,9 +52,11 @@ export function DossierUploader() {
     setCreating(true);
     const res = await createBlankDossier();
     if ("id" in res && res.id) {
+      showToast("ok", "Nouveau dossier créé.");
       router.push(`/admin/dossiers/${res.id}`);
     } else {
       setError("error" in res ? res.error : "Erreur.");
+      showToast("err", "error" in res ? res.error : "Erreur.");
       setCreating(false);
     }
   }

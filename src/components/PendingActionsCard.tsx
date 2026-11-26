@@ -8,6 +8,7 @@ import {
   ClipboardCheck,
   FilePlus2,
   FileText,
+  IdCard,
   Laptop,
   LifeBuoy,
   type LucideIcon,
@@ -20,6 +21,7 @@ const ICONS: Record<PendingSummaryItem["key"], LucideIcon> = {
   conges: CalendarDays,
   documents: FilePlus2,
   tickets: LifeBuoy,
+  informations: IdCard,
   paie: FileText,
   teletravail: Laptop,
 };

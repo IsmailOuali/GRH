@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Trash2, Loader2 } from "lucide-react";
 import { controlClass } from "@/components/ui/control";
 import { deleteTrackedEmployee, setDateSortie } from "@/app/(dashboard)/conges/suivi-actions";
+import { showToast, toastResult } from "@/lib/toast";
 
 /**
  * Date de sortie is edited inline rather than behind a modal: it is the one
@@ -33,7 +34,9 @@ export function DateSortieInput({
     if ("error" in res) {
       setCurrent(previous);
       setError(true);
-      window.alert(res.error);
+      showToast("err", res.error);
+    } else {
+      showToast("ok", "Date de sortie enregistrée.");
     }
   }
 
@@ -70,10 +73,7 @@ export function DeleteTrackedButton({ id, name }: { id: string; name: string }) 
     }
     setLoading(true);
     const res = await deleteTrackedEmployee(id);
-    if ("error" in res) {
-      setLoading(false);
-      window.alert(res.error);
-    }
+    if (!toastResult(res, "Salarié retiré du suivi.")) setLoading(false);
   }
 
   return (

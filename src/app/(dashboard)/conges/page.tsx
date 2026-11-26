@@ -14,7 +14,10 @@ import { Card, CardBody } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Table, Thead, Th, Tbody } from "@/components/ui/Table";
 import { LinkButton } from "@/components/ui/Button";
-import { nextBusinessDay } from "@/lib/dates";
+import { nextBusinessDay, toIso } from "@/lib/dates";
+import { getAids } from "@/lib/aid-server";
+import { AidConfirmList } from "./AidConfirmList";
+import { LeaveBalanceHistory } from "@/components/LeaveBalanceHistory";
 import { buildPlanningEntries } from "@/lib/planning";
 import { accrueLeaveBalance, accrueCompanyLeaveBalances } from "@/lib/accrual";
 import { SuiviImporter } from "@/components/suivi/SuiviImporter";
@@ -51,8 +54,8 @@ function periodeOf(r: { startDate: Date; endDate: Date }) {
   return `${format(new Date(r.startDate), "dd/MM/yyyy")} – ${format(new Date(r.endDate), "dd/MM/yyyy")}`;
 }
 
-function repriseOf(r: { endDate: Date }) {
-  return format(nextBusinessDay(new Date(r.endDate)), "dd/MM/yyyy");
+function repriseOf(r: { endDate: Date }, aidDates: ReadonlySet<string>) {
+  return format(nextBusinessDay(new Date(r.endDate), aidDates), "dd/MM/yyyy");
 }
 
 // Attestation PDF only exists for approved CP requests (see reviewLeave).
@@ -67,7 +70,11 @@ function pdfLinkOf(r: { id: string; status: string; pdfPath: string | null }) {
   );
 }
 
-export default async function CongesPage() {
+export default async function CongesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string | string[] }>;
+}) {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
@@ -78,6 +85,16 @@ export default async function CongesPage() {
 
   // Lazy accrual: credit any whole month(s) elapsed before the balance is read.
   await accrueLeaveBalance(userId);
+
+  const aids = await getAids();
+  const aidDates = new Set(aids.flatMap((a) => a.days));
+  // Next four Aïds, plus a recent one that may still need its date corrected.
+  const recently = new Date();
+  recently.setDate(recently.getDate() - 30);
+  const aidsToConfirm = aids.filter((a) => a.days[1] >= toIso(recently)).slice(0, 4);
+
+  // The dashboard's solde card links straight to the history tab.
+  const openHistory = (await searchParams).tab === "solde";
 
   const [balance, requests] = await Promise.all([
     prisma.leaveBalance.findUnique({ where: { userId } }),
@@ -92,6 +109,17 @@ export default async function CongesPage() {
           orderBy: { createdAt: "desc" },
         }),
   ]);
+
+  // Always the connected user's own solde, whatever their role.
+  const movements = await prisma.leaveMovement.findMany({
+    where: { userId },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+  });
+  const soldeTab = {
+    key: "solde",
+    label: "Historique du solde",
+    content: <LeaveBalanceHistory balance={balance?.cpDays ?? 0} movements={movements} />,
+  };
 
   // The mobile top bar already shows the section title, so PageHeader keeps the
   // <h1> for assistive tech but hides it visually below md.
@@ -167,7 +195,7 @@ export default async function CongesPage() {
                         title: "Demande de congé",
                         items: [
                           { label: "Période", value: periode },
-                          { label: "Reprise", value: repriseOf(r) },
+                          { label: "Reprise", value: repriseOf(r, aidDates) },
                           { label: "Type", value: TYPE_LABELS[r.type] ?? r.type },
                           { label: "Jours", value: r.days },
                           { label: "Statut", value: <StatusBadge status={r.status} /> },
@@ -197,11 +225,13 @@ export default async function CongesPage() {
       <div>
         {header}
         <Tabs
-          defaultKey="nouvelle"
+          key={openHistory ? "solde" : "default"}
+          defaultKey={openHistory ? "solde" : "nouvelle"}
           tabs={[
             { key: "nouvelle", label: "Nouvelle demande", content: formCard },
             { key: "planning", label: "Planning", content: planningCard },
             { key: "historique", label: "Historique", content: historyCard },
+            soldeTab,
           ]}
         />
       </div>
@@ -299,7 +329,7 @@ export default async function CongesPage() {
                         { label: "Type", value: TYPE_LABELS[r.type] ?? r.type },
                         ...(r.eventDate ? [{ label: "Date de l'événement", value: format(new Date(r.eventDate), "dd/MM/yyyy") }] : []),
                         { label: "Période", value: periode },
-                        { label: "Reprise", value: repriseOf(r) },
+                        { label: "Reprise", value: repriseOf(r, aidDates) },
                         { label: "Jours", value: r.days },
                         ...(justificatifState(r) !== "NONE"
                           ? [{ label: "Justificatif", value: justificatifOf(r, userId) }]
@@ -367,7 +397,7 @@ export default async function CongesPage() {
                       items: [
                         { label: "Employé", value: r.user.name },
                         { label: "Période", value: periode },
-                        { label: "Reprise", value: repriseOf(r) },
+                        { label: "Reprise", value: repriseOf(r, aidDates) },
                         { label: "Type", value: TYPE_LABELS[r.type] ?? r.type },
                         { label: "Jours", value: r.days },
                         { label: "Statut", value: <StatusBadge status={r.status} /> },
@@ -410,7 +440,8 @@ export default async function CongesPage() {
       <SuiviKpis totals={suivi} joursOuvres={joursOuvres} />
       <SuiviAlerts totals={suivi} extra={balanceAlerts} />
       <Tabs
-        defaultKey="pending"
+        key={openHistory ? "solde" : "default"}
+        defaultKey={openHistory ? "solde" : "pending"}
         tabs={[
           { key: "pending", label: "En attente de validation", badge: pendingRequests.length, content: pendingCard },
           { key: "suivi", label: "Suivi RH", badge: suivi.effectif, content: <SuiviTable totals={suivi} /> },
@@ -419,6 +450,10 @@ export default async function CongesPage() {
           { key: "calendrier", label: "Planning", content: calendarCard },
           { key: "historique", label: "Historique équipe", content: teamHistoryCard },
           { key: "nouvelle", label: "Nouvelle demande", content: formCard },
+          soldeTab,
+          ...(role === "SUPERVISEUR"
+            ? []
+            : [{ key: "aid", label: "Dates de l'Aïd", content: <AidConfirmList aids={aidsToConfirm} /> }]),
         ]}
       />
     </div>

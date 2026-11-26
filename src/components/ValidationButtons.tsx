@@ -5,6 +5,7 @@ import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { controlClass } from "@/components/ui/control";
 import { reviewLeave } from "@/app/(dashboard)/conges/actions";
+import { toastResult } from "@/lib/toast";
 
 export function ValidationButtons({ id }: { id: string }) {
   const [loading, setLoading] = useState<"APPROVED" | "REJECTED" | null>(null);
@@ -17,7 +18,7 @@ export function ValidationButtons({ id }: { id: string }) {
     fd.append("id", id);
     fd.append("decision", decision);
     if (decision === "REJECTED" && rejectNote) fd.append("reviewNote", rejectNote);
-    await reviewLeave(fd);
+    toastResult(await reviewLeave(fd), decision === "APPROVED" ? "Demande validée." : "Demande refusée.");
     setLoading(null);
   }
 

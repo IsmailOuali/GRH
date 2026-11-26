@@ -22,16 +22,12 @@ export type TrackedEmployeeLike = {
   soldeCongesN: number | null;
   repriseCongesPris: number;
   repriseAbsences: number;
-  repriseRetardsNb: number;
-  repriseRetardsH: number;
   userId?: string | null;
 };
 
 export type SuiviRow = {
   employee: TrackedEmployeeLike;
   absences: number;
-  retardsNb: number;
-  retardsH: number;
   congesPris: number;
   /** null when the sheet leaves "Solde congés N" blank. */
   solde: number | null;
@@ -45,8 +41,6 @@ export type SuiviTotals = {
   effectif: number;
   effectifTotal: number;
   absences: number;
-  retardsNb: number;
-  retardsH: number;
   congesPris: number;
   soldeRestant: number;
   tauxAbsenteisme: number;
@@ -73,8 +67,6 @@ export function computeSuivi(
     return {
       employee: e,
       absences: e.repriseAbsences,
-      retardsNb: e.repriseRetardsNb,
-      retardsH: e.repriseRetardsH,
       congesPris: e.repriseCongesPris,
       solde,
       soldeRatio:
@@ -97,8 +89,6 @@ export function computeSuivi(
     effectif,
     effectifTotal: rows.length,
     absences,
-    retardsNb: sum((r) => r.retardsNb),
-    retardsH: sum((r) => r.retardsH),
     congesPris: sum((r) => r.congesPris),
     soldeRestant: sum((r) => r.solde ?? 0),
     tauxAbsenteisme: effectif && joursOuvres ? absences / (effectif * joursOuvres) : 0,
@@ -110,7 +100,6 @@ export type SuiviAlert = { level: "crit" | "warn"; text: string };
 /** Thresholds carried over from the workbook's conditional formatting. */
 export const SEUIL_ABSENTEISME = 0.05;
 export const SEUIL_SOLDE_FAIBLE = 2;
-export const SEUIL_RETARDS = 3;
 /** A solde at or above this many jours is worth nudging the salarié to use. */
 export const SEUIL_SOLDE_ELEVE = 25;
 
@@ -153,12 +142,6 @@ export function computeAlerts(t: SuiviTotals): SuiviAlert[] {
       alerts.push({
         level: "warn",
         text: `${r.employee.nomComplet} — solde congés élevé (${formatDays(r.solde)})`,
-      });
-    }
-    if (r.retardsNb >= SEUIL_RETARDS) {
-      alerts.push({
-        level: "warn",
-        text: `${r.employee.nomComplet} — retards récurrents (${r.retardsNb})`,
       });
     }
   }

@@ -5,6 +5,9 @@ import { getNotifications, getPendingCounts, getPendingReminders } from "@/lib/n
 import { Sidebar } from "@/components/Sidebar";
 import { MobileNav } from "@/components/MobileNav";
 import { BottomTabBar } from "@/components/BottomTabBar";
+import { AidProvider } from "@/components/AidProvider";
+import { aidHolidays } from "@/lib/aid";
+import { getAids } from "@/lib/aid-server";
 
 export default async function DashboardLayout({
   children,
@@ -26,10 +29,11 @@ export default async function DashboardLayout({
     activeCompany = companyCookie;
   }
 
-  const [counts, { items: notifications, unreadCount }, reminders] = await Promise.all([
+  const [counts, { items: notifications, unreadCount }, reminders, aids] = await Promise.all([
     getPendingCounts(role, session.user.id, activeCompany),
     getNotifications(session.user.id),
     getPendingReminders(role, session.user.id, activeCompany),
+    getAids(),
   ]);
 
   return (
@@ -72,7 +76,9 @@ export default async function DashboardLayout({
           id="contenu"
           className="flex-1 px-4 py-5 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:px-8 md:py-8 md:pb-10"
         >
-          <div className="mx-auto w-full max-w-6xl">{children}</div>
+          <div className="mx-auto w-full max-w-6xl">
+            <AidProvider holidays={aidHolidays(aids)}>{children}</AidProvider>
+          </div>
         </main>
       </div>
 

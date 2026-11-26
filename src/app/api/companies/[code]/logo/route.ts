@@ -32,9 +32,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ cod
   // Legacy default logo for the original Fair'Up company.
   if (code === "FAIRUP") {
     try {
-      const buffer = await readFile(path.join(process.cwd(), "document-templates/conge-payes/logo-bg.png"));
+      const buffer = await readFile(path.join(process.cwd(), "public/logo_.jpeg"));
       return new NextResponse(new Uint8Array(buffer), {
-        headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400" },
+        headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=86400" },
       });
     } catch {
       /* fall through */

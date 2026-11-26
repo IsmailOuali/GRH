@@ -4,68 +4,12 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveCompany } from "@/lib/company";
-import { notifyCompanyReviewers, notifyUser } from "@/lib/notifications";
-import {
-  isValidTicketCategory,
-  MAX_ACTIVE_TICKETS_PER_USER,
-  MAX_DESCRIPTION_LENGTH,
-  MAX_RESPONSE_LENGTH,
-  MAX_SUBJECT_LENGTH,
-} from "@/lib/tickets";
+import { notifyUser } from "@/lib/notifications";
+import { MAX_RESPONSE_LENGTH } from "@/lib/tickets";
 
+// Opening a ticket (with its files) is the POST route in src/app/api/tickets/route.ts:
+// a server action cannot carry a screenshot, its body is capped at 1 MB.
 type Result = { success: true } | { error: string };
-
-/** A salarié opens a ticket. Any role can. */
-export async function submitTicket(formData: FormData): Promise<Result> {
-  const session = await auth();
-  if (!session?.user) return { error: "Non authentifié." };
-
-  // FormData values can be missing or a File: only accept real strings.
-  const field = (name: string): string => {
-    const v = formData.get(name);
-    return typeof v === "string" ? v.trim() : "";
-  };
-  const category = field("category");
-  const subject = field("subject");
-  const description = field("description");
-
-  if (!isValidTicketCategory(category)) return { error: "Choisissez une catégorie." };
-  if (!subject) return { error: "L'objet est obligatoire." };
-  if (subject.length > MAX_SUBJECT_LENGTH)
-    return { error: `L'objet ne peut pas dépasser ${MAX_SUBJECT_LENGTH} caractères.` };
-  if (!description) return { error: "Décrivez votre demande." };
-  if (description.length > MAX_DESCRIPTION_LENGTH)
-    return { error: `La description ne peut pas dépasser ${MAX_DESCRIPTION_LENGTH} caractères.` };
-
-  const userId = session.user.id;
-  const active = await prisma.ticket.count({
-    where: { userId, status: { in: ["OPEN", "IN_PROGRESS"] } },
-  });
-  if (active >= MAX_ACTIVE_TICKETS_PER_USER) {
-    return {
-      error: `Vous avez déjà ${MAX_ACTIVE_TICKETS_PER_USER} tickets en cours. Attendez une réponse des RH avant d'en ouvrir un autre.`,
-    };
-  }
-
-  await prisma.ticket.create({ data: { userId, category, subject, description } });
-
-  const author = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { name: true, company: true },
-  });
-  if (author) {
-    await notifyCompanyReviewers(
-      author.company,
-      "TICKET_SUBMITTED",
-      `${author.name} a ouvert un ticket : ${subject}`,
-      "/tickets",
-    );
-  }
-
-  revalidatePath("/tickets");
-  revalidatePath("/dashboard");
-  return { success: true };
-}
 
 /**
  * The RH answers a ticket: either takes it (IN_PROGRESS, message optional) or

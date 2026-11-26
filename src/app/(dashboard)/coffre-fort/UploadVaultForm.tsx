@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Field, FormMessage } from "@/components/ui/Field";
 import { controlClass } from "@/components/ui/control";
 import { CATEGORY_LABELS, UPLOADABLE_CATEGORIES } from "@/lib/coffre-fort";
+import { useFeedback } from "@/lib/toast";
 
 type Employee = { id: string; name: string };
 
@@ -15,7 +16,7 @@ type Employee = { id: string; name: string };
 export function UploadVaultForm({ employee }: { employee: Employee }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useFeedback();
   const formRef = useRef<HTMLFormElement>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -77,7 +78,7 @@ export function UploadVaultForm({ employee }: { employee: Employee }) {
             )}
           </Field>
 
-          {msg && <FormMessage type={msg.type}>{msg.text}</FormMessage>}
+          {msg?.type === "err" && <FormMessage type="err">{msg.text}</FormMessage>}
 
           <Button type="submit" loading={loading}>
             {!loading && <Upload className="size-4" aria-hidden />}

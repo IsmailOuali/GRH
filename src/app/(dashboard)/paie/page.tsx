@@ -13,6 +13,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Table, Thead, Th, Tbody } from "@/components/ui/Table";
 import { LinkButton } from "@/components/ui/Button";
 import { UploadPayslipForm } from "./UploadPayslipForm";
+import { BulkUploadPayslipForm } from "./BulkUploadPayslipForm";
 import { AdvanceForm } from "./AdvanceForm";
 import { AdvanceButtons } from "./AdvanceButtons";
 import { AdvanceHistory, type AdvanceHistoryRow, type MonthOption } from "./AdvanceHistory";
@@ -56,6 +57,7 @@ export default async function PaiePage() {
   // ── Bulletins tab ───────────────────────────────────────────────────────────
   const bulletinsTab = (
     <div className="space-y-6">
+      {role === "ADMIN" && <BulkUploadPayslipForm />}
       {canManagePayslips && <UploadPayslipForm employees={employees} />}
       <Card>
         <CardHeader title={canManagePayslips ? "Tous les bulletins" : "Mes bulletins"} />

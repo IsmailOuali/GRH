@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/Button";
 import { Field, FormMessage } from "@/components/ui/Field";
 import { controlClass } from "@/components/ui/control";
 import { submitAdvance } from "./advance-actions";
+import { useFeedback } from "@/lib/toast";
 
 export function AdvanceForm() {
   const ref = useRef<HTMLFormElement>(null);
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useFeedback();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -61,7 +62,7 @@ export function AdvanceForm() {
         )}
       </Field>
 
-      {msg && <FormMessage type={msg.type}>{msg.text}</FormMessage>}
+      {msg?.type === "err" && <FormMessage type="err">{msg.text}</FormMessage>}
 
       <Button type="submit" loading={loading} fullWidth>
         {!loading && <Send className="size-4" aria-hidden />}

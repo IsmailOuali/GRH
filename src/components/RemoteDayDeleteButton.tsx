@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Trash2, Loader2 } from "lucide-react";
 import { deleteRemoteDay } from "@/app/(dashboard)/teletravail/actions";
+import { toastResult } from "@/lib/toast";
 
 export function RemoteDayDeleteButton({
   id,
@@ -20,10 +21,7 @@ export function RemoteDayDeleteButton({
     if (!window.confirm(`Annuler le télétravail de ${name} le ${date} ?`)) return;
     setLoading(true);
     const res = await deleteRemoteDay(id);
-    if ("error" in res) {
-      setLoading(false);
-      window.alert(res.error);
-    }
+    if (!toastResult(res, "Jour de télétravail annulé.")) setLoading(false);
     // On success the list revalidates and the row disappears.
   }
 

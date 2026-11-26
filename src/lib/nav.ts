@@ -4,6 +4,7 @@ import {
   FileText,
   FilePlus2,
   FolderOpen,
+  IdCard,
   Laptop,
   LifeBuoy,
   ShieldCheck,
@@ -42,6 +43,7 @@ export type NavItem = {
  */
 export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Tableau de Bord", roles: ["EMPLOYEE", "SUPERVISEUR", "MANAGER", "ADMIN"], section: "espace", primary: true },
+  { href: "/mes-informations", icon: IdCard, label: "Mes informations", roles: ["EMPLOYEE", "SUPERVISEUR", "MANAGER", "ADMIN"], section: "espace" },
   { href: "/conges", icon: CalendarDays, label: "Congés & Absences", roles: ["EMPLOYEE", "SUPERVISEUR", "MANAGER", "ADMIN"], section: "espace", primary: true },
   { href: "/teletravail", icon: Laptop, label: "Télétravail", roles: ["EMPLOYEE", "SUPERVISEUR", "MANAGER", "ADMIN"], section: "espace" },
   { href: "/paie", icon: FileText, label: "Bulletins de Paie", roles: ["EMPLOYEE", "SUPERVISEUR", "MANAGER", "ADMIN"], section: "espace", primary: true },

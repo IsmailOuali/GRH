@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { saveBulletin } from "@/lib/payslips-storage";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -25,17 +23,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Seuls les fichiers PDF sont acceptés." }, { status: 400 });
   }
 
-  const uploadsDir = path.join(process.cwd(), "uploads", "payslips");
-  await mkdir(uploadsDir, { recursive: true });
-
-  const filename = `${Date.now()}-${userId}.pdf`;
-  const filePath = path.join(uploadsDir, filename);
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(filePath, buffer);
-
-  await prisma.payslip.create({
-    data: { userId, month, pdfPath: filename },
-  });
+  await saveBulletin({ userId, mois: month, pdfBytes: new Uint8Array(await file.arrayBuffer()) });
 
   return NextResponse.json({ success: true });
 }

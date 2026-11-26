@@ -7,6 +7,7 @@ import { Pencil, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { controlClass, labelClass } from "@/components/ui/control";
 import { updateTrackedEmployee } from "@/app/(dashboard)/conges/suivi-actions";
+import { showToast } from "@/lib/toast";
 
 type Employee = {
   id: string;
@@ -17,8 +18,6 @@ type Employee = {
   soldeCongesN: number | null;
   repriseCongesPris: number;
   repriseAbsences: number;
-  repriseRetardsNb: number;
-  repriseRetardsH: number;
 };
 
 type FormState = {
@@ -28,8 +27,6 @@ type FormState = {
   soldeCongesN: string;
   congesPris: string;
   absences: string;
-  retardsNb: string;
-  retardsH: string;
 };
 
 const str = (n: number | null | undefined) => (n === null || n === undefined ? "" : String(n));
@@ -42,8 +39,6 @@ function toForm(e: Employee): FormState {
     soldeCongesN: str(e.soldeCongesN),
     congesPris: str(e.repriseCongesPris),
     absences: str(e.repriseAbsences),
-    retardsNb: str(e.repriseRetardsNb),
-    retardsH: str(e.repriseRetardsH),
   };
 }
 
@@ -51,8 +46,6 @@ const NUM_FIELDS: { key: keyof FormState; label: string; hint?: string }[] = [
   { key: "soldeCongesN", label: "Solde congés N (j)", hint: "Droit annuel. Solde = N − congés pris" },
   { key: "congesPris", label: "Congés pris (j)" },
   { key: "absences", label: "Absences (j)" },
-  { key: "retardsNb", label: "Retards (nb)" },
-  { key: "retardsH", label: "Retards (h)" },
 ];
 
 /**
@@ -96,8 +89,10 @@ export function TrackedEmployeeEditor({ employee }: { employee: Employee }) {
     setSaving(false);
     if ("error" in res) {
       setError(res.error);
+      showToast("err", res.error);
       return;
     }
+    showToast("ok", "Salarié mis à jour.");
     setOpen(false);
     router.refresh();
   }

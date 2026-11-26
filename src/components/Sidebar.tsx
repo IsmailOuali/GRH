@@ -94,7 +94,7 @@ export function Sidebar({
 
       {/* Grouped so admin tools stop competing with the daily routes. A single
           group renders unlabelled — an employee has nothing to disambiguate. */}
-      <nav aria-label="Navigation principale" className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
+      <nav aria-label="Navigation principale" className="scrollbar-chrome flex-1 space-y-6 overflow-y-auto px-3 py-5">
         {groups.map(({ section, items }) => (
           <div key={section} className="space-y-0.5">
             {groups.length > 1 && (

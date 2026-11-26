@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -54,6 +56,7 @@ export async function accrueLeaveBalance(userId: string, now: Date = new Date())
     select: { lastAccrualAt: true },
   });
   if (!balance) return 0;
+  const last = balance.lastAccrualAt;
 
   const currentMonth = startOfMonth(now);
   const months = monthsBetween(balance.lastAccrualAt, currentMonth);
@@ -63,12 +66,34 @@ export async function accrueLeaveBalance(userId: string, now: Date = new Date())
 
   // Compare-and-swap on lastAccrualAt: if a concurrent request already credited
   // these months, the WHERE no longer matches and this update is a no-op.
-  const { count } = await prisma.leaveBalance.updateMany({
-    where: { userId, lastAccrualAt: balance.lastAccrualAt },
-    data: { cpDays: { increment: credited }, lastAccrualAt: currentMonth },
-  });
+  return prisma.$transaction(async (tx) => {
+    const { count } = await tx.leaveBalance.updateMany({
+      where: { userId, lastAccrualAt: last },
+      data: { cpDays: { increment: credited }, lastAccrualAt: currentMonth },
+    });
+    if (count !== 1) return 0;
 
-  return count === 1 ? credited : 0;
+    // One history line per month credited.
+    const { cpDays } = await tx.leaveBalance.findUniqueOrThrow({
+      where: { userId },
+      select: { cpDays: true },
+    });
+    const recordedAt = Date.now();
+    for (let i = 1; i <= months; i++) {
+      const month = new Date(last.getFullYear(), last.getMonth() + i, 1);
+      await tx.leaveMovement.create({
+        data: {
+          userId,
+          delta: CP_MONTHLY_ACCRUAL,
+          balanceAfter: cpDays - CP_MONTHLY_ACCRUAL * (months - i),
+          kind: "ACCRUAL",
+          note: `Jours acquis pour ${format(month, "MMMM yyyy", { locale: fr })}`,
+          createdAt: new Date(recordedAt + i), // keeps the months in order
+        },
+      });
+    }
+    return credited;
+  });
 }
 
 /**

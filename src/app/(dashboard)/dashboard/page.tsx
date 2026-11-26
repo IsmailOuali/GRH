@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -14,6 +15,8 @@ import { accrueLeaveBalance } from "@/lib/accrual";
 import { SEUIL_SOLDE_ELEVE } from "@/lib/suivi/compute";
 import { getPendingSummary } from "@/lib/notifications";
 import { PendingActionsCard } from "@/components/PendingActionsCard";
+import { MyRequestsCard } from "@/components/MyRequestsCard";
+import { getMyRequests } from "@/lib/my-requests";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -27,7 +30,10 @@ export default async function DashboardPage() {
   // Lazy accrual: credit any whole month(s) elapsed before the balance is read.
   await accrueLeaveBalance(userId);
 
-  const [pending, balance, approvedLeaves, remoteDays, roster, news, dossier] = await Promise.all([
+  // Reviewers have "À traiter"; a plain salarié gets "Mes demandes" instead.
+  const isEmployee = role === "EMPLOYEE";
+
+  const [pending, balance, approvedLeaves, remoteDays, roster, news, dossier, myRequests] = await Promise.all([
     // Empty for employees; SUPERVISEUR is included (team-scoped) even though
     // they don't get the company planning below.
     getPendingSummary(role, userId, company),
@@ -74,6 +80,7 @@ export default async function DashboardPage() {
       orderBy: { updatedAt: "desc" },
       select: { prenom: true, nom: true, poste: true, emailPro: true, departement: true, matricule: true },
     }),
+    isEmployee ? getMyRequests(userId) : Promise.resolve(null),
   ]);
 
   // Congés + télétravail, expanded to one entry per person per day.
@@ -130,57 +137,79 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Two-column at lg: a rail of stat cards beside the feed. Stacking all
-          of it full-width left the lower two thirds of a desktop page empty
-          and made the feed's line length uncomfortably long. */}
-      <div className="grid items-start gap-6 lg:grid-cols-3">
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
-          {(isManager || role === "SUPERVISEUR") && <PendingActionsCard items={pending} />}
-
-          {dossier && (
-            <Card className="p-5">
-              <CardEyebrow icon={IdCard} tone="emerald">
+      {/* What a salarié looks for first, highlighted with a brand ring: their
+          own fiche and their leave balance. */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {dossier && (
+          <Card className="p-5 lg:col-span-2 ring-2 ring-brand-600/30 dark:ring-brand-500/40">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <CardEyebrow icon={IdCard} tone="brand">
                 Mes informations
               </CardEyebrow>
-              <p className="mt-4 truncate text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
-                {dossierName}
-              </p>
-              {dossier.poste && <p className="truncate text-sm text-slate-500 dark:text-neutral-400">{dossier.poste}</p>}
+              <Link
+                href="/mes-informations"
+                className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+              >
+                Voir ma fiche complète →
+              </Link>
+            </div>
+            <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div className="min-w-0">
+                <p className="truncate text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
+                  {dossierName}
+                </p>
+                {dossier.poste && <p className="truncate text-sm text-slate-500 dark:text-neutral-400">{dossier.poste}</p>}
+              </div>
               {infoRows.length > 0 && (
-                <dl className="mt-4 space-y-1.5 border-t border-slate-100 pt-4 dark:border-white/10">
+                <dl className="flex min-w-0 flex-col gap-1.5 md:flex-row md:flex-wrap md:justify-end md:gap-x-6">
                   {infoRows.map(({ icon: Icon, value }) => (
-                    <div key={value} className="flex items-center gap-2 text-sm text-slate-600 dark:text-neutral-300">
+                    <div key={value} className="flex min-w-0 items-center gap-2 text-sm text-slate-600 dark:text-neutral-300">
                       <Icon className="size-3.5 shrink-0 text-slate-400 dark:text-neutral-500" aria-hidden />
                       <span className="truncate">{value}</span>
                     </div>
                   ))}
                 </dl>
               )}
-            </Card>
-          )}
-
-          {/* Leave balance */}
-          <Card className="p-5">
-            <CardEyebrow icon={CalendarDays} tone="brand">
-              Solde de congés
-            </CardEyebrow>
-            <p className="mt-4 flex items-baseline gap-1.5">
-              <span className="text-[2rem] font-bold leading-none tabular-nums tracking-tight text-slate-900 dark:text-white">
-                {balance?.cpDays ?? 0}
-              </span>
-              <span className="text-sm text-slate-500 dark:text-neutral-400">jours CP</span>
-            </p>
-            {balance && balance.cpDays >= SEUIL_SOLDE_ELEVE && (
-              <p role="status" className="mt-3 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-200">
-                Solde élevé : pensez à poser vos congés.
-              </p>
-            )}
-            {balance?.expiryDate && (
-              <p className="mt-2 text-xs text-slate-500 dark:text-neutral-500">
-                Expire le {format(new Date(balance.expiryDate), "dd/MM/yyyy")}
-              </p>
-            )}
+            </div>
           </Card>
+        )}
+
+        <Card className={`flex flex-col p-5 ring-2 ring-brand-600/30 dark:ring-brand-500/40 ${dossier ? "" : "lg:col-span-3"}`}>
+          <CardEyebrow icon={CalendarDays} tone="brand">
+            Solde de congés
+          </CardEyebrow>
+          <p className="mt-4 flex items-baseline gap-2">
+            <span className="text-5xl font-bold leading-none tabular-nums tracking-tight text-brand-700 dark:text-white">
+              {balance?.cpDays ?? 0}
+            </span>
+            <span className="text-sm font-medium text-slate-500 dark:text-neutral-400">jours CP</span>
+          </p>
+          {balance && balance.cpDays >= SEUIL_SOLDE_ELEVE && (
+            <p role="status" className="mt-3 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-200">
+              Solde élevé : pensez à poser vos congés.
+            </p>
+          )}
+          {balance?.expiryDate && (
+            <p className="mt-auto pt-3 text-xs text-slate-500 dark:text-neutral-500">
+              Expire le {format(new Date(balance.expiryDate), "dd/MM/yyyy")}
+            </p>
+          )}
+          <Link
+            href="/conges?tab=solde"
+            className="mt-3 self-start rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+          >
+            Voir l&apos;historique →
+          </Link>
+        </Card>
+      </div>
+
+      {/* Two-column at lg: a rail of stat cards beside the feed. Stacking all
+          of it full-width left the lower two thirds of a desktop page empty
+          and made the feed's line length uncomfortably long. */}
+      <div className="grid items-start gap-6 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
+          {(isManager || role === "SUPERVISEUR") && <PendingActionsCard items={pending} />}
+          {myRequests && <MyRequestsCard requests={myRequests} />}
 
           {/* Team absences (manager/admin only) */}
           {isManager && (

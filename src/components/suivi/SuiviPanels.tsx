@@ -1,4 +1,4 @@
-import { Users, CalendarOff, Clock, Timer, Plane, Activity, TriangleAlert } from "lucide-react";
+import { Users, CalendarOff, Plane, Activity, TriangleAlert } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Table, Thead, Th, Tbody } from "@/components/ui/Table";
@@ -17,7 +17,7 @@ import {
 } from "@/lib/suivi/compute";
 
 /**
- * The at-a-glance layer: six headline figures. Single values are stat tiles,
+ * The at-a-glance layer: four headline figures. Single values are stat tiles,
  * not charts — a bar of one number says nothing a number does not.
  *
  * Every figure here is CUMULATIVE ("à date"), because the Salariés sheet has
@@ -29,14 +29,12 @@ export function SuiviKpis({ totals, joursOuvres }: { totals: SuiviTotals; joursO
   const items = [
     { icon: Users, label: "Salariés suivis", value: String(totals.effectif), sub: totals.effectifTotal > totals.effectif ? `${totals.effectifTotal - totals.effectif} sorti(s)` : "effectif actif" },
     { icon: CalendarOff, label: "Jours d'absence", value: formatNum(totals.absences), sub: "cumul à date" },
-    { icon: Clock, label: "Retards", value: String(totals.retardsNb), sub: `${formatNum(totals.retardsH)} h cumulées` },
-    { icon: Timer, label: "Heures de retard", value: formatNum(totals.retardsH), sub: "cumul à date" },
     { icon: Plane, label: "Congés pris", value: formatNum(totals.congesPris), sub: `${formatNum(totals.soldeRestant)} j restants` },
     { icon: Activity, label: "Taux d'absentéisme", value: formatPct(totals.tauxAbsenteisme), sub: `base ${joursOuvres} j ouvrés`, danger: eleve },
   ];
 
   return (
-    <div className="mb-5 grid grid-cols-2 gap-3 md:mb-6 md:grid-cols-3 xl:grid-cols-6">
+    <div className="mb-5 grid grid-cols-2 gap-3 md:mb-6 md:grid-cols-4">
       {items.map((it) => (
         <Card key={it.label}>
           <CardBody className="p-4 md:p-4">
@@ -110,8 +108,6 @@ export function SuiviTable({ totals }: { totals: SuiviTotals }) {
         <Thead>
           <Th>Salarié</Th>
           <Th className="hidden md:table-cell">Absences (j)</Th>
-          <Th className="hidden md:table-cell">Retards</Th>
-          <Th className="hidden lg:table-cell">Retards (h)</Th>
           <Th className="hidden md:table-cell">Congés pris</Th>
           <Th>Solde</Th>
           <Th className="hidden lg:table-cell">Date de sortie</Th>
@@ -141,8 +137,6 @@ export function SuiviTable({ totals }: { totals: SuiviTotals }) {
                   </div>
                 </td>
                 <td className={`hidden px-5 py-3 tabular-nums md:table-cell ${r.absences === 0 ? "text-slate-400" : "text-slate-700"}`}>{formatNum(r.absences)}</td>
-                <td className={`hidden px-5 py-3 tabular-nums md:table-cell ${r.retardsNb === 0 ? "text-slate-400" : "text-slate-700"}`}>{r.retardsNb}</td>
-                <td className={`hidden px-5 py-3 tabular-nums lg:table-cell ${r.retardsH === 0 ? "text-slate-400" : "text-slate-700"}`}>{formatNum(r.retardsH)}</td>
                 <td className={`hidden px-5 py-3 tabular-nums md:table-cell ${r.congesPris === 0 ? "text-slate-400" : "text-slate-700"}`}>{formatNum(r.congesPris)}</td>
                 <td className="px-5 py-3">
                   {r.solde === null ? (

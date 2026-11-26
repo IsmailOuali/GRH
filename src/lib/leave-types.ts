@@ -107,9 +107,12 @@ export function cpDaysToDeduct(type: string, days: number, alreadyUsed = 0): num
   return Math.max(0, days - freeLeft);
 }
 
-/** Days a request covers — Monday–Saturday for congés spéciaux, Monday–Friday otherwise. */
-export function countLeaveDays(type: string, start: Date, end: Date): number {
+/**
+ * Days a request covers — Monday–Saturday for congés spéciaux, Monday–Friday
+ * otherwise. `daysOff` (the Aïds) are never counted, whatever the type.
+ */
+export function countLeaveDays(type: string, start: Date, end: Date, daysOff?: ReadonlySet<string>): number {
   return isSpecialLeave(type)
-    ? workingDaysMonSatBetween(start, end)
-    : businessDaysBetween(start, end);
+    ? workingDaysMonSatBetween(start, end, daysOff)
+    : businessDaysBetween(start, end, daysOff);
 }

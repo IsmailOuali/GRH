@@ -32,3 +32,14 @@ export const MAX_RESPONSE_LENGTH = 2000;
 
 /** A salarié can have at most this many unresolved tickets at once. */
 export const MAX_ACTIVE_TICKETS_PER_USER = 5;
+
+// ── Pièces jointes (captures d'écran, images, PDF) ───────────────────────────
+export const MAX_ATTACHMENTS = 5;
+export const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024; // 8 MB each
+
+/** Allowed types: screenshots/photos, plus PDF (e.g. the bulletin in question). */
+export const ATTACHMENT_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "application/pdf"];
+
+export function isImageMime(mime: string): boolean {
+  return mime.startsWith("image/");
+}
